@@ -28,9 +28,7 @@ class _MyHomePageState extends State<MyHomePage> {
   String _responseBody = '';
   int _cameraIndex = 0; // Track the current camera index
   bool _isAnalyzing = false; // Track if the analysis is in progress
-  List<Map<String, String>> _prompts = [
-    {'title': 'Describe image', 'prompt': 'Describe this image'}
-  ];
+  List<Map<String, String>> _prompts = defaultPrompts;
   int _selectedPromptIndex = 0;
 
   @override
@@ -170,6 +168,7 @@ class _MyHomePageState extends State<MyHomePage> {
             mainAxisSize: MainAxisSize.min,
             children: [
               TextField(
+                style: const TextStyle(color: Colors.white),
                 decoration: const InputDecoration(
                   labelText: 'Title',
                   labelStyle: TextStyle(color: Colors.white),
@@ -179,6 +178,7 @@ class _MyHomePageState extends State<MyHomePage> {
                 },
               ),
               TextField(
+                style: const TextStyle(color: Colors.white),
                 decoration: const InputDecoration(
                   labelText: 'Prompt',
                   labelStyle: TextStyle(color: Colors.white),

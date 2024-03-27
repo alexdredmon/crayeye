@@ -1,6 +1,6 @@
 {
-    "name": "kittenscan",
-    "short_name": "kittenscan",
+    "name": "crayeye",
+    "short_name": "crayeye",
     "start_url": ".",
     "display": "standalone",
     "background_color": "#0175C2",

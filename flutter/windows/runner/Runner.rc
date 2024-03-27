@@ -90,12 +90,12 @@ BEGIN
         BLOCK "040904e4"
         BEGIN
             VALUE "CompanyName", "com.example" "\0"
-            VALUE "FileDescription", "kittenscan" "\0"
+            VALUE "FileDescription", "crayeye" "\0"
             VALUE "FileVersion", VERSION_AS_STRING "\0"
-            VALUE "InternalName", "kittenscan" "\0"
+            VALUE "InternalName", "crayeye" "\0"
             VALUE "LegalCopyright", "Copyright (C) 2024 com.example. All rights reserved." "\0"
             VALUE "OriginalFilename", "kittensca.exe" "\0"
-            VALUE "ProductName", "kittenscan" "\0"
+            VALUE "ProductName", "crayeye" "\0"
             VALUE "ProductVersion", VERSION_AS_STRING "\0"
         END
     END
