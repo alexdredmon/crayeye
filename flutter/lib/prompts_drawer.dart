@@ -1,7 +1,19 @@
+// prompts_drawer.dart
 import 'package:flutter/material.dart';
 
 class PromptsDrawer extends StatelessWidget {
-  // ... (existing code remains the same)
+  final List<Map<String, String>> prompts;
+  final Function(int) onEditPrompt;
+  final Function(int) onDeletePrompt;
+  final VoidCallback onAddPrompt;
+
+  const PromptsDrawer({
+    Key? key,
+    required this.prompts,
+    required this.onEditPrompt,
+    required this.onDeletePrompt,
+    required this.onAddPrompt,
+  }) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
@@ -10,7 +22,14 @@ class PromptsDrawer extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          // ... (existing code remains the same)
+          const Text(
+            'Prompts',
+            style: TextStyle(
+              fontSize: 20,
+              fontWeight: FontWeight.bold,
+            ),
+          ),
+          const SizedBox(height: 16),
           Expanded(
             child: ListView.builder(
               itemCount: prompts.length,
@@ -35,9 +54,15 @@ class PromptsDrawer extends StatelessWidget {
               },
             ),
           ),
-          // ... (existing code remains the same)
+          const SizedBox(height: 16),
+          ElevatedButton(
+            onPressed: onAddPrompt,
+            child: const Text('Add Prompt'),
+          ),
         ],
       ),
     );
   }
 }
+
+// eof

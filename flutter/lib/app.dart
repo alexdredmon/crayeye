@@ -1,3 +1,4 @@
+// app.dart
 import 'package:flutter/material.dart';
 import 'home_page.dart';
 
@@ -7,7 +8,7 @@ class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      title: 'Kitten Scan',
+      title: 'CrayEye',
       theme: ThemeData(
         colorScheme: ColorScheme.fromSeed(
           seedColor: Colors.blueGrey,
@@ -16,7 +17,9 @@ class MyApp extends StatelessWidget {
         ),
         useMaterial3: true,
       ),
-      home: const MyHomePage(title: 'Kitten Scan'),
+      home: const MyHomePage(title: 'CrayEye'),
     );
   }
 }
+
+// eof

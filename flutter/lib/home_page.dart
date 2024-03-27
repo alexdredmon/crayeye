@@ -1,3 +1,4 @@
+// home_page.dart
 import 'dart:convert';
 import 'dart:io';
 import 'package:camera/camera.dart';
@@ -28,7 +29,7 @@ class _MyHomePageState extends State<MyHomePage> {
   int _cameraIndex = 0; // Track the current camera index
   bool _isAnalyzing = false; // Track if the analysis is in progress
   List<Map<String, String>> _prompts = [
-    {'title': 'Default', 'prompt': 'Describe this image'}
+    {'title': 'Describe image', 'prompt': 'Describe this image'}
   ];
   int _selectedPromptIndex = 0;
 
@@ -161,13 +162,17 @@ class _MyHomePageState extends State<MyHomePage> {
       context: context,
       builder: (BuildContext context) {
         return AlertDialog(
-          title: const Text('Add Prompt'),
+          title: const Text(
+            'Add Prompt',
+            style: TextStyle(color: Colors.white)
+          ),
           content: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
               TextField(
                 decoration: const InputDecoration(
                   labelText: 'Title',
+                  labelStyle: TextStyle(color: Colors.white),
                 ),
                 onChanged: (value) {
                   newTitle = value;
@@ -176,6 +181,7 @@ class _MyHomePageState extends State<MyHomePage> {
               TextField(
                 decoration: const InputDecoration(
                   labelText: 'Prompt',
+                  labelStyle: TextStyle(color: Colors.white),
                 ),
                 onChanged: (value) {
                   newPrompt = value;
@@ -188,7 +194,10 @@ class _MyHomePageState extends State<MyHomePage> {
               onPressed: () {
                 Navigator.of(context).pop();
               },
-              child: const Text('Cancel'),
+              child: const Text(
+                'Cancel',
+                style: TextStyle(color: Colors.white),
+              ),
             ),
             ElevatedButton(
               onPressed: () {
@@ -296,14 +305,20 @@ class _MyHomePageState extends State<MyHomePage> {
     return Scaffold(
       appBar: AppBar(
         backgroundColor: Colors.blueGrey.shade900,
-        title: const Text('Kitten Scan', style: TextStyle(color: Colors.white)),
-        actions: [
-          IconButton(
-            icon: const Icon(Icons.list),
-            onPressed: _showPromptsDrawer,
+        title: Center( // Center the title widget
+          child: Image(
+            image: AssetImage('images/crayeye.png'),
+            height: 30.0, // Set the height to 75px
           ),
-        ],
+        ),
+        // actions: [
+        //   IconButton(
+        //     icon: const Icon(Icons.list),
+        //     onPressed: _showPromptsDrawer,
+        //   ),
+        // ],
       ),
+
       body: Center(
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
@@ -319,34 +334,36 @@ class _MyHomePageState extends State<MyHomePage> {
                   }
                 },
               ),
-            if (_imageFile != null)
-              Padding(
-                padding: const EdgeInsets.all(5.0),
-                child: SizedBox(
-                  width: 300,
-                  height: 300,
-                  child: Image.file(_imageFile!),
-                ),
-              ),
-            DropdownButton<int>(
-              value: _selectedPromptIndex,
-              items: List.generate(
-                _prompts.length,
-                (index) => DropdownMenuItem<int>(
-                  value: index,
-                  child: Text(
-                    _prompts[index]['title']!,
-                    style: const TextStyle(color: Colors.white),
+            if (_imageFile == null && !_isAnalyzing)
+              Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  DropdownButton<int>(
+                    value: _selectedPromptIndex,
+                    items: List.generate(
+                      _prompts.length,
+                      (index) => DropdownMenuItem<int>(
+                        value: index,
+                        child: Text(
+                          _prompts[index]['title']!,
+                          style: const TextStyle(color: Colors.white),
+                        ),
+                      ),
+                    ),
+                    onChanged: (value) {
+                      setState(() {
+                        _selectedPromptIndex = value!;
+                      });
+                    },
+                    dropdownColor: Colors.blueGrey.shade800,
                   ),
-                ),
+                  IconButton(
+                    icon: const Icon(Icons.settings),
+                    onPressed: _showPromptsDrawer,
+                    color: Colors.white,
+                  ),
+                ],
               ),
-              onChanged: (value) {
-                setState(() {
-                  _selectedPromptIndex = value!;
-                });
-              },
-              dropdownColor: Colors.blueGrey.shade800,
-            ),
             const SizedBox(height: 16),
             _isAnalyzing
                 ? const CircularProgressIndicator() // Show loading spinner when analyzing
@@ -357,25 +374,33 @@ class _MyHomePageState extends State<MyHomePage> {
                   ),
             const SizedBox(height: 16), // Add some spacing
             if (!_isAnalyzing && _responseBody.isNotEmpty)
-              Container(
-                margin: const EdgeInsets.all(16.0), // Add margin around the container
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    const Text(
-                      'Analysis Complete:',
-                      style: TextStyle(
-                        color: Colors.white,
-                        fontWeight: FontWeight.bold,
-                      ),
-                    ),
-                    const SizedBox(height: 8), // Add some spacing
-                    SizedBox(
-                      height: 200, // Set a fixed height for the scrollable area
-                      child: SingleChildScrollView(
+              Expanded(
+                child: SingleChildScrollView(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      if (_imageFile != null)
+                        Padding(
+                          padding: const EdgeInsets.all(5.0),
+                          child: SizedBox(
+                            width: 300,
+                            height: 300,
+                            child: Image.file(_imageFile!),
+                          ),
+                        ),
+                      Container(
+                        margin: const EdgeInsets.all(16.0), // Add margin around the container
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
+                            const Text(
+                              'Analysis Complete:',
+                              style: TextStyle(
+                                color: Colors.white,
+                                fontWeight: FontWeight.bold,
+                              ),
+                            ),
+                            const SizedBox(height: 8), // Add some spacing
                             Text(
                               _responseBody,
                               style: TextStyle(
@@ -400,8 +425,8 @@ class _MyHomePageState extends State<MyHomePage> {
                           ],
                         ),
                       ),
-                    ),
-                  ],
+                    ],
+                  ),
                 ),
               ),
           ],
@@ -416,3 +441,5 @@ class _MyHomePageState extends State<MyHomePage> {
     );
   }
 }
+
+// eof

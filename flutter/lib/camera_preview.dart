@@ -1,3 +1,4 @@
+// camera_preview.dart
 import 'package:camera/camera.dart';
 import 'package:flutter/material.dart';
 
@@ -18,3 +19,5 @@ class CameraPreviewWidget extends StatelessWidget {
     );
   }
 }
+
+// eof
