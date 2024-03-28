@@ -1,5 +1,63 @@
 // prompts_drawer.dart
+
 import 'package:flutter/material.dart';
+import 'prompt_dialogs.dart';
+
+void showPromptsDrawer({
+  required BuildContext context,
+  required List<Map<String, String>> prompts,
+  required Function(List<Map<String, String>>, int) onPromptsUpdated,
+}) {
+  int selectedPromptIndex = 0;
+
+  showModalBottomSheet(
+    context: context,
+    builder: (BuildContext context) {
+      return StatefulBuilder(
+        builder: (BuildContext context, StateSetter setState) {
+          return PromptsDrawer(
+            prompts: prompts,
+            onEditPrompt: (index) {
+              showEditPromptDialog(
+                context,
+                index,
+                prompts[index]['title']!,
+                prompts[index]['prompt']!,
+                (index, title, prompt) {
+                  setState(() {
+                    prompts[index]['title'] = title;
+                    prompts[index]['prompt'] = prompt;
+                  });
+                },
+              );
+            },
+            onDeletePrompt: (index) {
+              setState(() {
+                prompts.removeAt(index);
+                if (selectedPromptIndex >= prompts.length) {
+                  selectedPromptIndex = prompts.length - 1;
+                }
+              });
+              onPromptsUpdated(prompts, selectedPromptIndex);
+              Navigator.pop(context);
+            },
+            onAddPrompt: () {
+              showAddPromptDialog(
+                context,
+                (title, prompt) {
+                  setState(() {
+                    prompts.add({'title': title, 'prompt': prompt});
+                  });
+                  onPromptsUpdated(prompts, selectedPromptIndex);
+                },
+              );
+            },
+          );
+        },
+      );
+    },
+  );
+}
 
 class PromptsDrawer extends StatelessWidget {
   final List<Map<String, String>> prompts;
