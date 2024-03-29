@@ -1,5 +1,5 @@
 // camera_functions.dart
-
+import 'dart:async';
 import 'dart:convert';
 import 'dart:io';
 import 'package:camera/camera.dart';
@@ -8,99 +8,119 @@ import 'package:path/path.dart' show join;
 import 'package:path_provider/path_provider.dart';
 import 'config.dart';
 
-Future<void> switchCamera(
-  CameraController controller,
-  List<CameraDescription> cameras,
-  int currentCameraIndex,
-  Function(CameraController, int) onCameraSwitch,
-) async {
-  // Dispose the current controller
-  controller.dispose();
+class CameraFunctions {
+  static Future<void> switchCamera(
+    CameraController controller,
+    List<CameraDescription> cameras,
+    int currentCameraIndex,
+    Function(CameraController, int) onCameraSwitch,
+  ) async {
+    // Dispose the current controller
+    controller.dispose();
 
-  // Get the next camera index
-  int newCameraIndex = (currentCameraIndex + 1) % cameras.length;
+    // Get the next camera index
+    int newCameraIndex = (currentCameraIndex + 1) % cameras.length;
 
-  // Create a new controller with the new camera index
-  CameraController newController = CameraController(
-    cameras[newCameraIndex],
-    ResolutionPreset.medium,
-  );
-
-  // Initialize the new controller
-  await newController.initialize();
-
-  // Invoke the callback with the new controller and camera index
-  onCameraSwitch(newController, newCameraIndex);
-}
-
-Future<File?> takePicture(CameraController controller) async {
-  try {
-    // Ensure that the camera is initialized
-    await controller.initialize();
-
-    // Construct the path where the image will be saved
-    final path = join(
-      (await getTemporaryDirectory()).path,
-      '${DateTime.now()}.png',
+    // Create a new controller with the new camera index
+    CameraController newController = CameraController(
+      cameras[newCameraIndex],
+      ResolutionPreset.medium,
     );
 
-    // Take the picture and save it to the constructed path
-    XFile picture = await controller.takePicture();
+    // Initialize the new controller
+    await newController.initialize();
 
-    // Return the image file
-    return File(picture.path);
-  } catch (e) {
-    print(e);
-    return null;
+    // Invoke the callback with the new controller and camera index
+    onCameraSwitch(newController, newCameraIndex);
   }
-}
 
-Future<void> analyzePicture(
-  CameraController controller,
-  List<Map<String, String>> prompts,
-  int selectedPromptIndex,
-  Function(File?, String, bool) onAnalysisComplete,
-) async {
-  // Take a picture
-  File? imageFile = await takePicture(controller);
-
-  if (imageFile != null) {
-    // Set the initial state with the captured image and loading state
-    onAnalysisComplete(imageFile, '', true);
-
-    // Read the image file as bytes
-    final bytes = await imageFile.readAsBytes();
-    String base64Image = base64Encode(bytes);
-
-    // Prepare the request payload
-    String prompt = prompts[selectedPromptIndex]['prompt']!;
-    Map<String, String> body = {
-      'base64': base64Image,
-      'prompt': prompt,
-    };
-
+  static Future<File?> takePicture(CameraController controller) async {
     try {
-      // Send the image to the server for analysis
-      final response = await http.post(
-        Uri.parse('$baseUrl/image'),
-        headers: {"Content-Type": "application/json"},
-        body: jsonEncode(body),
+      // Ensure that the camera is initialized
+      await controller.initialize();
+
+      // Construct the path where the image will be saved
+      final path = join(
+        (await getTemporaryDirectory()).path,
+        '${DateTime.now()}.png',
       );
 
-      // Parse the response
-      final responseData = json.decode(response.body);
-      String responseBody = responseData['response'] ?? 'No response received';
+      // Take the picture and save it to the constructed path
+      XFile picture = await controller.takePicture();
 
-      // Update the state with the analysis result and loading state
-      onAnalysisComplete(imageFile, responseBody, false);
+      // Return the image file
+      return File(picture.path);
     } catch (e) {
-      // Update the state with the error message and loading state
-      onAnalysisComplete(null, 'Error sending image: $e', false);
+      print(e);
+      return null;
     }
-  } else {
-    // Update the state indicating no image was captured and loading state
-    onAnalysisComplete(null, 'Failed to capture image', false);
+  }
+
+  static Future<void> analyzePicture(
+    CameraController controller,
+    List<Map<String, String>> prompts,
+    int selectedPromptIndex,
+    Function(File?, String, bool) onAnalysisComplete,
+  ) async {
+    // Take a picture
+    File? imageFile = await takePicture(controller);
+
+    if (imageFile != null) {
+      // Set the initial state with the captured image and loading state
+      onAnalysisComplete(imageFile, '', true);
+
+      // Read the image file as bytes
+      final bytes = await imageFile.readAsBytes();
+      String base64Image = base64Encode(bytes);
+
+      // Prepare the request payload
+      String prompt = prompts[selectedPromptIndex]['prompt']!;
+      Map<String, dynamic> body = {
+        'model': 'gpt-4-vision-preview',
+        'messages': [
+          {
+            'role': 'user',
+            'content': [
+              {
+                'type': 'text',
+                'text': prompt,
+              },
+              {
+                'type': 'image_url',
+                'image_url': {
+                  'url': 'data:image/png;base64,$base64Image',
+                }
+              }
+            ]
+          }
+        ],
+      };
+
+      try {
+        // Send the image to OpenAI for analysis
+        final response = await http.post(
+          Uri.parse('https://api.openai.com/v1/chat/completions'),
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': 'Bearer $OPENAI_API_KEY',
+          },
+          body: jsonEncode(body),
+        );
+
+        // Parse the response
+        final responseData = jsonDecode(response.body);
+        String responseBody = responseData['choices'][0]['message']['content'];
+
+        // Update the state with the analysis result and loading state
+        onAnalysisComplete(imageFile, responseBody, false);
+      } catch (e) {
+        // Update the state with the error message and loading state
+        onAnalysisComplete(null, 'Error sending image: $e', false);
+      }
+    } else {
+      // Update the state indicating no image was captured and loading state
+      onAnalysisComplete(null, 'Failed to capture image', false);
+    }
   }
 }
-
 // eof

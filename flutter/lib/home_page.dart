@@ -153,7 +153,7 @@ class _MyHomePageState extends State<MyHomePage> {
                 : ElevatedButton.icon(
                     onPressed: _responseBody.isNotEmpty
                         ? _startNewScan
-                        : () => analyzePicture(
+                        : () => CameraFunctions.analyzePicture(
                               _controller!,
                               _prompts,
                               _selectedPromptIndex,
@@ -180,7 +180,7 @@ class _MyHomePageState extends State<MyHomePage> {
       ),
       floatingActionButton: _capturedImage == null && _initializeControllerFuture != null && _responseBody.isEmpty
           ? FloatingActionButton(
-              onPressed: () => switchCamera(_controller!, cameras!, _cameraIndex, (newController, newCameraIndex) {
+              onPressed: () => CameraFunctions.switchCamera(_controller!, cameras!, _cameraIndex, (newController, newCameraIndex) {
                 setState(() {
                   _controller = newController;
                   _cameraIndex = newCameraIndex;

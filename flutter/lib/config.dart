@@ -2,6 +2,8 @@ const String baseUrl = 'https://example';
 // config.dart
 
 import 'package:shared_preferences/shared_preferences.dart';
+
+const String OPENAI_API_KEY = 'example';
 List<Map<String, String>> defaultPrompts = [
   {'title': 'Describe image', 'prompt': 'Describe this image'},
   {'title': 'Keyword extraction ', 'prompt': 'Analyze the following scene and return only a list of keywords for items/concepts you find in the scene.  Keywords should be separated by commas and ordered by their relevance to the scene.  Return nothing but these keywords, say nothing else in your response.'},
