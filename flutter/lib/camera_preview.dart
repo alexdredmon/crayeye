@@ -11,16 +11,21 @@ class CameraPreviewWidget extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final aspectRatio = _getAspectRatio();
     return Padding(
       padding: const EdgeInsets.all(5.0),
-      child: SizedBox(
-        width: 300,
-        height: 300,
+      child: AspectRatio(
+        aspectRatio: aspectRatio,
         child: capturedImage != null
             ? Image.file(capturedImage!)
             : CameraPreview(controller),
       ),
     );
+  }
+
+  double _getAspectRatio() {
+    // Use a fixed 3:4 aspect ratio for portrait orientation
+    return 3 / 4;
   }
 }
 // eof

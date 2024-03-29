@@ -4,6 +4,7 @@ import 'dart:io';
 import 'package:shared_preferences/shared_preferences.dart';
 
 const String DEFAULT_OPENAI_API_KEY = String.fromEnvironment('DEFAULT_OPENAI_API_KEY', defaultValue: '');
+const bool PORTRAIT_ONLY = true;
 
 List<Map<String, String>> defaultPrompts = [
   {'title': 'Describe image', 'prompt': 'Describe this image'},
