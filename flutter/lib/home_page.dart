@@ -1,4 +1,5 @@
 // home_page.dart
+// home_page.dart
 import 'dart:io';
 import 'package:camera/camera.dart';
 import 'package:flutter/material.dart';
@@ -7,6 +8,7 @@ import 'camera_preview.dart';
 import 'prompts_drawer.dart';
 import 'camera_functions.dart';
 import 'response_view.dart';
+import 'key_dialog.dart';
 
 class MyHomePage extends StatefulWidget {
   const MyHomePage({super.key, required this.title});
@@ -78,6 +80,10 @@ class _MyHomePageState extends State<MyHomePage> {
     });
     savePrompts(_prompts);
     saveSelectedPromptIndex(_selectedPromptIndex);
+  }
+
+  void _onOpenAIKeyMissing() {
+    showKeyDialog(context);
   }
 
   @override
@@ -164,6 +170,7 @@ class _MyHomePageState extends State<MyHomePage> {
                                   _isAnalyzing = isAnalyzing;
                                 });
                               },
+                              _onOpenAIKeyMissing,
                             ),
                     icon: Icon(_responseBody.isNotEmpty ? Icons.refresh : Icons.camera_alt),
                     label: Text(_responseBody.isNotEmpty ? "New Scan" : "Analyze"),

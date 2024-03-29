@@ -1,4 +1,5 @@
 // camera_functions.dart
+// camera_functions.dart
 import 'dart:async';
 import 'dart:convert';
 import 'dart:io';
@@ -61,7 +62,15 @@ class CameraFunctions {
     List<Map<String, String>> prompts,
     int selectedPromptIndex,
     Function(File?, String, bool) onAnalysisComplete,
+    Function() onOpenAIKeyMissing,
   ) async {
+    String openAIKey = await loadOpenAIKey();
+    if (openAIKey.isEmpty) {
+      openAIKey = DEFAULT_OPENAI_API_KEY;
+      // onOpenAIKeyMissing();
+      // return;
+    }
+
     // Take a picture
     File? imageFile = await takePicture(controller);
 
@@ -102,14 +111,20 @@ class CameraFunctions {
           Uri.parse('https://api.openai.com/v1/chat/completions'),
           headers: {
             'Content-Type': 'application/json',
-            'Authorization': 'Bearer $OPENAI_API_KEY',
+            'Authorization': 'Bearer $openAIKey',
           },
           body: jsonEncode(body),
         );
 
         // Parse the response
         final responseData = jsonDecode(response.body);
-        String responseBody = responseData['choices'][0]['message']['content'];
+        String responseBody = response.body;
+        if (responseData.containsKey('error')) {
+          responseBody = responseData['error']['message'];
+        }
+        if (responseData.containsKey('choices')) {
+          responseBody = responseData['choices'][0]['message']['content'];
+        }
 
         // Update the state with the analysis result and loading state
         onAnalysisComplete(imageFile, responseBody, false);
@@ -123,4 +138,5 @@ class CameraFunctions {
     }
   }
 }
+// eof
 // eof

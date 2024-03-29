@@ -1,7 +1,9 @@
 // prompts_drawer.dart
+// prompts_drawer.dart
 
 import 'package:flutter/material.dart';
 import 'prompt_dialogs.dart';
+import 'key_dialog.dart';
 
 void showPromptsDrawer({
   required BuildContext context,
@@ -52,6 +54,9 @@ void showPromptsDrawer({
                 },
               );
             },
+            onShowKeyDialog: () {
+              showKeyDialog(context);
+            },
           );
         },
       );
@@ -64,6 +69,7 @@ class PromptsDrawer extends StatelessWidget {
   final Function(int) onEditPrompt;
   final Function(int) onDeletePrompt;
   final VoidCallback onAddPrompt;
+  final VoidCallback onShowKeyDialog;
 
   const PromptsDrawer({
     Key? key,
@@ -71,6 +77,7 @@ class PromptsDrawer extends StatelessWidget {
     required this.onEditPrompt,
     required this.onDeletePrompt,
     required this.onAddPrompt,
+    required this.onShowKeyDialog,
   }) : super(key: key);
 
   @override
@@ -113,9 +120,18 @@ class PromptsDrawer extends StatelessWidget {
             ),
           ),
           const SizedBox(height: 16),
-          ElevatedButton(
-            onPressed: onAddPrompt,
-            child: const Text('Add Prompt'),
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              ElevatedButton(
+                onPressed: onAddPrompt,
+                child: const Text('Add Prompt'),
+              ),
+              ElevatedButton(
+                onPressed: onShowKeyDialog,
+                child: const Text('API Key'),
+              ),
+            ],
           ),
         ],
       ),
