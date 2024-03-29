@@ -1,8 +1,9 @@
 // config.dart
+import 'dart:io';
 
 import 'package:shared_preferences/shared_preferences.dart';
 
-const String DEFAULT_OPENAI_API_KEY = 'example';
+const String DEFAULT_OPENAI_API_KEY = String.fromEnvironment('DEFAULT_OPENAI_API_KEY', defaultValue: '');
 
 List<Map<String, String>> defaultPrompts = [
   {'title': 'Describe image', 'prompt': 'Describe this image'},
@@ -47,7 +48,13 @@ Future<void> saveOpenAIKey(String openAIKey) async {
 
 Future<String> loadOpenAIKey() async {
   SharedPreferences prefs = await SharedPreferences.getInstance();
-  return prefs.getString('openAIKey') ?? DEFAULT_OPENAI_API_KEY;
+  String openAIKey = prefs.getString('openAIKey') ?? '';
+  
+  if (openAIKey.isEmpty) {
+    openAIKey = DEFAULT_OPENAI_API_KEY;
+  }
+  
+  return openAIKey;
 }
 
 // eof
