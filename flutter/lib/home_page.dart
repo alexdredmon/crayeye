@@ -1,5 +1,4 @@
 // home_page.dart
-
 import 'dart:io';
 import 'package:camera/camera.dart';
 import 'package:flutter/material.dart';
@@ -22,7 +21,7 @@ class _MyHomePageState extends State<MyHomePage> {
   List<CameraDescription>? cameras;
   CameraController? _controller;
   Future<void>? _initializeControllerFuture;
-  File? _imageFile;
+  File? _capturedImage;
   String _responseBody = '';
   int _cameraIndex = 0; // Track the current camera index
   bool _isAnalyzing = false; // Track if the analysis is in progress
@@ -67,7 +66,7 @@ class _MyHomePageState extends State<MyHomePage> {
 
   void _startNewScan() {
     setState(() {
-      _imageFile = null;
+      _capturedImage = null;
       _responseBody = '';
     });
   }
@@ -97,18 +96,21 @@ class _MyHomePageState extends State<MyHomePage> {
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: <Widget>[
-            if (_imageFile == null && _initializeControllerFuture != null)
+            if (_initializeControllerFuture != null && _responseBody.isEmpty)
               FutureBuilder<void>(
                 future: _initializeControllerFuture,
                 builder: (context, snapshot) {
                   if (snapshot.connectionState == ConnectionState.done) {
-                    return CameraPreviewWidget(controller: _controller!);
+                    return CameraPreviewWidget(
+                      controller: _controller!,
+                      capturedImage: _isAnalyzing ? _capturedImage : null,
+                    );
                   } else {
                     return const CircularProgressIndicator();
                   }
                 },
               ),
-            if (_imageFile == null && !_isAnalyzing)
+            if (!_isAnalyzing && _responseBody.isEmpty)
               Row(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
@@ -155,9 +157,9 @@ class _MyHomePageState extends State<MyHomePage> {
                               _controller!,
                               _prompts,
                               _selectedPromptIndex,
-                              (imageFile, responseBody, isAnalyzing) {
+                              (capturedImage, responseBody, isAnalyzing) {
                                 setState(() {
-                                  _imageFile = imageFile;
+                                  _capturedImage = capturedImage;
                                   _responseBody = responseBody;
                                   _isAnalyzing = isAnalyzing;
                                 });
@@ -169,14 +171,14 @@ class _MyHomePageState extends State<MyHomePage> {
             const SizedBox(height: 16), // Add some spacing
             if (!_isAnalyzing && _responseBody.isNotEmpty)
               ResponseView(
-                imageFile: _imageFile,
+                imageFile: _capturedImage,
                 responseBody: _responseBody,
                 prompt: _prompts[_selectedPromptIndex]['prompt']!,
               ),
           ],
         ),
       ),
-      floatingActionButton: _imageFile == null && _initializeControllerFuture != null
+      floatingActionButton: _capturedImage == null && _initializeControllerFuture != null && _responseBody.isEmpty
           ? FloatingActionButton(
               onPressed: () => switchCamera(_controller!, cameras!, _cameraIndex, (newController, newCameraIndex) {
                 setState(() {
@@ -191,5 +193,4 @@ class _MyHomePageState extends State<MyHomePage> {
     );
   }
 }
-
 // eof

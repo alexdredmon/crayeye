@@ -61,13 +61,13 @@ Future<void> analyzePicture(
   int selectedPromptIndex,
   Function(File?, String, bool) onAnalysisComplete,
 ) async {
-  // Set the initial state
-  onAnalysisComplete(null, '', true);
-
   // Take a picture
   File? imageFile = await takePicture(controller);
 
   if (imageFile != null) {
+    // Set the initial state with the captured image and loading state
+    onAnalysisComplete(imageFile, '', true);
+
     // Read the image file as bytes
     final bytes = await imageFile.readAsBytes();
     String base64Image = base64Encode(bytes);
@@ -91,14 +91,14 @@ Future<void> analyzePicture(
       final responseData = json.decode(response.body);
       String responseBody = responseData['response'] ?? 'No response received';
 
-      // Update the state with the analysis result
+      // Update the state with the analysis result and loading state
       onAnalysisComplete(imageFile, responseBody, false);
     } catch (e) {
-      // Update the state with the error message
+      // Update the state with the error message and loading state
       onAnalysisComplete(null, 'Error sending image: $e', false);
     }
   } else {
-    // Update the state indicating no image was captured
+    // Update the state indicating no image was captured and loading state
     onAnalysisComplete(null, 'Failed to capture image', false);
   }
 }
