@@ -1,5 +1,4 @@
 // home_page.dart
-// home_page.dart
 import 'dart:io';
 import 'package:camera/camera.dart';
 import 'package:flutter/material.dart';
@@ -128,7 +127,7 @@ class _MyHomePageState extends State<MyHomePage> {
                         value: index,
                         child: Text(
                           _prompts[index]['title']!,
-                          style: const TextStyle(color: Colors.white),
+                          style: const TextStyle(color: Colors.white, fontSize: 18), // Increased text size
                         ),
                       ),
                     ),
@@ -139,17 +138,6 @@ class _MyHomePageState extends State<MyHomePage> {
                       saveSelectedPromptIndex(_selectedPromptIndex);
                     },
                     dropdownColor: Colors.blueGrey.shade800,
-                  ),
-                  IconButton(
-                    icon: const Icon(Icons.settings),
-                    onPressed: () {
-                      showPromptsDrawer(
-                        context: context,
-                        prompts: _prompts,
-                        onPromptsUpdated: _updatePrompts,
-                      );
-                    },
-                    color: Colors.white,
                   ),
                 ],
               ),
@@ -173,8 +161,20 @@ class _MyHomePageState extends State<MyHomePage> {
                               _onOpenAIKeyMissing,
                             ),
                     icon: Icon(_responseBody.isNotEmpty ? Icons.refresh : Icons.camera_alt),
-                    label: Text(_responseBody.isNotEmpty ? "New Scan" : "Analyze"),
+                    label: Text(_responseBody.isNotEmpty ? "New Scan" : "Analyze", style: TextStyle(fontSize: 18)), // Increased text size
                   ),
+                  if (!_isAnalyzing && _responseBody.isEmpty) // Conditionally display the camera switch button
+                    IconButton(
+                      icon: const Icon(Icons.cameraswitch),
+                      onPressed: () => CameraFunctions.switchCamera(_controller!, cameras!, _cameraIndex, (newController, newCameraIndex) {
+                        setState(() {
+                          _controller = newController;
+                          _cameraIndex = newCameraIndex;
+                          _initializeControllerFuture = _controller!.initialize();
+                        });
+                      }),
+                      color: Colors.white,
+                    ),
             const SizedBox(height: 16), // Add some spacing
             if (!_isAnalyzing && _responseBody.isNotEmpty)
               ResponseView(
@@ -187,14 +187,14 @@ class _MyHomePageState extends State<MyHomePage> {
       ),
       floatingActionButton: _capturedImage == null && _initializeControllerFuture != null && _responseBody.isEmpty
           ? FloatingActionButton(
-              onPressed: () => CameraFunctions.switchCamera(_controller!, cameras!, _cameraIndex, (newController, newCameraIndex) {
-                setState(() {
-                  _controller = newController;
-                  _cameraIndex = newCameraIndex;
-                  _initializeControllerFuture = _controller!.initialize();
-                });
-              }),
-              child: const Icon(Icons.cameraswitch),
+              onPressed: () {
+                showPromptsDrawer(
+                  context: context,
+                  prompts: _prompts,
+                  onPromptsUpdated: _updatePrompts,
+                );
+              },
+              child: const Icon(Icons.settings),
             )
           : null,
     );
