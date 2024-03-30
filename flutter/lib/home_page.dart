@@ -10,9 +10,10 @@ import 'response_view.dart';
 import 'key_dialog.dart';
 
 class MyHomePage extends StatefulWidget {
-  const MyHomePage({super.key, required this.title});
+  const MyHomePage({super.key, required this.title, this.initialPrompt});
 
   final String title;
+  final String? initialPrompt;
 
   @override
   State<MyHomePage> createState() => _MyHomePageState();
@@ -34,6 +35,12 @@ class _MyHomePageState extends State<MyHomePage> {
     super.initState();
     _loadPrompts();
     initCamera();
+
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (widget.initialPrompt != null) {
+        _handleInitialPrompt(widget.initialPrompt!);
+      }
+    });
   }
 
   void _loadPrompts() async {
@@ -83,6 +90,15 @@ class _MyHomePageState extends State<MyHomePage> {
 
   void _onOpenAIKeyMissing() {
     showKeyDialog(context);
+  }
+
+  void _handleInitialPrompt(String prompt) async {
+    await showPromptsDrawer(
+      context: context,
+      prompts: _prompts,
+      onPromptsUpdated: _updatePrompts,
+      initialPrompt: prompt,
+    );
   }
 
   @override

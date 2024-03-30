@@ -2,9 +2,9 @@
 
 import 'package:flutter/material.dart';
 
-void showAddPromptDialog(BuildContext context, Function(String, String) onSave) {
+void showAddPromptDialog(BuildContext context, Function(String, String) onSave, {String? initialPrompt}) {
   String newTitle = '';
-  String newPrompt = '';
+  String newPrompt = initialPrompt ?? '';
   showDialog(
     context: context,
     builder: (BuildContext context) {
@@ -32,7 +32,8 @@ void showAddPromptDialog(BuildContext context, Function(String, String) onSave) 
                 labelText: 'Prompt',
                 labelStyle: TextStyle(color: Colors.white),
               ),
-              maxLines: 3,  // Set the default number of lines to 3
+              maxLines: 3, // Set the default number of lines to 3
+              controller: TextEditingController(text: newPrompt),
               onChanged: (value) {
                 newPrompt = value;
               },

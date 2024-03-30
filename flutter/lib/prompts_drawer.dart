@@ -3,19 +3,36 @@ import 'package:flutter/material.dart';
 import 'prompt_dialogs.dart';
 import 'key_dialog.dart';
 
-void showPromptsDrawer({
+Future<void> showPromptsDrawer({
   required BuildContext context,
   required List<Map<String, String>> prompts,
   required Function(List<Map<String, String>>, int) onPromptsUpdated,
-}) {
+  String? initialPrompt,
+}) async {
   int selectedPromptIndex = 0;
 
-  showModalBottomSheet(
+  await showModalBottomSheet(
     context: context,
     backgroundColor: Colors.blueGrey.shade900, // Set background color
     builder: (BuildContext context) {
       return StatefulBuilder(
         builder: (BuildContext context, StateSetter setState) {
+          if (initialPrompt != null) {
+            WidgetsBinding.instance.addPostFrameCallback((_) {
+              showAddPromptDialog(
+                context,
+                (title, prompt) {
+                  setState(() {
+                    prompts.add({'title': title, 'prompt': prompt});
+                  });
+                  onPromptsUpdated(prompts, selectedPromptIndex);
+                  Navigator.pop(context);
+                },
+                initialPrompt: initialPrompt,
+              );
+            });
+          }
+
           return PromptsDrawer(
             prompts: prompts,
             onEditPrompt: (index) {
