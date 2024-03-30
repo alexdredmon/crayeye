@@ -32,14 +32,14 @@ dependencies:
     sdk: flutter
   shared_preferences: ^2.0.15
 
-
+  audioplayers: ^1.1.1
   # The following adds the Cupertino Icons font to your application.
   # Use with the CupertinoIcons class for iOS style icons.
   cupertino_icons: ^1.0.6
   camera: ^0.10.5+9
   path_provider: ^2.1.2
   path: ^1.9.0
-  http: ^1.2.1
+  http: ^0.13.6
   flutter_markdown: ^0.6.14
   url_launcher: ^6.1.11
   uni_links: ^0.5.1  # Add this line
@@ -72,6 +72,7 @@ flutter:
   #   - images/a_dot_ham.jpeg
   assets:
     - images/crayeye.png
+    - assets/
   # An image asset can refer to one or more resolution-specific "variants", see
   # https://flutter.dev/assets-and-images/#resolution-aware
 

@@ -50,7 +50,7 @@ class CameraFunctions {
       // return;
     }
 
-    // Take a picture
+    // Take a picture without the default shutter sound
     File? imageFile = await takePicture(controller);
 
     if (imageFile != null) {

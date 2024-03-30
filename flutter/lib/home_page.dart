@@ -1,7 +1,9 @@
 // FILENAME: home_page.dart
 import 'dart:io';
+import 'dart:math';
 import 'package:camera/camera.dart';
 import 'package:flutter/material.dart';
+import 'package:audioplayers/audioplayers.dart';
 import 'config.dart';
 import 'camera_preview.dart';
 import 'prompts_drawer.dart';
@@ -29,18 +31,36 @@ class _MyHomePageState extends State<MyHomePage> {
   List<Map<String, String>> _prompts = [];
   int _selectedPromptIndex = 0;
   bool _isSwitchingCamera = false; // Track if the camera is being switched
+  final AudioPlayer _audioPlayer = AudioPlayer();
+  final List<String> _audioFiles = ['loading1.wav', 'loading2.wav', 'loading3.wav', 'loading4.wav'];
 
   @override
   void initState() {
     super.initState();
     _loadPrompts();
     initCamera();
+    _initAudioPlayer();
 
     WidgetsBinding.instance.addPostFrameCallback((_) {
       if (widget.initialPrompt != null) {
         _handleInitialPrompt(widget.initialPrompt!);
       }
     });
+  }
+
+  Future<void> _initAudioPlayer() async {
+    await _audioPlayer.setReleaseMode(ReleaseMode.loop);
+    await _audioPlayer.setVolume(1.0); // Set volume to the maximum (1.0)
+  }
+
+  Future<void> _playRandomAudio() async {
+    final randomIndex = Random().nextInt(_audioFiles.length);
+    final audioFile = _audioFiles[randomIndex];
+    await _audioPlayer.play(AssetSource(audioFile));
+  }
+
+  Future<void> _stopAudio() async {
+    await _audioPlayer.stop();
   }
 
   void _loadPrompts() async {
@@ -72,6 +92,7 @@ class _MyHomePageState extends State<MyHomePage> {
   @override
   void dispose() {
     _controller?.dispose();
+    _audioPlayer.dispose();
     super.dispose();
   }
 
@@ -80,6 +101,7 @@ class _MyHomePageState extends State<MyHomePage> {
       _capturedImage = null;
       _responseBody = '';
     });
+    _stopAudio();
   }
 
   void _updatePrompts(List<Map<String, String>> updatedPrompts, int updatedSelectedPromptIndex) {
@@ -227,27 +249,36 @@ class _MyHomePageState extends State<MyHomePage> {
             ),
           if (!_isAnalyzing && _responseBody.isEmpty) const SizedBox(height: 16), // Add some spacing
           _isAnalyzing
-            ? const CircularProgressIndicator(valueColor: AlwaysStoppedAnimation<Color>(Colors.white)) // White loading spinner
-            : FloatingActionButton(
-                onPressed: _responseBody.isNotEmpty
-                    ? _startNewScan
-                    : () => CameraFunctions.analyzePicture(
-                          _controller!,
-                          _prompts,
-                          _selectedPromptIndex,
-                          (capturedImage, responseBody, isAnalyzing) {
-                            setState(() {
-                              _capturedImage = capturedImage;
-                              _responseBody = responseBody;
-                              _isAnalyzing = isAnalyzing;
-                            });
-                          },
-                          _onOpenAIKeyMissing,
-                        ),
-                child: Icon(_responseBody.isNotEmpty ? Icons.refresh : Icons.camera_alt),
-              ),
-            if (!_isAnalyzing && _responseBody.isEmpty) const SizedBox(height: 50), // Add some spacing
-        ]
+              ? const CircularProgressIndicator(
+                  valueColor: AlwaysStoppedAnimation<Color>(Colors.white))
+              : FloatingActionButton(
+                  onPressed: _responseBody.isNotEmpty
+                      ? _startNewScan
+                      : () async {
+                          await _playRandomAudio();
+                          CameraFunctions.analyzePicture(
+                            _controller!,
+                            _prompts,
+                            _selectedPromptIndex,
+                            (capturedImage, responseBody, isAnalyzing) {
+                              setState(() {
+                                _capturedImage = capturedImage;
+                                _responseBody = responseBody;
+                                _isAnalyzing = isAnalyzing;
+                                if (!isAnalyzing) {
+                                  _stopAudio();
+                                }
+                              });
+                            },
+                            _onOpenAIKeyMissing,
+                          );
+                        },
+                  child: Icon(_responseBody.isNotEmpty
+                      ? Icons.refresh
+                      : Icons.camera_alt),
+                ),
+          if (!_isAnalyzing && _responseBody.isEmpty) const SizedBox(height: 50), // Add some spacing
+        ],
       ),
     );
   }
