@@ -1,6 +1,4 @@
 // prompts_drawer.dart
-// prompts_drawer.dart
-
 import 'package:flutter/material.dart';
 import 'prompt_dialogs.dart';
 import 'key_dialog.dart';
@@ -14,6 +12,7 @@ void showPromptsDrawer({
 
   showModalBottomSheet(
     context: context,
+    backgroundColor: Colors.blueGrey.shade900, // Set background color
     builder: (BuildContext context) {
       return StatefulBuilder(
         builder: (BuildContext context, StateSetter setState) {
@@ -92,6 +91,7 @@ class PromptsDrawer extends StatelessWidget {
             style: TextStyle(
               fontSize: 20,
               fontWeight: FontWeight.bold,
+              color: Colors.white, // Set text color to white
             ),
           ),
           const SizedBox(height: 16),
@@ -100,17 +100,20 @@ class PromptsDrawer extends StatelessWidget {
               itemCount: prompts.length,
               itemBuilder: (BuildContext context, int index) {
                 return ListTile(
-                  title: Text(prompts[index]['title']!),
+                  title: Text(
+                    prompts[index]['title']!,
+                    style: TextStyle(color: Colors.white), // Set text color to white
+                  ),
                   trailing: Row(
                     mainAxisSize: MainAxisSize.min,
                     children: [
                       IconButton(
-                        icon: const Icon(Icons.edit),
+                        icon: const Icon(Icons.edit, color: Colors.white), // Set icon color to white
                         onPressed: () => onEditPrompt(index),
                       ),
                       if (prompts.length > 1)
                         IconButton(
-                          icon: const Icon(Icons.delete),
+                          icon: const Icon(Icons.delete, color: Colors.white), // Set icon color to white
                           onPressed: () => onDeletePrompt(index),
                         ),
                     ],
@@ -125,10 +128,18 @@ class PromptsDrawer extends StatelessWidget {
             children: [
               ElevatedButton(
                 onPressed: onAddPrompt,
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: Colors.white, // Set button background color to white
+                  foregroundColor: Colors.blueGrey.shade900, // Set button text color to blueGrey.shade900
+                ),
                 child: const Text('Add Prompt'),
               ),
               ElevatedButton(
                 onPressed: onShowKeyDialog,
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: Colors.white, // Set button background color to white
+                  foregroundColor: Colors.blueGrey.shade900, // Set button text color to blueGrey.shade900
+                ),
                 child: const Text('API Key'),
               ),
             ],
@@ -138,5 +149,4 @@ class PromptsDrawer extends StatelessWidget {
     );
   }
 }
-
 // eof

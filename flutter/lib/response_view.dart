@@ -33,7 +33,7 @@ class ResponseView extends StatelessWidget {
                 ),
               ),
             Container(
-              margin: const EdgeInsets.all(16.0),
+              margin: const EdgeInsets.fromLTRB(16.0, 16.0, 16.0, 200.0), // Add 100px of padding to the bottom
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [

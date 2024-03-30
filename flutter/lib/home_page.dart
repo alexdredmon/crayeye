@@ -97,96 +97,87 @@ class _MyHomePageState extends State<MyHomePage> {
           ),
         ),
       ),
-      body: Center(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: <Widget>[
-            if (_initializeControllerFuture != null && _responseBody.isEmpty)
-              FutureBuilder<void>(
-                future: _initializeControllerFuture,
-                builder: (context, snapshot) {
-                  if (snapshot.connectionState == ConnectionState.done) {
-                    return CameraPreviewWidget(
-                      controller: _controller!,
-                      capturedImage: _isAnalyzing ? _capturedImage : null,
-                    );
-                  } else {
-                    return const CircularProgressIndicator();
-                  }
-                },
-              ),
-            if (!_isAnalyzing && _responseBody.isEmpty)
-              Row(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  DropdownButton<int>(
-                    value: _selectedPromptIndex,
-                    items: List.generate(
-                      _prompts.length,
-                      (index) => DropdownMenuItem<int>(
-                        value: index,
-                        child: Text(
-                          _prompts[index]['title']!,
-                          style: const TextStyle(color: Colors.white, fontSize: 18), // Increased text size
+      body: Stack(
+        children: [
+          Center(
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: <Widget>[
+                if (_initializeControllerFuture != null && _responseBody.isEmpty)
+                  FutureBuilder<void>(
+                    future: _initializeControllerFuture,
+                    builder: (context, snapshot) {
+                      if (snapshot.connectionState == ConnectionState.done) {
+                        return CameraPreviewWidget(
+                          controller: _controller!,
+                          capturedImage: _isAnalyzing ? _capturedImage : null,
+                        );
+                      } else {
+                        return const CircularProgressIndicator(valueColor: AlwaysStoppedAnimation<Color>(Colors.white)); // White loading spinner
+                      }
+                    },
+                  ),
+                const SizedBox(height: 16),
+                if (!_isAnalyzing && _responseBody.isNotEmpty)
+                  ResponseView(
+                    imageFile: _capturedImage,
+                    responseBody: _responseBody,
+                    prompt: _prompts[_selectedPromptIndex]['prompt']!,
+                  ),
+              ],
+            ),
+          ),
+          if (!_isAnalyzing && _responseBody.isEmpty)
+            Positioned(
+              bottom: 20,
+              left: 0,
+              right: 0,
+              child: Center(
+                child: Container(
+                  padding: EdgeInsets.symmetric(horizontal: 20, vertical: 7),
+                  decoration: BoxDecoration(
+                    color: Colors.blueGrey.shade900,
+                    borderRadius: BorderRadius.circular(50),
+                  ),
+                  child: Theme(
+                    data: Theme.of(context).copyWith(
+                      canvasColor: Colors.blueGrey.shade900,
+                    ),
+                    child: DropdownButton<int>(
+                      value: _selectedPromptIndex,
+                      items: List.generate(
+                        _prompts.length,
+                        (index) => DropdownMenuItem<int>(
+                          value: index,
+                          child: Text(
+                            _prompts[index]['title']!,
+                            style: TextStyle(
+                              color: Colors.white, // Highlight selected value
+                              fontSize: 18,
+                            ), // Increased text size
+                          ),
                         ),
                       ),
-                    ),
-                    onChanged: (value) {
-                      setState(() {
-                        _selectedPromptIndex = value!;
-                      });
-                      saveSelectedPromptIndex(_selectedPromptIndex);
-                    },
-                    dropdownColor: Colors.blueGrey.shade800,
-                  ),
-                ],
-              ),
-            const SizedBox(height: 16),
-            _isAnalyzing
-                ? const CircularProgressIndicator() // Show loading spinner when analyzing
-                : ElevatedButton.icon(
-                    onPressed: _responseBody.isNotEmpty
-                        ? _startNewScan
-                        : () => CameraFunctions.analyzePicture(
-                              _controller!,
-                              _prompts,
-                              _selectedPromptIndex,
-                              (capturedImage, responseBody, isAnalyzing) {
-                                setState(() {
-                                  _capturedImage = capturedImage;
-                                  _responseBody = responseBody;
-                                  _isAnalyzing = isAnalyzing;
-                                });
-                              },
-                              _onOpenAIKeyMissing,
-                            ),
-                    icon: Icon(_responseBody.isNotEmpty ? Icons.refresh : Icons.camera_alt),
-                    label: Text(_responseBody.isNotEmpty ? "New Scan" : "Analyze", style: TextStyle(fontSize: 18)), // Increased text size
-                  ),
-                  if (!_isAnalyzing && _responseBody.isEmpty) // Conditionally display the camera switch button
-                    IconButton(
-                      icon: const Icon(Icons.cameraswitch),
-                      onPressed: () => CameraFunctions.switchCamera(_controller!, cameras!, _cameraIndex, (newController, newCameraIndex) {
+                      onChanged: (value) {
                         setState(() {
-                          _controller = newController;
-                          _cameraIndex = newCameraIndex;
-                          _initializeControllerFuture = _controller!.initialize();
+                          _selectedPromptIndex = value!;
                         });
-                      }),
-                      color: Colors.white,
+                        saveSelectedPromptIndex(_selectedPromptIndex);
+                      },
+                      underline: SizedBox.shrink(), // Remove underline
+                      dropdownColor: Colors.blueGrey.shade900, // Set background color of dropdown items
                     ),
-            const SizedBox(height: 16), // Add some spacing
-            if (!_isAnalyzing && _responseBody.isNotEmpty)
-              ResponseView(
-                imageFile: _capturedImage,
-                responseBody: _responseBody,
-                prompt: _prompts[_selectedPromptIndex]['prompt']!,
+                  ),
+                ),
               ),
-          ],
-        ),
+            ),
+        ],
       ),
-      floatingActionButton: _capturedImage == null && _initializeControllerFuture != null && _responseBody.isEmpty
-          ? FloatingActionButton(
+      floatingActionButton: Column(
+        mainAxisAlignment: MainAxisAlignment.end,
+        children: [
+          if (!_isAnalyzing && _responseBody.isEmpty)
+            FloatingActionButton(
               onPressed: () {
                 showPromptsDrawer(
                   context: context,
@@ -195,8 +186,31 @@ class _MyHomePageState extends State<MyHomePage> {
                 );
               },
               child: const Icon(Icons.settings),
-            )
-          : null,
+            ),
+          if (!_isAnalyzing && _responseBody.isEmpty) const SizedBox(height: 16), // Add some spacing
+          _isAnalyzing
+            ? const CircularProgressIndicator(valueColor: AlwaysStoppedAnimation<Color>(Colors.white)) // White loading spinner
+            : FloatingActionButton(
+                onPressed: _responseBody.isNotEmpty
+                    ? _startNewScan
+                    : () => CameraFunctions.analyzePicture(
+                          _controller!,
+                          _prompts,
+                          _selectedPromptIndex,
+                          (capturedImage, responseBody, isAnalyzing) {
+                            setState(() {
+                              _capturedImage = capturedImage;
+                              _responseBody = responseBody;
+                              _isAnalyzing = isAnalyzing;
+                            });
+                          },
+                          _onOpenAIKeyMissing,
+                        ),
+                child: Icon(_responseBody.isNotEmpty ? Icons.refresh : Icons.camera_alt),
+              ),
+            if (!_isAnalyzing && _responseBody.isEmpty) const SizedBox(height: 50), // Add some spacing
+        ]
+      ),
     );
   }
 }
