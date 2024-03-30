@@ -1,4 +1,4 @@
-// prompt_dialogs.dart
+// FILENAME: prompt_dialogs.dart
 
 import 'package:flutter/material.dart';
 
@@ -69,6 +69,7 @@ void showEditPromptDialog(
   String currentTitle,
   String currentPrompt,
   Function(int, String, String) onSave,
+  VoidCallback onDeletePrompt,
 ) {
   String updatedTitle = currentTitle;
   String updatedPrompt = currentPrompt;
@@ -124,6 +125,16 @@ void showEditPromptDialog(
           ],
         ),
         actions: [
+          TextButton(
+            onPressed: () {
+              onDeletePrompt();
+              Navigator.of(context).pop();
+            },
+            child: const Text(
+              'Delete',
+              style: TextStyle(color: Colors.pink),
+            ),
+          ),
           TextButton(
             onPressed: () {
               Navigator.of(context).pop();

@@ -1,4 +1,4 @@
-// home_page.dart
+// FILENAME: home_page.dart
 import 'dart:io';
 import 'package:camera/camera.dart';
 import 'package:flutter/material.dart';
@@ -20,15 +20,15 @@ class MyHomePage extends StatefulWidget {
 }
 
 class _MyHomePageState extends State<MyHomePage> {
-  List<CameraDescription>? cameras;
   CameraController? _controller;
   Future<void>? _initializeControllerFuture;
   File? _capturedImage;
   String _responseBody = '';
-  int _cameraIndex = 0; // Track the current camera index
+  CameraLensDirection _cameraDirection = CameraLensDirection.back;
   bool _isAnalyzing = false; // Track if the analysis is in progress
   List<Map<String, String>> _prompts = [];
   int _selectedPromptIndex = 0;
+  bool _isSwitchingCamera = false; // Track if the camera is being switched
 
   @override
   void initState() {
@@ -53,17 +53,20 @@ class _MyHomePageState extends State<MyHomePage> {
   }
 
   void initCamera() async {
-    cameras = await availableCameras();
-    if (cameras != null && cameras!.isNotEmpty) {
-      _controller = CameraController(
-        cameras![_cameraIndex], // Use the current camera index
-        ResolutionPreset.medium,
-      );
+    final camera = await CameraFunctions.getCamera(_cameraDirection);
+    _controller = CameraController(
+      camera,
+      ResolutionPreset.medium,
+    );
 
-      _initializeControllerFuture = _controller!.initialize().then((_) {
-        setState(() {}); // Rebuild the widget after initialization
+    _initializeControllerFuture = _controller!.initialize().then((_) {
+      if (!mounted) {
+        return;
+      }
+      setState(() {
+        _isSwitchingCamera = false;
       });
-    }
+    });
   }
 
   @override
@@ -96,9 +99,21 @@ class _MyHomePageState extends State<MyHomePage> {
     await showPromptsDrawer(
       context: context,
       prompts: _prompts,
+      selectedPromptIndex: _selectedPromptIndex,
       onPromptsUpdated: _updatePrompts,
       initialPrompt: prompt,
     );
+  }
+
+  void _switchCamera() async {
+    setState(() {
+      _isSwitchingCamera = true;
+      _cameraDirection = (_cameraDirection == CameraLensDirection.back)
+          ? CameraLensDirection.front
+          : CameraLensDirection.back;
+    });
+    await _controller?.dispose();
+    initCamera();
   }
 
   @override
@@ -119,7 +134,7 @@ class _MyHomePageState extends State<MyHomePage> {
             child: Column(
               mainAxisAlignment: MainAxisAlignment.center,
               children: <Widget>[
-                if (_initializeControllerFuture != null && _responseBody.isEmpty)
+                if (_initializeControllerFuture != null && _responseBody.isEmpty && !_isSwitchingCamera)
                   FutureBuilder<void>(
                     future: _initializeControllerFuture,
                     builder: (context, snapshot) {
@@ -198,10 +213,17 @@ class _MyHomePageState extends State<MyHomePage> {
                 showPromptsDrawer(
                   context: context,
                   prompts: _prompts,
+                  selectedPromptIndex: _selectedPromptIndex,
                   onPromptsUpdated: _updatePrompts,
                 );
               },
               child: const Icon(Icons.settings),
+            ),
+          if (!_isAnalyzing && _responseBody.isEmpty) const SizedBox(height: 16), // Add some spacing
+          if (!_isAnalyzing && _responseBody.isEmpty)
+            FloatingActionButton(
+              onPressed: _switchCamera,
+              child: const Icon(Icons.cameraswitch),
             ),
           if (!_isAnalyzing && _responseBody.isEmpty) const SizedBox(height: 16), // Add some spacing
           _isAnalyzing

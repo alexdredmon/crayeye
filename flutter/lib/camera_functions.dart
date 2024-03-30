@@ -1,5 +1,4 @@
-// camera_functions.dart
-// camera_functions.dart
+// FILENAME: camera_functions.dart
 import 'dart:async';
 import 'dart:convert';
 import 'dart:io';
@@ -10,29 +9,9 @@ import 'package:path_provider/path_provider.dart';
 import 'config.dart';
 
 class CameraFunctions {
-  static Future<void> switchCamera(
-    CameraController controller,
-    List<CameraDescription> cameras,
-    int currentCameraIndex,
-    Function(CameraController, int) onCameraSwitch,
-  ) async {
-    // Dispose the current controller
-    controller.dispose();
-
-    // Get the next camera index
-    int newCameraIndex = (currentCameraIndex + 1) % cameras.length;
-
-    // Create a new controller with the new camera index
-    CameraController newController = CameraController(
-      cameras[newCameraIndex],
-      ResolutionPreset.medium,
-    );
-
-    // Initialize the new controller
-    await newController.initialize();
-
-    // Invoke the callback with the new controller and camera index
-    onCameraSwitch(newController, newCameraIndex);
+  static Future<CameraDescription> getCamera(CameraLensDirection direction) async {
+    final cameras = await availableCameras();
+    return cameras.firstWhere((camera) => camera.lensDirection == direction);
   }
 
   static Future<File?> takePicture(CameraController controller) async {
@@ -138,5 +117,4 @@ class CameraFunctions {
     }
   }
 }
-// eof
 // eof
