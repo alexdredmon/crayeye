@@ -33,6 +33,7 @@ class _MyHomePageState extends State<MyHomePage> {
   bool _isSwitchingCamera = false; // Track if the camera is being switched
   final AudioPlayer _audioPlayer = AudioPlayer();
   final List<String> _audioFiles = ['loading1.wav', 'loading2.wav', 'loading3.wav', 'loading4.wav'];
+  bool _isFlashOn = false; // Track if the flash/light is on
 
   @override
   void initState() {
@@ -104,6 +105,17 @@ class _MyHomePageState extends State<MyHomePage> {
     _stopAudio();
   }
 
+  void _toggleFlash() async {
+    if (_controller != null) {
+      await _controller!.setFlashMode(
+        _isFlashOn ? FlashMode.off : FlashMode.torch,
+      );
+      setState(() {
+        _isFlashOn = !_isFlashOn;
+      });
+    }
+  }
+
   void _updatePrompts(List<Map<String, String>> updatedPrompts, int updatedSelectedPromptIndex) {
     setState(() {
       _prompts = updatedPrompts;
@@ -124,6 +136,30 @@ class _MyHomePageState extends State<MyHomePage> {
       selectedPromptIndex: _selectedPromptIndex,
       onPromptsUpdated: _updatePrompts,
       initialPrompt: prompt,
+      onAnalyzePressed: _analyzeImage,
+    );
+  }
+
+  void _analyzeImage() async {
+    await _playRandomAudio();
+    CameraFunctions.analyzePicture(
+      _controller!,
+      _prompts,
+      _selectedPromptIndex,
+      (capturedImage, responseBody, isAnalyzing) {
+        if (_isFlashOn) {
+          _toggleFlash();
+        }
+        setState(() {
+          _capturedImage = capturedImage;
+          _responseBody = responseBody;
+          _isAnalyzing = isAnalyzing;
+          if (!isAnalyzing) {
+            _stopAudio();
+          }
+        });
+      },
+      _onOpenAIKeyMissing,
     );
   }
 
@@ -133,6 +169,10 @@ class _MyHomePageState extends State<MyHomePage> {
       _cameraDirection = (_cameraDirection == CameraLensDirection.back)
           ? CameraLensDirection.front
           : CameraLensDirection.back;
+      // When switching to the front camera, turn off the flash if it is on.
+      if (_cameraDirection == CameraLensDirection.front && _isFlashOn) {
+        _toggleFlash();
+      }
     });
     await _controller?.dispose();
     initCamera();
@@ -182,44 +222,41 @@ class _MyHomePageState extends State<MyHomePage> {
           ),
           if (!_isAnalyzing && _responseBody.isEmpty)
             Positioned(
-              bottom: 20,
+              bottom: 40,
               left: 0,
               right: 0,
               child: Center(
-                child: Container(
-                  padding: EdgeInsets.symmetric(horizontal: 20, vertical: 7),
-                  decoration: BoxDecoration(
-                    color: Colors.blueGrey.shade900,
-                    borderRadius: BorderRadius.circular(50),
-                  ),
-                  child: Theme(
-                    data: Theme.of(context).copyWith(
-                      canvasColor: Colors.blueGrey.shade900,
+                child: ElevatedButton(
+                  onPressed: () {
+                    showPromptsDrawer(
+                      context: context,
+                      prompts: _prompts,
+                      selectedPromptIndex: _selectedPromptIndex,
+                      onPromptsUpdated: _updatePrompts,
+                      onAnalyzePressed: _analyzeImage,
+                    );
+                  },
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: Colors.blueGrey.shade900,
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(50),
                     ),
-                    child: DropdownButton<int>(
-                      value: _selectedPromptIndex,
-                      items: List.generate(
-                        _prompts.length,
-                        (index) => DropdownMenuItem<int>(
-                          value: index,
-                          child: Text(
-                            _prompts[index]['title']!,
-                            style: TextStyle(
-                              color: Colors.white, // Highlight selected value
-                              fontSize: 18,
-                            ), // Increased text size
-                          ),
+                    padding: EdgeInsets.symmetric(horizontal: 20, vertical: 10),
+                  ),
+                  child: Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Text(
+                        _prompts[_selectedPromptIndex]['title']!,
+                        style: TextStyle(
+                          // color: Color(0xFF4EFFB6),
+                          color: Colors.white,
+                          fontSize: 18,
                         ),
                       ),
-                      onChanged: (value) {
-                        setState(() {
-                          _selectedPromptIndex = value!;
-                        });
-                        saveSelectedPromptIndex(_selectedPromptIndex);
-                      },
-                      underline: SizedBox.shrink(), // Remove underline
-                      dropdownColor: Colors.blueGrey.shade900, // Set background color of dropdown items
-                    ),
+                      SizedBox(width: 8),
+                      Icon(Icons.settings, color: Colors.white),
+                    ],
                   ),
                 ),
               ),
@@ -229,19 +266,13 @@ class _MyHomePageState extends State<MyHomePage> {
       floatingActionButton: Column(
         mainAxisAlignment: MainAxisAlignment.end,
         children: [
-          if (!_isAnalyzing && _responseBody.isEmpty)
+          // Show the flash toggle button only if the back camera is selected
+          if (!_isAnalyzing && _responseBody.isEmpty && _cameraDirection == CameraLensDirection.back)
             FloatingActionButton(
-              onPressed: () {
-                showPromptsDrawer(
-                  context: context,
-                  prompts: _prompts,
-                  selectedPromptIndex: _selectedPromptIndex,
-                  onPromptsUpdated: _updatePrompts,
-                );
-              },
-              child: const Icon(Icons.settings),
+              onPressed: _toggleFlash,
+              child: Icon(_isFlashOn ? Icons.flash_off : Icons.flash_on),
             ),
-          if (!_isAnalyzing && _responseBody.isEmpty) const SizedBox(height: 16), // Add some spacing
+          if (!_isAnalyzing && _responseBody.isEmpty && _cameraDirection == CameraLensDirection.back) const SizedBox(height: 16), // Add some spacing
           if (!_isAnalyzing && _responseBody.isEmpty)
             FloatingActionButton(
               onPressed: _switchCamera,
@@ -252,32 +283,16 @@ class _MyHomePageState extends State<MyHomePage> {
               ? const CircularProgressIndicator(
                   valueColor: AlwaysStoppedAnimation<Color>(Colors.white))
               : FloatingActionButton(
+                  backgroundColor: Colors.deepPurple.shade700,
                   onPressed: _responseBody.isNotEmpty
                       ? _startNewScan
-                      : () async {
-                          await _playRandomAudio();
-                          CameraFunctions.analyzePicture(
-                            _controller!,
-                            _prompts,
-                            _selectedPromptIndex,
-                            (capturedImage, responseBody, isAnalyzing) {
-                              setState(() {
-                                _capturedImage = capturedImage;
-                                _responseBody = responseBody;
-                                _isAnalyzing = isAnalyzing;
-                                if (!isAnalyzing) {
-                                  _stopAudio();
-                                }
-                              });
-                            },
-                            _onOpenAIKeyMissing,
-                          );
-                        },
+                      : _analyzeImage,
                   child: Icon(_responseBody.isNotEmpty
-                      ? Icons.refresh
-                      : Icons.camera_alt),
+                      ? Icons.arrow_back
+                      : Icons.visibility,
+                      color: Colors.white),
                 ),
-          if (!_isAnalyzing && _responseBody.isEmpty) const SizedBox(height: 50), // Add some spacing
+          if (!_isAnalyzing && _responseBody.isEmpty) const SizedBox(height: 40), // Add some spacing
         ],
       ),
     );

@@ -6,6 +6,8 @@ import 'package:camera/camera.dart';
 import 'package:http/http.dart' as http;
 import 'package:path/path.dart' show join;
 import 'package:path_provider/path_provider.dart';
+import 'package:geolocator/geolocator.dart';
+import 'package:permission_handler/permission_handler.dart';
 import 'config.dart';
 
 class CameraFunctions {
@@ -45,9 +47,11 @@ class CameraFunctions {
   ) async {
     String openAIKey = await loadOpenAIKey();
     if (openAIKey.isEmpty) {
+      if (DEFAULT_OPENAI_API_KEY.isEmpty) {
+        onOpenAIKeyMissing();
+        return;
+      }
       openAIKey = DEFAULT_OPENAI_API_KEY;
-      // onOpenAIKeyMissing();
-      // return;
     }
 
     // Take a picture without the default shutter sound
@@ -63,6 +67,28 @@ class CameraFunctions {
 
       // Prepare the request payload
       String prompt = prompts[selectedPromptIndex]['prompt']!;
+
+      // Request location permissions
+      LocationPermission permission = await Geolocator.requestPermission();
+      if (permission == LocationPermission.denied || permission == LocationPermission.deniedForever) {
+        onAnalysisComplete(null, 'Location permissions denied', false);
+        return;
+      }
+
+      // Get the user's current location
+      Position position = await Geolocator.getCurrentPosition(desiredAccuracy: LocationAccuracy.high);
+
+      // Replace the location tokens in the prompt with actual values
+      if (prompt.contains("{location.lat}")) {
+        prompt = prompt.replaceAll("{location.lat}", position.latitude.toString());
+      }
+      if (prompt.contains("{location.long}")) {
+        prompt = prompt.replaceAll("{location.long}", position.longitude.toString());
+      }
+      if (prompt.contains("{location.alt}")) {
+        prompt = prompt.replaceAll("{location.alt}", position.altitude.toString());
+      }
+
       Map<String, dynamic> body = {
         'model': 'gpt-4-vision-preview',
         'messages': [

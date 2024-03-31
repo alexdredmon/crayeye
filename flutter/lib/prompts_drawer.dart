@@ -9,6 +9,7 @@ Future<void> showPromptsDrawer({
   required int selectedPromptIndex,
   required Function(List<Map<String, String>>, int) onPromptsUpdated,
   String? initialPrompt,
+  required VoidCallback onAnalyzePressed,
 }) async {
   await showModalBottomSheet(
     context: context,
@@ -73,6 +74,14 @@ Future<void> showPromptsDrawer({
             onShowKeyDialog: () {
               showKeyDialog(context);
             },
+            onPromptTapped: (index) {
+              onPromptsUpdated(prompts, index);
+              Navigator.pop(context);
+            },
+            onAnalyzePressed: () {
+              Navigator.pop(context); // Close the prompts drawer
+              onAnalyzePressed();
+            },
           );
         },
       );
@@ -86,6 +95,8 @@ class PromptsDrawer extends StatelessWidget {
   final Function(int) onEditPrompt;
   final VoidCallback onAddPrompt;
   final VoidCallback onShowKeyDialog;
+  final Function(int) onPromptTapped;
+  final VoidCallback onAnalyzePressed;
 
   const PromptsDrawer({
     Key? key,
@@ -94,6 +105,8 @@ class PromptsDrawer extends StatelessWidget {
     required this.onEditPrompt,
     required this.onAddPrompt,
     required this.onShowKeyDialog,
+    required this.onPromptTapped,
+    required this.onAnalyzePressed,
   }) : super(key: key);
 
   @override
@@ -113,23 +126,31 @@ class PromptsDrawer extends StatelessWidget {
           ),
           const SizedBox(height: 16),
           Expanded(
-            child: ListView.builder(
-              itemCount: prompts.length,
-              itemBuilder: (BuildContext context, int index) {
-                return ListTile(
-                  title: Text(
-                    prompts[index]['title']!,
-                    style: TextStyle(
-                      color: index == selectedPromptIndex ? Color(0xFF4EFFB6) : Colors.white,
-                      fontWeight: index == selectedPromptIndex ? FontWeight.bold : FontWeight.normal,
+            child: Scrollbar(
+              thumbVisibility: true, // This makes the scrollbar always visible
+              thickness: 6.0,
+              radius: Radius.circular(6.0),
+              child: ListView.builder(
+                itemCount: prompts.length,
+                itemBuilder: (BuildContext context, int index) {
+                  return ListTile(
+                    title: InkWell(
+                      onTap: () => onPromptTapped(index),
+                      child: Text(
+                        prompts[index]['title']!,
+                        style: TextStyle(
+                          color: index == selectedPromptIndex ? Color(0xFF4EFFB6) : Colors.white,
+                          fontWeight: index == selectedPromptIndex ? FontWeight.bold : FontWeight.normal,
+                        ),
+                      ),
                     ),
-                  ),
-                  trailing: IconButton(
-                    icon: const Icon(Icons.edit, color: Colors.white), // Set icon color to white
-                    onPressed: () => onEditPrompt(index),
-                  ),
-                );
-              },
+                    trailing: IconButton(
+                      icon: const Icon(Icons.edit, color: Colors.white), // Set icon color to white
+                      onPressed: () => onEditPrompt(index),
+                    ),
+                  );
+                },
+              ),
             ),
           ),
           const SizedBox(height: 16),
@@ -146,16 +167,31 @@ class PromptsDrawer extends StatelessWidget {
                 child: const Text('🔑 API Key'),
               ),
               ElevatedButton(
+                onPressed: onAnalyzePressed,
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: Colors.deepPurple.shade700, // Set button background color to white
+                  foregroundColor: Colors.white, // Set button text color to blueGrey.shade900
+                  padding: EdgeInsets.symmetric(horizontal: 15, vertical: 10),
+                ),
+                child: const Text(
+                  '👁️ Analyze',
+                  style: TextStyle(
+                    fontWeight: FontWeight.bold,
+                  )
+                ),
+              ),
+              ElevatedButton(
                 onPressed: onAddPrompt,
                 style: ElevatedButton.styleFrom(
                   backgroundColor: Colors.white, // Set button background color to white
                   foregroundColor: Colors.blueGrey.shade900, // Set button text color to blueGrey.shade900
                   padding: EdgeInsets.symmetric(horizontal: 15, vertical: 10),
                 ),
-                child: const Text('➕ Add Prompt'),
+                child: const Text('➕ Prompt'),
               ),
             ],
           ),
+          const SizedBox(height: 8),
         ],
       ),
     );
