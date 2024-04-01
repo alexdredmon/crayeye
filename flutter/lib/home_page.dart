@@ -10,6 +10,7 @@ import 'prompts_drawer.dart';
 import 'camera_functions.dart';
 import 'response_view.dart';
 import 'key_dialog.dart';
+import 'help_drawer.dart'; // Import the new file for help drawer
 
 class MyHomePage extends StatefulWidget {
   const MyHomePage({super.key, required this.title, this.initialPrompt});
@@ -34,6 +35,7 @@ class _MyHomePageState extends State<MyHomePage> {
   final AudioPlayer _audioPlayer = AudioPlayer();
   final List<String> _audioFiles = ['loading1.wav', 'loading2.wav', 'loading3.wav', 'loading4.wav'];
   bool _isFlashOn = false; // Track if the flash/light is on
+  bool _isAudioEnabled = true; // Track if audio is enabled
 
   @override
   void initState() {
@@ -55,9 +57,11 @@ class _MyHomePageState extends State<MyHomePage> {
   }
 
   Future<void> _playRandomAudio() async {
-    final randomIndex = Random().nextInt(_audioFiles.length);
-    final audioFile = _audioFiles[randomIndex];
-    await _audioPlayer.play(AssetSource(audioFile));
+    if (_isAudioEnabled) {
+      final randomIndex = Random().nextInt(_audioFiles.length);
+      final audioFile = _audioFiles[randomIndex];
+      await _audioPlayer.play(AssetSource(audioFile));
+    }
   }
 
   Future<void> _stopAudio() async {
@@ -114,6 +118,12 @@ class _MyHomePageState extends State<MyHomePage> {
         _isFlashOn = !_isFlashOn;
       });
     }
+  }
+
+  void _toggleAudio() {
+    setState(() {
+      _isAudioEnabled = !_isAudioEnabled;
+    });
   }
 
   void _updatePrompts(List<Map<String, String>> updatedPrompts, int updatedSelectedPromptIndex) {
@@ -183,12 +193,27 @@ class _MyHomePageState extends State<MyHomePage> {
     return Scaffold(
       appBar: AppBar(
         backgroundColor: Colors.blueGrey.shade900,
+        leading: IconButton(
+          icon: Icon(
+            _isAudioEnabled ? Icons.volume_up : Icons.volume_off,
+            color: Colors.white,
+          ),
+          onPressed: _toggleAudio,
+        ),
         title: Center( // Center the title widget
           child: Image(
             image: AssetImage('images/crayeye.png'),
             height: 30.0, // Set the height to 75px
           ),
         ),
+        actions: [
+          IconButton(
+            icon: Icon(Icons.help, color: Colors.white),
+            onPressed: () {
+              showHelpDrawer(context);
+            },
+          ),
+        ],
       ),
       body: Stack(
         children: [

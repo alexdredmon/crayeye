@@ -1,10 +1,11 @@
-// main.dart
+// FILENAME: main.dart
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'app.dart';
 import 'config.dart';
 import 'package:uni_links/uni_links.dart';
 import 'home_page.dart';
+import 'prompt_dialogs.dart'; // Import the file containing showAddPromptDialog
 
 void main() {
   WidgetsFlutterBinding.ensureInitialized();
@@ -56,6 +57,16 @@ class _MyAppState extends State<MyApp> {
         });
       }
     }
+  }
+
+  void _showAddPromptDialog(BuildContext context) {
+    showAddPromptDialog(
+      context,
+      (title, prompt) {
+        // Handle saving the prompt
+      },
+      initialPrompt: _initialPrompt,
+    );
   }
 
   @override
