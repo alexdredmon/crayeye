@@ -25,7 +25,28 @@ void showHelpDrawer(BuildContext context) {
             Expanded(
               child: SingleChildScrollView(
                 child: MarkdownBody(
-                  data: '# Help\n\nThis is some helpful help text! [CrayEye](https://crayeye.com)',
+                  data: """
+CrayEye is a sensor analysis multitool which uses input from your camera, GPS, and other available sensors
+to execute customizable and user defined prompts against a multimodal large language model.
+
+You can create your own prompts or edit existing ones by clicking the settings icon (edit a prompt via the pencil icon).
+
+Your prompts can contain the following tokens which will be replaced with the respective real-time values from the user's device:
+
+**Latitude:** {location.lat}
+
+*e.g. 40.7128*
+
+**Longitude:** {location.long}
+
+*e.g. -74.0060*
+
+**Orientation:** {location.orientation}
+
+*e.g. west*
+
+For more information visit [CrayEye.com](https://crayeye.com)
+""",
                   styleSheet: MarkdownStyleSheet(
                     textScaleFactor: 1.1,
                     p: TextStyle(color: Colors.white),
