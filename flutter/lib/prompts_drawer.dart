@@ -2,6 +2,7 @@
 import 'package:flutter/material.dart';
 import 'prompt_dialogs.dart';
 import 'key_dialog.dart';
+import 'dart:developer';
 
 Future<void> showPromptsDrawer({
   required BuildContext context,
@@ -82,6 +83,7 @@ Future<void> showPromptsDrawer({
               Navigator.pop(context); // Close the prompts drawer
               onAnalyzePressed();
             },
+            onPromptsUpdated: onPromptsUpdated,
           );
         },
       );
@@ -89,7 +91,7 @@ Future<void> showPromptsDrawer({
   );
 }
 
-class PromptsDrawer extends StatelessWidget {
+class PromptsDrawer extends StatefulWidget {
   final List<Map<String, String>> prompts;
   final int selectedPromptIndex;
   final Function(int) onEditPrompt;
@@ -97,6 +99,7 @@ class PromptsDrawer extends StatelessWidget {
   final VoidCallback onShowKeyDialog;
   final Function(int) onPromptTapped;
   final VoidCallback onAnalyzePressed;
+  final Function(List<Map<String, String>>, int) onPromptsUpdated;
 
   const PromptsDrawer({
     Key? key,
@@ -107,7 +110,52 @@ class PromptsDrawer extends StatelessWidget {
     required this.onShowKeyDialog,
     required this.onPromptTapped,
     required this.onAnalyzePressed,
+    required this.onPromptsUpdated,
   }) : super(key: key);
+
+  @override
+  _PromptsDrawerState createState() => _PromptsDrawerState();
+}
+
+class _PromptsDrawerState extends State<PromptsDrawer> {
+  bool _isDragging = false;
+  int _dragIndex = -1;
+
+  void _startDragging(int index) {
+    setState(() {
+      _isDragging = true;
+      _dragIndex = index;
+    });
+  }
+
+  void _stopDragging() {
+    setState(() {
+      _isDragging = false;
+      _dragIndex = -1;
+    });
+  }
+
+  void _onDragFinish(int oldIndex, int newIndex) {
+    log('$oldIndex');
+    log('$newIndex');
+    if (oldIndex < newIndex) {
+      newIndex -= 1;
+    }
+    final Map<String, String> draggedPrompt = widget.prompts.removeAt(oldIndex);
+    widget.prompts.insert(newIndex, draggedPrompt);
+    
+    int newSelectedPromptIndex = widget.selectedPromptIndex;
+    if (oldIndex == widget.selectedPromptIndex) {
+      newSelectedPromptIndex = newIndex;
+    } else if (oldIndex < widget.selectedPromptIndex && newIndex >= widget.selectedPromptIndex) {
+      newSelectedPromptIndex -= 1;
+    } else if (oldIndex > widget.selectedPromptIndex && newIndex <= widget.selectedPromptIndex) {
+      newSelectedPromptIndex += 1;
+    }
+    
+    widget.onPromptsUpdated(widget.prompts, newSelectedPromptIndex);
+    _stopDragging();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -130,26 +178,41 @@ class PromptsDrawer extends StatelessWidget {
               thumbVisibility: true, // This makes the scrollbar always visible
               thickness: 6.0,
               radius: Radius.circular(6.0),
-              child: ListView.builder(
-                itemCount: prompts.length,
-                itemBuilder: (BuildContext context, int index) {
-                  return ListTile(
-                    title: InkWell(
-                      onTap: () => onPromptTapped(index),
-                      child: Text(
-                        prompts[index]['title']!,
-                        style: TextStyle(
-                          color: index == selectedPromptIndex ? Color(0xFF4EFFB6) : Colors.white,
-                          fontWeight: index == selectedPromptIndex ? FontWeight.bold : FontWeight.normal,
+              child: ReorderableListView(
+                onReorder: _onDragFinish,
+                children: widget.prompts.asMap().entries.map((entry) {
+                  int index = entry.key;
+                  Map<String, String> prompt = entry.value;
+                  return Dismissible(
+                    key: Key(prompt['title']!),
+                    direction: _isDragging ? DismissDirection.none : DismissDirection.horizontal,
+                    onDismissed: (direction) {
+                      widget.onEditPrompt(index);
+                    },
+                    child: ListTile(
+                      title: GestureDetector(
+                        onTap: () => widget.onPromptTapped(index),
+                        // onLongPress: () => _startDragging(index),
+                        // onLongPressEnd: (details) => _stopDragging(),
+                        child: Row(
+                          children: [
+                            Text(
+                              prompt['title']!,
+                              style: TextStyle(
+                                color: index == widget.selectedPromptIndex ? Color(0xFF4EFFB6) : Colors.white,
+                                fontWeight: index == widget.selectedPromptIndex ? FontWeight.bold : FontWeight.normal,
+                              ),
+                            ),
+                          ],
                         ),
                       ),
-                    ),
-                    trailing: IconButton(
-                      icon: const Icon(Icons.edit, color: Colors.white), // Set icon color to white
-                      onPressed: () => onEditPrompt(index),
+                      trailing: IconButton(
+                        icon: const Icon(Icons.edit, color: Colors.white), // Set icon color to white
+                        onPressed: () => widget.onEditPrompt(index),
+                      ),
                     ),
                   );
-                },
+                }).toList(),
               ),
             ),
           ),
@@ -158,7 +221,7 @@ class PromptsDrawer extends StatelessWidget {
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
               ElevatedButton(
-                onPressed: onShowKeyDialog,
+                onPressed: widget.onShowKeyDialog,
                 style: ElevatedButton.styleFrom(
                   backgroundColor: Colors.white, // Set button background color to white
                   foregroundColor: Colors.blueGrey.shade900, // Set button text color to blueGrey.shade900
@@ -167,21 +230,7 @@ class PromptsDrawer extends StatelessWidget {
                 child: const Text('🔑 API Key'),
               ),
               ElevatedButton(
-                onPressed: onAnalyzePressed,
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: Colors.deepPurple.shade700, // Set button background color to white
-                  foregroundColor: Colors.white, // Set button text color to blueGrey.shade900
-                  padding: EdgeInsets.symmetric(horizontal: 15, vertical: 10),
-                ),
-                child: const Text(
-                  '👁️ Analyze',
-                  style: TextStyle(
-                    fontWeight: FontWeight.bold,
-                  )
-                ),
-              ),
-              ElevatedButton(
-                onPressed: onAddPrompt,
+                onPressed: widget.onAddPrompt,
                 style: ElevatedButton.styleFrom(
                   backgroundColor: Colors.white, // Set button background color to white
                   foregroundColor: Colors.blueGrey.shade900, // Set button text color to blueGrey.shade900
