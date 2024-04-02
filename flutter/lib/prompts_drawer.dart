@@ -5,6 +5,7 @@ import 'prompt_dialogs.dart';
 import 'key_dialog.dart';
 import 'package:share_plus/share_plus.dart';
 import 'config.dart';
+import 'prompt_list_tile.dart';
 
 Future<void> showPromptsDrawer({
  required BuildContext context,
@@ -31,52 +32,17 @@ Future<void> showPromptsDrawer({
              prompts[index]['prompt'] = prompt;
              onPromptsUpdated(prompts, selectedPromptIndex);
            },
-           () {
-             prompts.removeAt(index);
-             onPromptsUpdated(prompts, selectedPromptIndex);
-           },
          );
        },
        onDeletePrompt: (index) async {
-         bool confirm = await showDialog(
-           context: context,
-           builder: (BuildContext context) {
-             return AlertDialog(
-               title: Text(
-                 "Delete Prompt",
-                 style: TextStyle(color: Colors.white),
-               ),
-               content: Text(
-                 "Are you sure you want to delete this prompt?",
-                 style: TextStyle(color: Colors.white),
-               ),
-               actions: [
-                 TextButton(
-                   child: Text(
-                     "Cancel",
-                     style: TextStyle(color: Colors.white),
-                   ),
-                   onPressed: () => Navigator.of(context).pop(false),
-                 ),
-                 ElevatedButton(
-                   style: ElevatedButton.styleFrom(
-                     backgroundColor: Colors.redAccent,
-                     foregroundColor: Colors.white,
-                   ),
-                   child: Text("Delete"),
-                   onPressed: () => Navigator.of(context).pop(true),
-                 ),
-               ],
-             );
-           },
-         );
+         bool confirm = await showDeletePromptConfirmationDialog(context);
          if (confirm == true) {
            prompts.removeAt(index);
            if (selectedPromptIndex >= prompts.length) {
              selectedPromptIndex = prompts.length - 1;
            }
            onPromptsUpdated(prompts, selectedPromptIndex);
-           Navigator.pop(context); // Close the drawer after selection
+           Navigator.pop(context);
          }
        },
        onSharePrompt: (title, prompt) {
@@ -97,7 +63,7 @@ Future<void> showPromptsDrawer({
        onPromptTapped: (index) {
          selectedPromptIndex = index;
          onPromptsUpdated(prompts, selectedPromptIndex);
-         Navigator.pop(context); // Close the drawer after selection
+         Navigator.pop(context);
        },
        onAnalyzePressed: onAnalyzePressed,
        onReorder: (int oldIndex, int newIndex) {
@@ -109,44 +75,13 @@ Future<void> showPromptsDrawer({
          onPromptsUpdated(prompts, newIndex);
        },
        onResetPrompts: () async {
-         bool confirm = await showDialog(
-           context: context,
-           builder: (BuildContext context) {
-             return AlertDialog(
-               title: Text(
-                "Reset Prompts",
-                style: TextStyle(color: Colors.white),
-                ),
-               content: Text(
-                "Are you sure you want to reset all prompts to default?",
-                style: TextStyle(color: Colors.white),
-                ),
-               actions: [
-                 TextButton(
-                   child: Text(
-                    "Cancel",
-                    style: TextStyle(color: Colors.white),
-                    ),
-                   onPressed: () => Navigator.of(context).pop(false),
-                 ),
-                 ElevatedButton(
-                  style: ElevatedButton.styleFrom(
-                     backgroundColor: Colors.redAccent,
-                     foregroundColor: Colors.white,
-                   ),  
-                   child: Text("Reset"),
-                   onPressed: () => Navigator.of(context).pop(true),
-                 ),
-               ],
-             );
-           },
-         );
+         bool confirm = await showResetPromptsConfirmationDialog(context);
          if (confirm == true) {
            prompts.clear();
            prompts.addAll(defaultPrompts);
            selectedPromptIndex = 0;
            onPromptsUpdated(prompts, selectedPromptIndex);
-           Navigator.pop(context); // Close the drawer after selection
+           Navigator.pop(context);
          }
        },
      );
@@ -204,13 +139,6 @@ class _PromptsDrawerState extends State<PromptsDrawer> {
    widget.onReorder(oldIndex, newIndex);
  }
 
- void _onDeletePrompt(int index) {
-   setState(() {
-     _prompts.removeAt(index);
-   });
-   widget.onDeletePrompt(index);
- }
-
  @override
  Widget build(BuildContext context) {
    return Container(
@@ -251,55 +179,15 @@ class _PromptsDrawerState extends State<PromptsDrawer> {
                itemCount: _prompts.length,
                itemBuilder: (context, index) {
                  Map<String, String> prompt = _prompts[index];
-                 return ListTile(
+                 return PromptListTile(
                    key: ValueKey(prompt),
-                   title: Text(
-                     prompt['title']!,
-                     style: TextStyle(
-                       color: index == widget.selectedPromptIndex ? Color(0xFF4EFFB6) : Colors.white,
-                     ),  
-                   ),
-                   trailing: PopupMenuButton<String>(
-                     color: Colors.blueGrey.shade800,
-                     onSelected: (String value) {
-                       switch (value) {
-                         case 'Edit':
-                           widget.onEditPrompt(index);
-                           break;
-                         case 'Delete':
-                           widget.onDeletePrompt(index);
-                           break;
-                         case 'Share':
-                           widget.onSharePrompt(prompt['title']!, prompt['prompt']!);
-                           break;
-                       }
-                     },
-                     itemBuilder: (BuildContext context) => <PopupMenuEntry<String>>[
-                       const PopupMenuItem<String>(
-                         value: 'Edit',
-                         child: ListTile(
-                           leading: Icon(Icons.edit, color: Colors.white),
-                           title: Text('Edit', style: TextStyle(color: Colors.white)),
-                         ),
-                       ),
-                       const PopupMenuItem<String>(
-                         value: 'Delete', 
-                         child: ListTile(
-                           leading: Icon(Icons.delete, color: Colors.white),
-                           title: Text('Delete', style: TextStyle(color: Colors.white)),  
-                         ),
-                       ),
-                       const PopupMenuItem<String>(
-                         value: 'Share',
-                         child: ListTile(
-                           leading: Icon(Icons.share, color: Colors.white),
-                           title: Text('Share', style: TextStyle(color: Colors.white)),
-                         ),
-                       ),
-                     ],
-                     icon: const Icon(Icons.more_vert, color: Colors.white),
-                   ),
-                   onTap: () => widget.onPromptTapped(index),
+                   prompt: prompt,
+                   index: index,
+                   selectedPromptIndex: widget.selectedPromptIndex,
+                   onEditPrompt: widget.onEditPrompt,
+                   onDeletePrompt: widget.onDeletePrompt,
+                   onSharePrompt: widget.onSharePrompt,
+                   onPromptTapped: widget.onPromptTapped,
                  );
                },
              ),

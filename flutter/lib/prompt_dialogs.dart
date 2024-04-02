@@ -70,7 +70,6 @@ void showEditPromptDialog(
   String currentTitle,
   String currentPrompt,
   Function(int, String, String) onSave,
-  VoidCallback onDeletePrompt,
 ) {
   String updatedTitle = currentTitle;
   String updatedPrompt = currentPrompt;
@@ -148,4 +147,73 @@ void showEditPromptDialog(
   );
 }
 
+Future<bool> showDeletePromptConfirmationDialog(BuildContext context) async {
+  return await showDialog(
+    context: context,
+    builder: (BuildContext context) {
+      return AlertDialog(
+        title: Text(
+          "Delete Prompt",
+          style: TextStyle(color: Colors.white),
+        ),
+        content: Text(
+          "Are you sure you want to delete this prompt?",
+          style: TextStyle(color: Colors.white),
+        ),
+        actions: [
+          TextButton(
+            child: Text(
+              "Cancel",
+              style: TextStyle(color: Colors.white),
+            ),
+            onPressed: () => Navigator.of(context).pop(false),
+          ),
+          ElevatedButton(
+            style: ElevatedButton.styleFrom(
+              backgroundColor: Colors.redAccent,
+              foregroundColor: Colors.white,
+            ),
+            child: Text("Delete"),
+            onPressed: () => Navigator.of(context).pop(true),
+          ),
+        ],
+      );
+    },
+  );
+}
+
+Future<bool> showResetPromptsConfirmationDialog(BuildContext context) async {
+  return await showDialog(
+    context: context,
+    builder: (BuildContext context) {
+      return AlertDialog(
+        title: Text(
+          "Reset Prompts",
+          style: TextStyle(color: Colors.white),
+        ),
+        content: Text(
+          "Are you sure you want to reset all prompts to default?",
+          style: TextStyle(color: Colors.white),
+        ),
+        actions: [
+          TextButton(
+            child: Text(
+              "Cancel",
+              style: TextStyle(color: Colors.white),
+            ),
+            onPressed: () => Navigator.of(context).pop(false),
+          ),
+          ElevatedButton(
+            style: ElevatedButton.styleFrom(
+              backgroundColor: Colors.redAccent,
+              foregroundColor: Colors.white,
+            ),
+            child: Text("Reset"),
+            onPressed: () => Navigator.of(context).pop(true),
+          ),
+        ],
+      );
+    },
+  );
+}
 // eof

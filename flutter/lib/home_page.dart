@@ -14,6 +14,7 @@ import 'prompt_dialogs.dart';
 import 'package:provider/provider.dart';
 import 'prompt_notifier.dart';
 import 'audio_manager.dart';
+import 'floating_action_buttons.dart';
 
 class MyHomePage extends StatefulWidget {
   const MyHomePage({super.key, required this.title});
@@ -59,7 +60,6 @@ class _MyHomePageState extends State<MyHomePage> {
       _selectedPromptIndex = loadedSelectedPromptIndex;
     });
 
-    // Listen for prompt changes
     var promptNotifier = Provider.of<PromptNotifier>(context, listen: false);
     if (promptNotifier.prompt != null) {
       _handleInitialPrompt(promptNotifier.prompt!, promptNotifier.title!);
@@ -206,21 +206,17 @@ class _MyHomePageState extends State<MyHomePage> {
 
   @override
   Widget build(BuildContext context) {
-    // Listen to PromptNotifier
     String? prompt = Provider.of<PromptNotifier>(context).prompt;
     String? title = Provider.of<PromptNotifier>(context).title;
-    // If there's a new prompt, handle it
     if (prompt != null && title != null) {
       WidgetsBinding.instance.addPostFrameCallback((_) {
         if (prompt.isNotEmpty) {
           _handleInitialPrompt(prompt, title);
-          // Optionally clear the prompt in PromptNotifier after handling
           Provider.of<PromptNotifier>(context, listen: false).setPromptAndTitle(null, null);
         }
       });
     }
 
-    // Prevent accessing _prompts with an invalid index
     final isValidIndex = _selectedPromptIndex >= 0 && _selectedPromptIndex < _prompts.length;
     final currentPromptTitle = isValidIndex ? _prompts[_selectedPromptIndex]['title'] : 'Select a Prompt';
 
@@ -329,46 +325,16 @@ class _MyHomePageState extends State<MyHomePage> {
             ),
         ],
       ),
-      floatingActionButton: Column(
-        mainAxisAlignment: MainAxisAlignment.end,
-        children: [
-          if (!_isAnalyzing && _responseBody.isEmpty && _cameraDirection == CameraLensDirection.back)
-            FloatingActionButton(
-              onPressed: _toggleFlash,
-              child: Icon(_isFlashOn ? Icons.flash_off : Icons.flash_on),
-            ),
-          if (!_isAnalyzing && _responseBody.isEmpty && _cameraDirection == CameraLensDirection.back) const SizedBox(height: 16),
-          if (!_isAnalyzing && _responseBody.isEmpty)
-            FloatingActionButton(
-              onPressed: _switchCamera,
-              child: const Icon(Icons.cameraswitch),
-            ),
-          if (!_isAnalyzing && _responseBody.isEmpty) const SizedBox(height: 16),
-          if (_isAnalyzing)
-            FloatingActionButton(
-              onPressed: _cancelAnalysis,
-              backgroundColor: Colors.red,
-              child: Icon(
-                Icons.cancel,
-                color: Colors.white,
-              ),
-            ),
-          if (_isAnalyzing) const SizedBox(height: 16),
-          _isAnalyzing
-              ? const CircularProgressIndicator(
-                  valueColor: AlwaysStoppedAnimation<Color>(Colors.white))
-              : FloatingActionButton(
-                  backgroundColor: Colors.deepPurple.shade700,
-                  onPressed: _responseBody.isNotEmpty
-                      ? _startNewScan
-                      : _analyzeImage,
-                  child: Icon(_responseBody.isNotEmpty
-                      ? Icons.arrow_back
-                      : Icons.visibility,
-                      color: Colors.white),
-                ),
-          if (!_isAnalyzing && _responseBody.isEmpty) const SizedBox(height: 40),
-        ],
+      floatingActionButton: FloatingActionButtons(
+        isAnalyzing: _isAnalyzing,
+        responseBody: _responseBody,
+        isFlashOn: _isFlashOn,
+        cameraDirection: _cameraDirection,
+        toggleFlash: _toggleFlash,
+        switchCamera: _switchCamera,
+        cancelAnalysis: _cancelAnalysis,
+        startNewScan: _startNewScan,
+        analyzeImage: _analyzeImage,
       ),
     );
   }
