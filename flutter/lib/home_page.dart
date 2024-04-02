@@ -54,7 +54,7 @@ class _MyHomePageState extends State<MyHomePage> {
 
   Future<void> _initAudioPlayer() async {
     await _audioPlayer.setReleaseMode(ReleaseMode.loop);
-    await _audioPlayer.setVolume(10.0);
+    await _audioPlayer.setVolume(20.0);
   }
 
   Future<void> _playRandomAudio() async {
@@ -80,7 +80,7 @@ class _MyHomePageState extends State<MyHomePage> {
     // Listen for prompt changes
     var promptNotifier = Provider.of<PromptNotifier>(context, listen: false);
     if (promptNotifier.prompt != null) {
-      _handleInitialPrompt(promptNotifier.prompt!);
+      _handleInitialPrompt(promptNotifier.prompt!, promptNotifier.title!);
     }
   }
 
@@ -146,7 +146,7 @@ class _MyHomePageState extends State<MyHomePage> {
     showKeyDialog(context);
   }
 
-  void _handleInitialPrompt(String prompt) {
+  void _handleInitialPrompt(String prompt, String title) {
     showAddPromptDialog(
       context,
       (title, prompt) {
@@ -158,6 +158,7 @@ class _MyHomePageState extends State<MyHomePage> {
         saveSelectedPromptIndex(_selectedPromptIndex);
       },
       initialPrompt: prompt,
+      initialTitle: title,
     );
   }
 
@@ -202,13 +203,14 @@ class _MyHomePageState extends State<MyHomePage> {
   Widget build(BuildContext context) {
     // Listen to PromptNotifier
     String? prompt = Provider.of<PromptNotifier>(context).prompt;
+    String? title = Provider.of<PromptNotifier>(context).title;
     // If there's a new prompt, handle it
-    if (prompt != null) {
+    if (prompt != null && title != null) {
       WidgetsBinding.instance.addPostFrameCallback((_) {
         if (prompt.isNotEmpty) {
-          _handleInitialPrompt(prompt);
+          _handleInitialPrompt(prompt, title);
           // Optionally clear the prompt in PromptNotifier after handling
-          Provider.of<PromptNotifier>(context, listen: false).setPrompt(null);
+          Provider.of<PromptNotifier>(context, listen: false).setPromptAndTitle(null, null);
         }
       });
     }

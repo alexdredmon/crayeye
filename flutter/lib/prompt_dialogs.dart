@@ -2,8 +2,8 @@
 
 import 'package:flutter/material.dart';
 
-void showAddPromptDialog(BuildContext context, Function(String, String) onSave, {String? initialPrompt}) {
-  String newTitle = '';
+void showAddPromptDialog(BuildContext context, Function(String, String) onSave, {String? initialPrompt, String?initialTitle}) {
+  String newTitle = initialTitle ?? '';
   String newPrompt = initialPrompt ?? '';
   showDialog(
     context: context,
@@ -17,6 +17,7 @@ void showAddPromptDialog(BuildContext context, Function(String, String) onSave, 
           mainAxisSize: MainAxisSize.min,
           children: [
             TextField(
+              controller: TextEditingController(text: newTitle),
               style: const TextStyle(color: Colors.white),
               decoration: const InputDecoration(
                 labelText: 'Title',

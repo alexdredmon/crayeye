@@ -52,9 +52,10 @@ class _MyAppState extends State<MyApp> {
     if (link != null && link.startsWith('crayeye://')) {
       Uri uri = Uri.parse(link);
       String? prompt = uri.queryParameters['prompt'];
-      if (prompt != null) {
+      String? title = uri.queryParameters['title']; // Get the title parameter
+      if (prompt != null && title != null) {
         Provider.of<PromptNotifier>(context, listen: false)
-            .setPrompt(prompt.replaceAll('+', ' '));
+            .setPromptAndTitle(Uri.decodeComponent(prompt), Uri.decodeComponent(title));
       }
     }
   }
