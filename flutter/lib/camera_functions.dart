@@ -17,7 +17,7 @@ class CameraFunctions {
     return cameras.firstWhere((camera) => camera.lensDirection == direction);
   }
 
-  static Future<File?> takePicture(CameraController controller) async {
+  static Future<File?> takePicture(CameraController controller, {bool keepFlashOn = false}) async {
     try {
       // Ensure that the camera is initialized
       await controller.initialize();
@@ -30,6 +30,11 @@ class CameraFunctions {
 
       // Set the exposure mode to auto before capturing the image
       await controller.setExposureMode(ExposureMode.auto);
+
+      // Turn on the flash if it's supposed to be kept on
+      if (keepFlashOn) {
+        await controller.setFlashMode(FlashMode.torch);
+      }
 
       // Take the picture and save it to the constructed path
       XFile picture = await controller.takePicture();
@@ -48,6 +53,7 @@ class CameraFunctions {
     int selectedPromptIndex,
     Function(File?, String, bool) onAnalysisComplete,
     Function() onOpenAIKeyMissing,
+    bool keepFlashOn,
   ) async {
     String openAIKey = await loadOpenAIKey();
     if (openAIKey.isEmpty) {
@@ -61,8 +67,8 @@ class CameraFunctions {
     // Get the user's current heading
     double? heading = await FlutterCompass.events!.first.then((value) => value.heading);
 
-    // Take a picture without the default shutter sound
-    File? imageFile = await takePicture(controller);
+    // Take a picture without the default shutter sound, keeping the flash on if necessary
+    File? imageFile = await takePicture(controller, keepFlashOn: keepFlashOn);
 
     if (imageFile != null) {
       // Set the initial state with the captured image and loading state

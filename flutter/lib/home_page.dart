@@ -1,10 +1,8 @@
 // FILENAME: home_page.dart
 import 'dart:async';
 import 'dart:io';
-import 'dart:math';
 import 'package:camera/camera.dart';
 import 'package:flutter/material.dart';
-import 'package:audioplayers/audioplayers.dart';
 import 'config.dart';
 import 'camera_preview.dart';
 import 'prompts_drawer.dart';
@@ -15,6 +13,7 @@ import 'help_drawer.dart';
 import 'prompt_dialogs.dart';
 import 'package:provider/provider.dart';
 import 'prompt_notifier.dart';
+import 'audio_manager.dart';
 
 class MyHomePage extends StatefulWidget {
   const MyHomePage({super.key, required this.title});
@@ -35,40 +34,21 @@ class _MyHomePageState extends State<MyHomePage> {
   List<Map<String, String>> _prompts = [];
   int _selectedPromptIndex = 0;
   bool _isSwitchingCamera = false;
-  final AudioPlayer _audioPlayer = AudioPlayer();
-  final List<String> _audioFiles = ['loading1.wav', 'loading2.wav', 'loading3.wav', 'loading4.wav'];
   bool _isFlashOn = false;
-  bool _isAudioEnabled = true;
+  late AudioManager _audioManager;
   CancelableOperation<void>? _analyzeOperation;
 
   @override
   void initState() {
     super.initState();
     initCamera();
-    _initAudioPlayer();
+    _audioManager = AudioManager();
   }
 
   @override
   void didChangeDependencies() {
     super.didChangeDependencies();
     _loadPrompts();
-  }
-
-  Future<void> _initAudioPlayer() async {
-    await _audioPlayer.setReleaseMode(ReleaseMode.loop);
-    await _audioPlayer.setVolume(20.0);
-  }
-
-  Future<void> _playRandomAudio() async {
-    if (_isAudioEnabled) {
-      final randomIndex = Random().nextInt(_audioFiles.length);
-      final audioFile = _audioFiles[randomIndex];
-      await _audioPlayer.play(AssetSource(audioFile));
-    }
-  }
-
-  Future<void> _stopAudio() async {
-    await _audioPlayer.stop();
   }
 
   void _loadPrompts() async {
@@ -106,7 +86,7 @@ class _MyHomePageState extends State<MyHomePage> {
   @override
   void dispose() {
     _controller?.dispose();
-    _audioPlayer.dispose();
+    _audioManager.dispose();
     super.dispose();
   }
 
@@ -115,7 +95,7 @@ class _MyHomePageState extends State<MyHomePage> {
       _capturedImage = null;
       _responseBody = '';
     });
-    _stopAudio();
+    _audioManager.stopAudio();
   }
 
   void _toggleFlash() async {
@@ -130,9 +110,15 @@ class _MyHomePageState extends State<MyHomePage> {
   }
 
   void _toggleAudio() {
-    setState(() {
-      _isAudioEnabled = !_isAudioEnabled;
-    });
+    if (_audioManager.isAudioEnabledNotifier.value) {
+      _audioManager.disableAudio();
+      _audioManager.stopAudio();
+    } else {
+      _audioManager.enableAudio();
+      if (_isAnalyzing) {
+        _audioManager.playRandomAudio();
+      }
+    }
   }
 
   void _updatePrompts(List<Map<String, String>> updatedPrompts, int updatedSelectedPromptIndex) {
@@ -165,27 +151,25 @@ class _MyHomePageState extends State<MyHomePage> {
   }
 
   void _analyzeImage() async {
-    await _playRandomAudio();
+    _audioManager.playRandomAudio();
     _analyzeOperation = CancelableOperation.fromFuture(
       CameraFunctions.analyzePicture(
         _controller!,
         _prompts,
         _selectedPromptIndex,
         (capturedImage, responseBody, isAnalyzing) {
-          if (_isFlashOn) {
-            _toggleFlash();
-          }
           setState(() {
             _capturedImage = capturedImage;
             _responseBody = responseBody;
             _isAnalyzing = isAnalyzing;
             if (!isAnalyzing) {
-              _stopAudio();
+              _audioManager.stopAudio();
               _analyzeOperation = null;
             }
           });
         },
         _onOpenAIKeyMissing,
+        _isFlashOn,
       ),
     );
   }
@@ -199,7 +183,7 @@ class _MyHomePageState extends State<MyHomePage> {
         _responseBody = '';
         _analyzeOperation = null;
       });
-      _stopAudio();
+      _audioManager.stopAudio();
     }
   }
 
@@ -240,12 +224,17 @@ class _MyHomePageState extends State<MyHomePage> {
     return Scaffold(
       appBar: AppBar(
         backgroundColor: Colors.blueGrey.shade900,
-        leading: IconButton(
-          icon: Icon(
-            _isAudioEnabled ? Icons.volume_up : Icons.volume_off,
-            color: Colors.white,
-          ),
-          onPressed: _toggleAudio,
+        leading: ValueListenableBuilder<bool>(
+          valueListenable: _audioManager.isAudioEnabledNotifier,
+          builder: (context, isAudioEnabled, child) {
+            return IconButton(
+              icon: Icon(
+                isAudioEnabled ? Icons.volume_up : Icons.volume_off,
+                color: Colors.white,
+              ),
+              onPressed: _toggleAudio,
+            );
+          },
         ),
         title: Center(
           child: Image(
