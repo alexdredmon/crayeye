@@ -10,13 +10,15 @@ import 'prompts_drawer.dart';
 import 'camera_functions.dart';
 import 'response_view.dart';
 import 'key_dialog.dart';
-import 'help_drawer.dart'; // Import the new file for help drawer
+import 'help_drawer.dart';
+import 'prompt_dialogs.dart';
+import 'package:provider/provider.dart';
+import 'prompt_notifier.dart'; // Import PromptNotifier
 
 class MyHomePage extends StatefulWidget {
-  const MyHomePage({super.key, required this.title, this.initialPrompt});
+  const MyHomePage({super.key, required this.title});
 
   final String title;
-  final String? initialPrompt;
 
   @override
   State<MyHomePage> createState() => _MyHomePageState();
@@ -28,32 +30,31 @@ class _MyHomePageState extends State<MyHomePage> {
   File? _capturedImage;
   String _responseBody = '';
   CameraLensDirection _cameraDirection = CameraLensDirection.back;
-  bool _isAnalyzing = false; // Track if the analysis is in progress
+  bool _isAnalyzing = false;
   List<Map<String, String>> _prompts = [];
   int _selectedPromptIndex = 0;
-  bool _isSwitchingCamera = false; // Track if the camera is being switched
+  bool _isSwitchingCamera = false;
   final AudioPlayer _audioPlayer = AudioPlayer();
-  final List<String> _audioFiles = ['loading1.wav', 'loading2.wav', 'loading3.wav', 'loading4.wav'];
-  bool _isFlashOn = false; // Track if the flash/light is on
-  bool _isAudioEnabled = true; // Track if audio is enabled
+  final List<String> _audioFiles = ['loading1.wav'];
+  bool _isFlashOn = false;
+  bool _isAudioEnabled = true;
 
   @override
   void initState() {
     super.initState();
-    _loadPrompts();
     initCamera();
     _initAudioPlayer();
+  }
 
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      if (widget.initialPrompt != null) {
-        _handleInitialPrompt(widget.initialPrompt!);
-      }
-    });
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    _loadPrompts();
   }
 
   Future<void> _initAudioPlayer() async {
     await _audioPlayer.setReleaseMode(ReleaseMode.loop);
-    await _audioPlayer.setVolume(1.0); // Set volume to the maximum (1.0)
+    await _audioPlayer.setVolume(10.0);
   }
 
   Future<void> _playRandomAudio() async {
@@ -75,6 +76,12 @@ class _MyHomePageState extends State<MyHomePage> {
       _prompts = loadedPrompts;
       _selectedPromptIndex = loadedSelectedPromptIndex;
     });
+
+    // Listen for prompt changes
+    var promptNotifier = Provider.of<PromptNotifier>(context, listen: false);
+    if (promptNotifier.prompt != null) {
+      _handleInitialPrompt(promptNotifier.prompt!);
+    }
   }
 
   void initCamera() async {
@@ -139,14 +146,18 @@ class _MyHomePageState extends State<MyHomePage> {
     showKeyDialog(context);
   }
 
-  void _handleInitialPrompt(String prompt) async {
-    await showPromptsDrawer(
-      context: context,
-      prompts: _prompts,
-      selectedPromptIndex: _selectedPromptIndex,
-      onPromptsUpdated: _updatePrompts,
+  void _handleInitialPrompt(String prompt) {
+    showAddPromptDialog(
+      context,
+      (title, prompt) {
+        setState(() {
+          _prompts.add({'title': title, 'prompt': prompt});
+          _selectedPromptIndex = _prompts.length - 1;
+        });
+        savePrompts(_prompts);
+        saveSelectedPromptIndex(_selectedPromptIndex);
+      },
       initialPrompt: prompt,
-      onAnalyzePressed: _analyzeImage,
     );
   }
 
@@ -179,7 +190,6 @@ class _MyHomePageState extends State<MyHomePage> {
       _cameraDirection = (_cameraDirection == CameraLensDirection.back)
           ? CameraLensDirection.front
           : CameraLensDirection.back;
-      // When switching to the front camera, turn off the flash if it is on.
       if (_cameraDirection == CameraLensDirection.front && _isFlashOn) {
         _toggleFlash();
       }
@@ -190,6 +200,23 @@ class _MyHomePageState extends State<MyHomePage> {
 
   @override
   Widget build(BuildContext context) {
+    // Listen to PromptNotifier
+    String? prompt = Provider.of<PromptNotifier>(context).prompt;
+    // If there's a new prompt, handle it
+    if (prompt != null) {
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        if (prompt.isNotEmpty) {
+          _handleInitialPrompt(prompt);
+          // Optionally clear the prompt in PromptNotifier after handling
+          Provider.of<PromptNotifier>(context, listen: false).setPrompt(null);
+        }
+      });
+    }
+
+    // Prevent accessing _prompts with an invalid index
+    final isValidIndex = _selectedPromptIndex >= 0 && _selectedPromptIndex < _prompts.length;
+    final currentPromptTitle = isValidIndex ? _prompts[_selectedPromptIndex]['title'] : 'Select a Prompt';
+
     return Scaffold(
       appBar: AppBar(
         backgroundColor: Colors.blueGrey.shade900,
@@ -200,10 +227,10 @@ class _MyHomePageState extends State<MyHomePage> {
           ),
           onPressed: _toggleAudio,
         ),
-        title: Center( // Center the title widget
+        title: Center(
           child: Image(
             image: AssetImage('images/crayeye.png'),
-            height: 30.0, // Set the height to 75px
+            height: 30.0,
           ),
         ),
         actions: [
@@ -231,7 +258,7 @@ class _MyHomePageState extends State<MyHomePage> {
                           capturedImage: _isAnalyzing ? _capturedImage : null,
                         );
                       } else {
-                        return const CircularProgressIndicator(valueColor: AlwaysStoppedAnimation<Color>(Colors.white)); // White loading spinner
+                        return const CircularProgressIndicator(valueColor: AlwaysStoppedAnimation<Color>(Colors.white));
                       }
                     },
                   ),
@@ -272,9 +299,8 @@ class _MyHomePageState extends State<MyHomePage> {
                     mainAxisSize: MainAxisSize.min,
                     children: [
                       Text(
-                        _prompts[_selectedPromptIndex]['title']!,
+                        currentPromptTitle!,
                         style: TextStyle(
-                          // color: Color(0xFF4EFFB6),
                           color: Colors.white,
                           fontSize: 18,
                         ),
@@ -291,19 +317,18 @@ class _MyHomePageState extends State<MyHomePage> {
       floatingActionButton: Column(
         mainAxisAlignment: MainAxisAlignment.end,
         children: [
-          // Show the flash toggle button only if the back camera is selected
           if (!_isAnalyzing && _responseBody.isEmpty && _cameraDirection == CameraLensDirection.back)
             FloatingActionButton(
               onPressed: _toggleFlash,
               child: Icon(_isFlashOn ? Icons.flash_off : Icons.flash_on),
             ),
-          if (!_isAnalyzing && _responseBody.isEmpty && _cameraDirection == CameraLensDirection.back) const SizedBox(height: 16), // Add some spacing
+          if (!_isAnalyzing && _responseBody.isEmpty && _cameraDirection == CameraLensDirection.back) const SizedBox(height: 16),
           if (!_isAnalyzing && _responseBody.isEmpty)
             FloatingActionButton(
               onPressed: _switchCamera,
               child: const Icon(Icons.cameraswitch),
             ),
-          if (!_isAnalyzing && _responseBody.isEmpty) const SizedBox(height: 16), // Add some spacing
+          if (!_isAnalyzing && _responseBody.isEmpty) const SizedBox(height: 16),
           _isAnalyzing
               ? const CircularProgressIndicator(
                   valueColor: AlwaysStoppedAnimation<Color>(Colors.white))
@@ -317,7 +342,7 @@ class _MyHomePageState extends State<MyHomePage> {
                       : Icons.visibility,
                       color: Colors.white),
                 ),
-          if (!_isAnalyzing && _responseBody.isEmpty) const SizedBox(height: 40), // Add some spacing
+          if (!_isAnalyzing && _responseBody.isEmpty) const SizedBox(height: 40),
         ],
       ),
     );

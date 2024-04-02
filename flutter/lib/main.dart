@@ -5,7 +5,9 @@ import 'app.dart';
 import 'config.dart';
 import 'package:uni_links/uni_links.dart';
 import 'home_page.dart';
-import 'prompt_dialogs.dart'; // Import the file containing showAddPromptDialog
+import 'prompt_dialogs.dart';
+import 'package:provider/provider.dart';
+import 'prompt_notifier.dart'; // Make sure to import PromptNotifier
 
 void main() {
   WidgetsFlutterBinding.ensureInitialized();
@@ -13,7 +15,12 @@ void main() {
     DeviceOrientation.portraitUp,
     DeviceOrientation.portraitDown,
   ]);
-  runApp(MyApp());
+  runApp(
+    ChangeNotifierProvider(
+      create: (context) => PromptNotifier(),
+      child: MyApp(),
+    ),
+  );
 }
 
 class MyApp extends StatefulWidget {
@@ -22,8 +29,6 @@ class MyApp extends StatefulWidget {
 }
 
 class _MyAppState extends State<MyApp> {
-  String? _initialPrompt;
-
   @override
   void initState() {
     super.initState();
@@ -33,40 +38,25 @@ class _MyAppState extends State<MyApp> {
   Future<void> _initUniLinks() async {
     // Get the initial link
     String? initialLink = await getInitialLink();
-    if (initialLink != null) {
-      _handleIncomingLink(initialLink);
-    }
+    _handleIncomingLink(initialLink);
 
     // Listen for incoming links
     uriLinkStream.listen((Uri? uri) {
-      if (uri != null) {
-        _handleIncomingLink(uri.toString());
-      }
+      _handleIncomingLink(uri.toString());
     }, onError: (err) {
       // Handle errors
     });
   }
 
-  void _handleIncomingLink(String link) {
-    if (link.startsWith('crayeye://')) {
+  void _handleIncomingLink(String? link) {
+    if (link != null && link.startsWith('crayeye://')) {
       Uri uri = Uri.parse(link);
       String? prompt = uri.queryParameters['prompt'];
       if (prompt != null) {
-        setState(() {
-          _initialPrompt = prompt.replaceAll('+', ' ');
-        });
+        Provider.of<PromptNotifier>(context, listen: false)
+            .setPrompt(prompt.replaceAll('+', ' '));
       }
     }
-  }
-
-  void _showAddPromptDialog(BuildContext context) {
-    showAddPromptDialog(
-      context,
-      (title, prompt) {
-        // Handle saving the prompt
-      },
-      initialPrompt: _initialPrompt,
-    );
   }
 
   @override
@@ -81,7 +71,7 @@ class _MyAppState extends State<MyApp> {
         ),
         useMaterial3: true,
       ),
-      home: MyHomePage(title: 'CrayEye', initialPrompt: _initialPrompt),
+      home: MyHomePage(title: 'CrayEye'),
     );
   }
 }

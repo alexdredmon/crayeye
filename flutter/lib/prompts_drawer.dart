@@ -14,7 +14,7 @@ Future<void> showPromptsDrawer({
 }) async {
   await showModalBottomSheet(
     context: context,
-    backgroundColor: Colors.blueGrey.shade900, // Set background color
+    backgroundColor: Colors.blueGrey.shade900,
     builder: (BuildContext context) {
       return StatefulBuilder(
         builder: (BuildContext context, StateSetter setState) {
@@ -80,7 +80,7 @@ Future<void> showPromptsDrawer({
               Navigator.pop(context);
             },
             onAnalyzePressed: () {
-              Navigator.pop(context); // Close the prompts drawer
+              Navigator.pop(context);
               onAnalyzePressed();
             },
             onPromptsUpdated: onPromptsUpdated,
@@ -169,13 +169,13 @@ class _PromptsDrawerState extends State<PromptsDrawer> {
             style: TextStyle(
               fontSize: 20,
               fontWeight: FontWeight.bold,
-              color: Colors.white, // Set text color to white
+              color: Colors.white,
             ),
           ),
           const SizedBox(height: 16),
           Expanded(
             child: Scrollbar(
-              thumbVisibility: true, // This makes the scrollbar always visible
+              thumbVisibility: true,
               thickness: 6.0,
               radius: Radius.circular(6.0),
               child: ReorderableListView(
@@ -192,8 +192,6 @@ class _PromptsDrawerState extends State<PromptsDrawer> {
                     child: ListTile(
                       title: GestureDetector(
                         onTap: () => widget.onPromptTapped(index),
-                        // onLongPress: () => _startDragging(index),
-                        // onLongPressEnd: (details) => _stopDragging(),
                         child: Row(
                           children: [
                             Text(
@@ -207,7 +205,7 @@ class _PromptsDrawerState extends State<PromptsDrawer> {
                         ),
                       ),
                       trailing: IconButton(
-                        icon: const Icon(Icons.edit, color: Colors.white), // Set icon color to white
+                        icon: const Icon(Icons.edit, color: Colors.white),
                         onPressed: () => widget.onEditPrompt(index),
                       ),
                     ),
@@ -223,8 +221,8 @@ class _PromptsDrawerState extends State<PromptsDrawer> {
               ElevatedButton(
                 onPressed: widget.onShowKeyDialog,
                 style: ElevatedButton.styleFrom(
-                  backgroundColor: Colors.white, // Set button background color to white
-                  foregroundColor: Colors.blueGrey.shade900, // Set button text color to blueGrey.shade900
+                  backgroundColor: Colors.white,
+                  foregroundColor: Colors.blueGrey.shade900,
                   padding: EdgeInsets.symmetric(horizontal: 15, vertical: 10),
                 ),
                 child: const Text('🔑 API Key'),
@@ -232,8 +230,8 @@ class _PromptsDrawerState extends State<PromptsDrawer> {
               ElevatedButton(
                 onPressed: widget.onAddPrompt,
                 style: ElevatedButton.styleFrom(
-                  backgroundColor: Colors.white, // Set button background color to white
-                  foregroundColor: Colors.blueGrey.shade900, // Set button text color to blueGrey.shade900
+                  backgroundColor: Colors.white,
+                  foregroundColor: Colors.blueGrey.shade900,
                   padding: EdgeInsets.symmetric(horizontal: 15, vertical: 10),
                 ),
                 child: const Text('➕ Prompt'),

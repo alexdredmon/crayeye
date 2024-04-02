@@ -32,7 +32,7 @@ void showAddPromptDialog(BuildContext context, Function(String, String) onSave, 
                 labelText: 'Prompt',
                 labelStyle: TextStyle(color: Colors.white),
               ),
-              maxLines: 3, // Set the default number of lines to 3
+              maxLines: 3,
               controller: TextEditingController(text: newPrompt),
               onChanged: (value) {
                 newPrompt = value;
@@ -116,7 +116,7 @@ void showEditPromptDialog(
                   borderSide: BorderSide(color: Colors.white),
                 ),
               ),
-              maxLines: 3,  // Set the default number of lines to 3
+              maxLines: 3,
               controller: TextEditingController(text: updatedPrompt),
               onChanged: (value) {
                 updatedPrompt = value;
