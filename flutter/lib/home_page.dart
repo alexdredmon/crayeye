@@ -166,6 +166,9 @@ class _MyHomePageState extends State<MyHomePage> {
               _audioManager.stopAudio();
               _analyzeOperation = null;
             }
+            if (isAnalyzing && _isFlashOn) {
+              _toggleFlash();
+            }
           });
         },
         _onOpenAIKeyMissing,
