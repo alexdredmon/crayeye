@@ -13,6 +13,8 @@ PODS:
     - FlutterMacOS
   - permission_handler_apple (9.1.1):
     - Flutter
+  - share_plus (0.0.1):
+    - Flutter
   - shared_preferences_foundation (0.0.1):
     - Flutter
     - FlutterMacOS
@@ -29,6 +31,7 @@ DEPENDENCIES:
   - geolocator_apple (from `.symlinks/plugins/geolocator_apple/ios`)
   - path_provider_foundation (from `.symlinks/plugins/path_provider_foundation/darwin`)
   - permission_handler_apple (from `.symlinks/plugins/permission_handler_apple/ios`)
+  - share_plus (from `.symlinks/plugins/share_plus/ios`)
   - shared_preferences_foundation (from `.symlinks/plugins/shared_preferences_foundation/darwin`)
   - uni_links (from `.symlinks/plugins/uni_links/ios`)
   - url_launcher_ios (from `.symlinks/plugins/url_launcher_ios/ios`)
@@ -48,6 +51,8 @@ EXTERNAL SOURCES:
     :path: ".symlinks/plugins/path_provider_foundation/darwin"
   permission_handler_apple:
     :path: ".symlinks/plugins/permission_handler_apple/ios"
+  share_plus:
+    :path: ".symlinks/plugins/share_plus/ios"
   shared_preferences_foundation:
     :path: ".symlinks/plugins/shared_preferences_foundation/darwin"
   uni_links:
@@ -63,6 +68,7 @@ SPEC CHECKSUMS:
   geolocator_apple: 6cbaf322953988e009e5ecb481f07efece75c450
   path_provider_foundation: 3784922295ac71e43754bd15e0653ccfd36a147c
   permission_handler_apple: e76247795d700c14ea09e3a2d8855d41ee80a2e6
+  share_plus: 8875f4f2500512ea181eef553c3e27dba5135aad
   shared_preferences_foundation: b4c3b4cddf1c21f02770737f147a3f5da9d39695
   uni_links: d97da20c7701486ba192624d99bffaaffcfc298a
   url_launcher_ios: 6116280ddcfe98ab8820085d8d76ae7449447586

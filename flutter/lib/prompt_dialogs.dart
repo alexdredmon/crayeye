@@ -128,16 +128,6 @@ void showEditPromptDialog(
         actions: [
           TextButton(
             onPressed: () {
-              onDeletePrompt();
-              Navigator.of(context).pop();
-            },
-            child: const Text(
-              'Delete',
-              style: TextStyle(color: Colors.pink),
-            ),
-          ),
-          TextButton(
-            onPressed: () {
               Navigator.of(context).pop();
             },
             child: const Text(
