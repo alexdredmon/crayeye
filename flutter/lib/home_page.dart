@@ -1,4 +1,5 @@
 // FILENAME: home_page.dart
+import 'dart:async';
 import 'dart:io';
 import 'dart:math';
 import 'package:camera/camera.dart';
@@ -13,7 +14,7 @@ import 'key_dialog.dart';
 import 'help_drawer.dart';
 import 'prompt_dialogs.dart';
 import 'package:provider/provider.dart';
-import 'prompt_notifier.dart'; // Import PromptNotifier
+import 'prompt_notifier.dart';
 
 class MyHomePage extends StatefulWidget {
   const MyHomePage({super.key, required this.title});
@@ -38,6 +39,7 @@ class _MyHomePageState extends State<MyHomePage> {
   final List<String> _audioFiles = ['loading1.wav', 'loading2.wav', 'loading3.wav', 'loading4.wav'];
   bool _isFlashOn = false;
   bool _isAudioEnabled = true;
+  CancelableOperation<void>? _analyzeOperation;
 
   @override
   void initState() {
@@ -164,25 +166,41 @@ class _MyHomePageState extends State<MyHomePage> {
 
   void _analyzeImage() async {
     await _playRandomAudio();
-    CameraFunctions.analyzePicture(
-      _controller!,
-      _prompts,
-      _selectedPromptIndex,
-      (capturedImage, responseBody, isAnalyzing) {
-        if (_isFlashOn) {
-          _toggleFlash();
-        }
-        setState(() {
-          _capturedImage = capturedImage;
-          _responseBody = responseBody;
-          _isAnalyzing = isAnalyzing;
-          if (!isAnalyzing) {
-            _stopAudio();
+    _analyzeOperation = CancelableOperation.fromFuture(
+      CameraFunctions.analyzePicture(
+        _controller!,
+        _prompts,
+        _selectedPromptIndex,
+        (capturedImage, responseBody, isAnalyzing) {
+          if (_isFlashOn) {
+            _toggleFlash();
           }
-        });
-      },
-      _onOpenAIKeyMissing,
+          setState(() {
+            _capturedImage = capturedImage;
+            _responseBody = responseBody;
+            _isAnalyzing = isAnalyzing;
+            if (!isAnalyzing) {
+              _stopAudio();
+              _analyzeOperation = null;
+            }
+          });
+        },
+        _onOpenAIKeyMissing,
+      ),
     );
+  }
+
+  void _cancelAnalysis() {
+    if (_analyzeOperation != null && !_analyzeOperation!.isCompleted) {
+      _analyzeOperation!.cancel();
+      setState(() {
+        _isAnalyzing = false;
+        _capturedImage = null;
+        _responseBody = '';
+        _analyzeOperation = null;
+      });
+      _stopAudio();
+    }
   }
 
   void _switchCamera() async {
@@ -246,70 +264,73 @@ class _MyHomePageState extends State<MyHomePage> {
       ),
       body: Stack(
         children: [
-          Center(
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: <Widget>[
-                if (_initializeControllerFuture != null && _responseBody.isEmpty && !_isSwitchingCamera)
-                  FutureBuilder<void>(
-                    future: _initializeControllerFuture,
-                    builder: (context, snapshot) {
-                      if (snapshot.connectionState == ConnectionState.done) {
-                        return CameraPreviewWidget(
-                          controller: _controller!,
-                          capturedImage: _isAnalyzing ? _capturedImage : null,
-                        );
-                      } else {
-                        return const CircularProgressIndicator(valueColor: AlwaysStoppedAnimation<Color>(Colors.white));
-                      }
-                    },
+          Column(
+            children: [
+              if (_initializeControllerFuture != null && _responseBody.isEmpty && !_isSwitchingCamera)
+                FutureBuilder<void>(
+                  future: _initializeControllerFuture,
+                  builder: (context, snapshot) {
+                    if (snapshot.connectionState == ConnectionState.done) {
+                      return CameraPreviewWidget(
+                        controller: _controller!,
+                        capturedImage: _isAnalyzing ? _capturedImage : null,
+                      );
+                    } else {
+                      return const CircularProgressIndicator(valueColor: AlwaysStoppedAnimation<Color>(Colors.white));
+                    }
+                  },
+                ),
+              const SizedBox(height: 16),
+              if (!_isAnalyzing && _responseBody.isNotEmpty)
+                Expanded(
+                  child: SingleChildScrollView(
+                    child: ResponseView(
+                      imageFile: _capturedImage,
+                      responseBody: _responseBody,
+                      prompt: _prompts[_selectedPromptIndex]['prompt']!,
+                    ),
                   ),
-                const SizedBox(height: 16),
-                if (!_isAnalyzing && _responseBody.isNotEmpty)
-                  ResponseView(
-                    imageFile: _capturedImage,
-                    responseBody: _responseBody,
-                    prompt: _prompts[_selectedPromptIndex]['prompt']!,
-                  ),
-              ],
-            ),
+                ),
+            ],
           ),
           if (!_isAnalyzing && _responseBody.isEmpty)
-            Positioned(
-              bottom: 40,
-              left: 0,
-              right: 0,
-              child: Center(
-                child: ElevatedButton(
-                  onPressed: () {
-                    showPromptsDrawer(
-                      context: context,
-                      prompts: _prompts,
-                      selectedPromptIndex: _selectedPromptIndex,
-                      onPromptsUpdated: _updatePrompts,
-                      onAnalyzePressed: _analyzeImage,
-                    );
-                  },
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: Colors.blueGrey.shade900,
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(50),
-                    ),
-                    padding: EdgeInsets.symmetric(horizontal: 20, vertical: 10),
-                  ),
-                  child: Row(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      Text(
-                        currentPromptTitle!,
-                        style: TextStyle(
-                          color: Colors.white,
-                          fontSize: 18,
-                        ),
+            Align(
+              alignment: Alignment.bottomCenter,
+              child: Container(
+                height: 70,
+                padding: const EdgeInsets.only(bottom: 20),
+                child: Center(
+                  child: ElevatedButton(
+                    onPressed: () {
+                      showPromptsDrawer(
+                        context: context,
+                        prompts: _prompts,
+                        selectedPromptIndex: _selectedPromptIndex,
+                        onPromptsUpdated: _updatePrompts,
+                        onAnalyzePressed: _analyzeImage,
+                      );
+                    },
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: Colors.blueGrey.shade900,
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(50),
                       ),
-                      SizedBox(width: 8),
-                      Icon(Icons.settings, color: Colors.white),
-                    ],
+                      padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
+                    ),
+                    child: Row(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        Text(
+                          currentPromptTitle!,
+                          style: const TextStyle(
+                            color: Colors.white,
+                            fontSize: 18,
+                          ),
+                        ),
+                        const SizedBox(width: 8),
+                        const Icon(Icons.settings, color: Colors.white),
+                      ],
+                    ),
                   ),
                 ),
               ),
@@ -331,6 +352,16 @@ class _MyHomePageState extends State<MyHomePage> {
               child: const Icon(Icons.cameraswitch),
             ),
           if (!_isAnalyzing && _responseBody.isEmpty) const SizedBox(height: 16),
+          if (_isAnalyzing)
+            FloatingActionButton(
+              onPressed: _cancelAnalysis,
+              backgroundColor: Colors.red,
+              child: Icon(
+                Icons.cancel,
+                color: Colors.white,
+              ),
+            ),
+          if (_isAnalyzing) const SizedBox(height: 16),
           _isAnalyzing
               ? const CircularProgressIndicator(
                   valueColor: AlwaysStoppedAnimation<Color>(Colors.white))
@@ -349,5 +380,35 @@ class _MyHomePageState extends State<MyHomePage> {
       ),
     );
   }
+}
+
+class CancelableOperation<T> {
+  CancelableOperation.fromFuture(Future<T> future) : _future = future {
+    _completer = Completer<T>();
+    future.then((result) {
+      if (!_completer.isCompleted) {
+        _completer.complete(result);
+      }
+    }, onError: (error) {
+      if (!_completer.isCompleted) {
+        _completer.completeError(error);
+      }
+    });
+  }
+
+  final Future<T> _future;
+  late final Completer<T> _completer;
+  bool _isCanceled = false;
+
+  Future<T> get future => _completer.future;
+
+  void cancel() {
+    _isCanceled = true;
+    _completer.complete(null as T);
+  }
+
+  bool get isCanceled => _isCanceled;
+
+  bool get isCompleted => _completer.isCompleted;
 }
 // eof
