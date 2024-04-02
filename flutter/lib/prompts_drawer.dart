@@ -6,6 +6,8 @@ import 'key_dialog.dart';
 import 'package:share_plus/share_plus.dart';
 import 'config.dart';
 import 'prompt_list_tile.dart';
+import 'prompts_drawer_buttons.dart';
+import 'prompts_drawer_methods.dart';
 
 Future<void> showPromptsDrawer({
  required BuildContext context,
@@ -21,69 +23,8 @@ Future<void> showPromptsDrawer({
      return PromptsDrawer(
        prompts: prompts,
        selectedPromptIndex: selectedPromptIndex,
-       onEditPrompt: (index) {
-         showEditPromptDialog(
-           context,
-           index,
-           prompts[index]['title']!,
-           prompts[index]['prompt']!,
-           (index, title, prompt) {
-             prompts[index]['title'] = title;
-             prompts[index]['prompt'] = prompt;
-             onPromptsUpdated(prompts, selectedPromptIndex);
-           },
-         );
-       },
-       onDeletePrompt: (index) async {
-         bool confirm = await showDeletePromptConfirmationDialog(context);
-         if (confirm == true) {
-           prompts.removeAt(index);
-           if (selectedPromptIndex >= prompts.length) {
-             selectedPromptIndex = prompts.length - 1;
-           }
-           onPromptsUpdated(prompts, selectedPromptIndex);
-           Navigator.pop(context);
-         }
-       },
-       onSharePrompt: (title, prompt) {
-         Share.share('crayeye://app?title=$title&prompt=$prompt');
-       },
-       onAddPrompt: () {
-         showAddPromptDialog(
-           context,
-           (title, prompt) {
-             prompts.add({'title': title, 'prompt': prompt});
-             onPromptsUpdated(prompts, selectedPromptIndex);
-           },
-         );
-       },
-       onShowKeyDialog: () {
-         showKeyDialog(context);
-       },
-       onPromptTapped: (index) {
-         selectedPromptIndex = index;
-         onPromptsUpdated(prompts, selectedPromptIndex);
-         Navigator.pop(context);
-       },
+       onPromptsUpdated: onPromptsUpdated,
        onAnalyzePressed: onAnalyzePressed,
-       onReorder: (int oldIndex, int newIndex) {
-         if (newIndex > oldIndex) {
-           newIndex -= 1;
-         }
-         final item = prompts.removeAt(oldIndex);
-         prompts.insert(newIndex, item);
-         onPromptsUpdated(prompts, newIndex);
-       },
-       onResetPrompts: () async {
-         bool confirm = await showResetPromptsConfirmationDialog(context);
-         if (confirm == true) {
-           prompts.clear();
-           prompts.addAll(defaultPrompts);
-           selectedPromptIndex = 0;
-           onPromptsUpdated(prompts, selectedPromptIndex);
-           Navigator.pop(context);
-         }
-       },
      );
    },
  );
@@ -92,29 +33,15 @@ Future<void> showPromptsDrawer({
 class PromptsDrawer extends StatefulWidget {
  final List<Map<String, String>> prompts;
  final int selectedPromptIndex;
- final Function(int) onEditPrompt;
- final Function(int) onDeletePrompt;
- final Function(String, String) onSharePrompt;
- final VoidCallback onAddPrompt;
- final VoidCallback onShowKeyDialog; 
- final Function(int) onPromptTapped;
+ final Function(List<Map<String, String>>, int) onPromptsUpdated;
  final VoidCallback onAnalyzePressed;
- final Function(int, int) onReorder;
- final VoidCallback onResetPrompts;
 
  const PromptsDrawer({
    Key? key,
    required this.prompts,
    required this.selectedPromptIndex,
-   required this.onEditPrompt,
-   required this.onDeletePrompt,  
-   required this.onSharePrompt,
-   required this.onAddPrompt,
-   required this.onShowKeyDialog,
-   required this.onPromptTapped,
+   required this.onPromptsUpdated,
    required this.onAnalyzePressed,
-   required this.onReorder,
-   required this.onResetPrompts,
  }) : super(key: key);
 
  @override
@@ -128,15 +55,6 @@ class _PromptsDrawerState extends State<PromptsDrawer> {
  void initState() {
    super.initState();
    _prompts = List.from(widget.prompts);
- }
-
- void _onReorder(int oldIndex, int newIndex) {
-   if (newIndex > oldIndex) {
-     newIndex -= 1;
-   }
-   final item = _prompts.removeAt(oldIndex);
-   _prompts.insert(newIndex, item);
-   widget.onReorder(oldIndex, newIndex);
  }
 
  @override
@@ -160,7 +78,16 @@ class _PromptsDrawerState extends State<PromptsDrawer> {
                  ),
                ),
                ElevatedButton(
-                 onPressed: widget.onResetPrompts,
+                 onPressed: () async {
+                   bool confirm = await showResetPromptsConfirmationDialog(context);
+                   if (confirm == true) {
+                     PromptsDrawerMethods.resetPrompts(
+                       prompts: _prompts,
+                       onPromptsUpdated: widget.onPromptsUpdated,
+                     );
+                     Navigator.pop(context);
+                   }
+                 },
                  style: ElevatedButton.styleFrom(
                    backgroundColor: Colors.blueGrey.shade800,
                    foregroundColor: Colors.white,
@@ -175,7 +102,14 @@ class _PromptsDrawerState extends State<PromptsDrawer> {
             thickness: 6.0,
             thumbVisibility: true,
              child: ReorderableListView.builder(
-               onReorder: _onReorder,
+               onReorder: (int oldIndex, int newIndex) {
+                 PromptsDrawerMethods.reorderPrompts(
+                   prompts: _prompts,
+                   oldIndex: oldIndex,
+                   newIndex: newIndex,
+                   onPromptsUpdated: widget.onPromptsUpdated,
+                 );
+               },
                itemCount: _prompts.length,
                itemBuilder: (context, index) {
                  Map<String, String> prompt = _prompts[index];
@@ -184,38 +118,51 @@ class _PromptsDrawerState extends State<PromptsDrawer> {
                    prompt: prompt,
                    index: index,
                    selectedPromptIndex: widget.selectedPromptIndex,
-                   onEditPrompt: widget.onEditPrompt,
-                   onDeletePrompt: widget.onDeletePrompt,
-                   onSharePrompt: widget.onSharePrompt,
-                   onPromptTapped: widget.onPromptTapped,
+                   onEditPrompt: (index) {
+                     PromptsDrawerMethods.editPrompt(
+                       context: context,
+                       prompts: _prompts,
+                       index: index,
+                       onPromptsUpdated: widget.onPromptsUpdated,
+                       selectedPromptIndex: widget.selectedPromptIndex,
+                     );
+                   },
+                   onDeletePrompt: (index) async {
+                     bool confirm = await showDeletePromptConfirmationDialog(context);
+                     if (confirm == true) {
+                       PromptsDrawerMethods.deletePrompt(
+                         prompts: _prompts,
+                         index: index,
+                         onPromptsUpdated: widget.onPromptsUpdated,
+                         selectedPromptIndex: widget.selectedPromptIndex,
+                       );
+                       Navigator.pop(context);
+                     }
+                   },
+                   onSharePrompt: (title, prompt) {
+                     Share.share('crayeye://app?title=$title&prompt=$prompt');
+                   },
+                   onPromptTapped: (index) {
+                     widget.onPromptsUpdated(_prompts, index);
+                     Navigator.pop(context);
+                   },
                  );
                },
              ),
            ),
          ),
-         Padding(
-           padding: const EdgeInsets.all(16.0),
-           child: Row(
-             mainAxisAlignment: MainAxisAlignment.spaceBetween,
-             children: [
-               ElevatedButton(
-                 onPressed: widget.onShowKeyDialog,
-                 style: ElevatedButton.styleFrom(
-                   backgroundColor: Colors.white,
-                   foregroundColor: Colors.blueGrey.shade900,
-                 ),
-                 child: const Text('🔑 API Key'),
-               ),
-               ElevatedButton(
-                 onPressed: widget.onAddPrompt,
-                 style: ElevatedButton.styleFrom(
-                   backgroundColor: Colors.white, 
-                   foregroundColor: Colors.blueGrey.shade900,
-                 ),
-                 child: const Text('➕ Prompt'),
-               ),
-             ],
-           ),
+         PromptsDrawerButtons(
+           onShowKeyDialog: () {
+             showKeyDialog(context);
+           },
+           onAddPrompt: () {
+             PromptsDrawerMethods.addPrompt(
+               context: context,
+               prompts: _prompts,
+               onPromptsUpdated: widget.onPromptsUpdated,
+               selectedPromptIndex: widget.selectedPromptIndex,
+             );
+           },
          ),
          const SizedBox(height: 8),  
        ],

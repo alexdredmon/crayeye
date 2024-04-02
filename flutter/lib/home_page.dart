@@ -1,5 +1,4 @@
 // FILENAME: home_page.dart
-import 'dart:async';
 import 'dart:io';
 import 'package:camera/camera.dart';
 import 'package:flutter/material.dart';
@@ -15,6 +14,9 @@ import 'package:provider/provider.dart';
 import 'prompt_notifier.dart';
 import 'audio_manager.dart';
 import 'floating_action_buttons.dart';
+import 'home_app_bar.dart';
+import 'cancelable_operation.dart';
+import 'prompt_button.dart';
 
 class MyHomePage extends StatefulWidget {
   const MyHomePage({super.key, required this.title});
@@ -221,34 +223,9 @@ class _MyHomePageState extends State<MyHomePage> {
     final currentPromptTitle = isValidIndex ? _prompts[_selectedPromptIndex]['title'] : 'Select a Prompt';
 
     return Scaffold(
-      appBar: AppBar(
-        backgroundColor: Colors.blueGrey.shade900,
-        leading: ValueListenableBuilder<bool>(
-          valueListenable: _audioManager.isAudioEnabledNotifier,
-          builder: (context, isAudioEnabled, child) {
-            return IconButton(
-              icon: Icon(
-                isAudioEnabled ? Icons.volume_up : Icons.volume_off,
-                color: Colors.white,
-              ),
-              onPressed: _toggleAudio,
-            );
-          },
-        ),
-        title: Center(
-          child: Image(
-            image: AssetImage('images/crayeye.png'),
-            height: 30.0,
-          ),
-        ),
-        actions: [
-          IconButton(
-            icon: Icon(Icons.help, color: Colors.white),
-            onPressed: () {
-              showHelpDrawer(context);
-            },
-          ),
-        ],
+      appBar: HomeAppBar(
+        audioManager: _audioManager,
+        toggleAudio: _toggleAudio,
       ),
       body: Stack(
         children: [
@@ -288,7 +265,8 @@ class _MyHomePageState extends State<MyHomePage> {
                 height: 70,
                 padding: const EdgeInsets.only(bottom: 20),
                 child: Center(
-                  child: ElevatedButton(
+                  child: PromptButton(
+                    currentPromptTitle: currentPromptTitle!,
                     onPressed: () {
                       showPromptsDrawer(
                         context: context,
@@ -298,27 +276,6 @@ class _MyHomePageState extends State<MyHomePage> {
                         onAnalyzePressed: _analyzeImage,
                       );
                     },
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: Colors.blueGrey.shade900,
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(50),
-                      ),
-                      padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
-                    ),
-                    child: Row(
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        Text(
-                          currentPromptTitle!,
-                          style: const TextStyle(
-                            color: Colors.white,
-                            fontSize: 18,
-                          ),
-                        ),
-                        const SizedBox(width: 8),
-                        const Icon(Icons.settings, color: Colors.white),
-                      ],
-                    ),
                   ),
                 ),
               ),
@@ -338,35 +295,5 @@ class _MyHomePageState extends State<MyHomePage> {
       ),
     );
   }
-}
-
-class CancelableOperation<T> {
-  CancelableOperation.fromFuture(Future<T> future) : _future = future {
-    _completer = Completer<T>();
-    future.then((result) {
-      if (!_completer.isCompleted) {
-        _completer.complete(result);
-      }
-    }, onError: (error) {
-      if (!_completer.isCompleted) {
-        _completer.completeError(error);
-      }
-    });
-  }
-
-  final Future<T> _future;
-  late final Completer<T> _completer;
-  bool _isCanceled = false;
-
-  Future<T> get future => _completer.future;
-
-  void cancel() {
-    _isCanceled = true;
-    _completer.complete(null as T);
-  }
-
-  bool get isCanceled => _isCanceled;
-
-  bool get isCompleted => _completer.isCompleted;
 }
 // eof
