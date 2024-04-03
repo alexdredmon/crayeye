@@ -61,18 +61,12 @@ class FloatingActionButtons extends StatelessWidget {
             ? const CircularProgressIndicator(
                 valueColor: AlwaysStoppedAnimation<Color>(Colors.white))
             : FloatingActionButton(
-                // backgroundColor: Colors.deepPurple.shade700,
-                // backgroundColor: Color(0xFFff80ab),
-                // backgroundColor: Color(0xFF4EFFB6),
-                // backgroundColor: Colors.black,
                 backgroundColor: responseBody.isNotEmpty ? Colors.deepPurple.shade700 : Colors.black,
                 onPressed: responseBody.isNotEmpty
                     ? startNewScan
-                    // : analyzeImage,
                     : openSettings,
                 child: Icon(responseBody.isNotEmpty
                     ? Icons.arrow_back
-                    // : Icons.visibility,
                     : Icons.settings,
                     color: Colors.white),
               ),

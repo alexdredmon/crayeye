@@ -21,18 +21,26 @@ class PromptsDrawerButtons extends StatelessWidget {
          ElevatedButton(
            onPressed: onShowKeyDialog,
            style: ElevatedButton.styleFrom(
-             backgroundColor: Colors.white,
-             foregroundColor: Colors.grey.shade900,
+             backgroundColor: Colors.black,
+             foregroundColor: Colors.white,
            ),
-           child: const Text('🔑 API Key'),
+           child: const Text('🔑 API'),
          ),
+         // ElevatedButton(
+         //   onPressed: onShowKeyDialog,
+         //   style: ElevatedButton.styleFrom(
+         //     backgroundColor: Colors.black,
+         //     foregroundColor: Colors.white,
+         //   ),
+         //   child: const Text('❤️ Loved'),
+         // ),
          ElevatedButton(
            onPressed: onAddPrompt,
            style: ElevatedButton.styleFrom(
-              backgroundColor: Color(0xFF4EFFB6),
-              foregroundColor: Colors.black,
+              backgroundColor: Colors.black,
+              foregroundColor: Colors.white,
            ),
-           child: const Text('➕ Prompt'),
+           child: const Text('✨ Prompt'),
          ),
        ],
      ),
