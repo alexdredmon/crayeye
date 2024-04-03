@@ -247,7 +247,7 @@ class _MyHomePageState extends State<MyHomePage> {
           if (_isAnalyzing)
             Positioned.fill(
               child: Container(
-                color: Colors.black.withOpacity(0.5),
+                // color: Colors.black.withOpacity(0.5),
                 child: Scrollbar(
                   thickness: 6.0,
                   thumbVisibility: true,
@@ -282,7 +282,7 @@ class _MyHomePageState extends State<MyHomePage> {
           if (!_isAnalyzing && _responseBody.isNotEmpty)
             Positioned.fill(
               child: Container(
-                color: Colors.black.withOpacity(0.5),
+                // color: Colors.black.withOpacity(0.5),
                 child: Scrollbar(
                   thickness: 6.0,
                   thumbVisibility: true,

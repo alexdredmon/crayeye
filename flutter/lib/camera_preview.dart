@@ -3,6 +3,26 @@ import 'dart:io';
 import 'package:camera/camera.dart';
 import 'package:flutter/material.dart';
 
+class DarkerImage extends StatelessWidget {
+  final File imageFile;
+
+  const DarkerImage({Key? key, required this.imageFile}) : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    return ColorFiltered(
+      colorFilter: ColorFilter.matrix([
+        1, 0, 0, 0, 0, // red channel
+        0, 1, 0, 0, 0, // green channel
+        0, 0, 1, 0, 0, // blue channel
+        0, 0, 0, 1, -150, // apply a darker overlay
+      ]),
+      child: Image.file(imageFile),
+    );
+  }
+}
+
+
 class CameraPreviewWidget extends StatelessWidget {
   final CameraController controller;
   final File? capturedImage;
@@ -19,7 +39,8 @@ class CameraPreviewWidget extends StatelessWidget {
         scale: scale,
         alignment: Alignment.topCenter,
         child: capturedImage != null
-            ? Image.file(capturedImage!)
+            // ? Image.file(capturedImage!)
+            ? DarkerImage(imageFile: capturedImage!)
             : CameraPreview(controller),
       ),
     );
