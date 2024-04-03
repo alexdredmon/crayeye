@@ -8,6 +8,7 @@ import 'home_page.dart';
 import 'prompt_dialogs.dart';
 import 'package:provider/provider.dart';
 import 'prompt_notifier.dart'; // Make sure to import PromptNotifier
+import 'utils.dart';
 
 void main() {
   WidgetsFlutterBinding.ensureInitialized();
@@ -55,7 +56,7 @@ class _MyAppState extends State<MyApp> {
       String? title = uri.queryParameters['title']; // Get the title parameter
       if (prompt != null && title != null) {
         Provider.of<PromptNotifier>(context, listen: false)
-            .setPromptAndTitle(Uri.decodeComponent(prompt), Uri.decodeComponent(title));
+            .setPromptAndTitle(decode_b64(Uri.decodeComponent(prompt)), decode_b64(Uri.decodeComponent(title)));
       }
     }
   }

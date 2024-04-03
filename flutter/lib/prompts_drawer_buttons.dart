@@ -40,7 +40,7 @@ class PromptsDrawerButtons extends StatelessWidget {
               backgroundColor: Colors.black,
               foregroundColor: Colors.white,
            ),
-           child: const Text('✨ Prompt'),
+           child: const Text('+ Prompt'),
          ),
        ],
      ),

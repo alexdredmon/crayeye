@@ -3,11 +3,13 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'prompt_dialogs.dart';
 import 'key_dialog.dart';
+
 import 'package:share_plus/share_plus.dart';
 import 'config.dart';
 import 'prompt_list_tile.dart';
 import 'prompts_drawer_buttons.dart';
 import 'prompts_drawer_methods.dart';
+import 'utils.dart';
 
 Future<void> showPromptsDrawer({
   required BuildContext context,
@@ -139,7 +141,11 @@ class _PromptsDrawerState extends State<PromptsDrawer> {
                       }
                     },
                     onSharePrompt: (title, prompt) {
-                      Share.share('crayeye://app?title=$title&prompt=$prompt');
+                      String titleEncoded = encode_b64(title).replaceAll('+', '%2b');
+                      String promptEncoded = encode_b64(prompt).replaceAll('+', '%2b');
+                      String titleSlug = title.replaceAll(' ','_').replaceAll('?', '');
+                      Share.share('crayeye://$titleSlug?title=$titleEncoded&prompt=$promptEncoded');
+
                     },
                     onPromptTapped: (uuid) {
                       widget.onPromptsUpdated(_prompts, uuid);
