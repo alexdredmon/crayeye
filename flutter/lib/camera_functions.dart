@@ -50,7 +50,7 @@ class CameraFunctions {
   static Future<void> analyzePicture(
     CameraController controller,
     List<Map<String, String>> prompts,
-    String selectedPromptUuid, // Update the parameter name
+    String selectedPromptUuid,
     Function(File?, String, bool) onAnalysisComplete,
     Function() onOpenAIKeyMissing,
     bool keepFlashOn,
@@ -140,31 +140,40 @@ class CameraFunctions {
             ]
           }
         ],
+        'stream': true, // Enable streaming
       };
 
       try {
         // Send the image to OpenAI for analysis
-        final response = await http.post(
-          Uri.parse('https://api.openai.com/v1/chat/completions'),
-          headers: {
-            'Content-Type': 'application/json',
-            'Authorization': 'Bearer $openAIKey',
-          },
-          body: jsonEncode(body),
-        );
+        var request = http.Request('POST', Uri.parse('https://api.openai.com/v1/chat/completions'));
+        request.headers.addAll({
+          'Content-Type': 'application/json',
+          'Authorization': 'Bearer $openAIKey',
+        });
+        request.body = jsonEncode(body);
 
-        // Parse the response
-        final responseData = jsonDecode(response.body);
-        String responseBody = response.body;
-        if (responseData.containsKey('error')) {
-          responseBody = responseData['error']['message'];
-        }
-        if (responseData.containsKey('choices')) {
-          responseBody = responseData['choices'][0]['message']['content'];
-        }
+        var response = await request.send();
 
-        // Update the state with the analysis result and loading state
-        onAnalysisComplete(imageFile, responseBody, false);
+        if (response.statusCode == 200) {
+          String responseBody = '';
+          await for (var chunk in response.stream.transform(utf8.decoder).transform(const LineSplitter())) {
+            if (chunk.startsWith('data:') && chunk != 'data: [DONE]') {
+              print(chunk);
+              var data = jsonDecode(chunk.substring(5).trim());
+              // responseBody += 'x';
+              onAnalysisComplete(imageFile, responseBody, true);
+              if (data['choices'] != null && data['choices'].isNotEmpty) {
+                String content = data['choices'][0]['delta']['content'] ?? '';
+                responseBody += content;
+                onAnalysisComplete(imageFile, responseBody, true);
+              }
+            }
+          }
+          onAnalysisComplete(imageFile, responseBody, false);
+        } else {
+          print('Request failed with status: ${response.statusCode}.');
+          onAnalysisComplete(null, 'Error sending image', false);
+        }
       } catch (e) {
         // Update the state with the error message and loading state
         onAnalysisComplete(null, 'Error sending image: $e', false);

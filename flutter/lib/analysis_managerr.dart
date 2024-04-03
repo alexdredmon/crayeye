@@ -3,6 +3,7 @@ import 'dart:io';
 import 'package:camera/camera.dart';
 import 'camera_functions.dart';
 import 'home_page.dart';
+import 'response_notifier.dart';
 
 class AnalysisManager {
   static void startAnalysis({
@@ -12,21 +13,23 @@ class AnalysisManager {
     required Function(File?, String, bool) onAnalysisComplete,
     required Function() onOpenAIKeyMissing,
     required MyHomePageState homePageState,
+    required ResponseNotifier responseNotifier,
   }) {
     homePageState.playRandomAudio();
     CameraFunctions.analyzePicture(
       controller,
       prompts,
       selectedPromptIndex,
-      (capturedImage, responseBody, isAnalyzing) {
+      (capturedImage, isAnalyzing) {
         if (homePageState.isFlashOn) {
           homePageState.toggleFlash();
         }
-        homePageState.updateAnalysisState(capturedImage, responseBody, isAnalyzing);
+        homePageState.updateAnalysisState(capturedImage, isAnalyzing);
         if (!isAnalyzing) {
           homePageState.stopAudio();
         }
       },
+      responseNotifier,
       onOpenAIKeyMissing,
     );
   }

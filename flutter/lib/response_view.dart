@@ -9,6 +9,7 @@ class ResponseView extends StatelessWidget {
   final String responseBody;
   final String prompt;
 
+
   const ResponseView({
     Key? key,
     required this.imageFile,
@@ -22,7 +23,7 @@ class ResponseView extends StatelessWidget {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         const Text(
-          'Analysis Complete:',
+          'Analysis:',
           style: TextStyle(
             color: Colors.white,
             fontWeight: FontWeight.bold,
