@@ -153,7 +153,6 @@ class _MyHomePageState extends State<MyHomePage> {
     );
   }
 
-  
   void _analyzeImage() async {
     _audioManager.playRandomAudio();
     _analyzeOperation = CancelableOperation.fromFuture(
@@ -231,35 +230,75 @@ class _MyHomePageState extends State<MyHomePage> {
       ),
       body: Stack(
         children: [
-          Column(
-            children: [
-              if (_initializeControllerFuture != null && _responseBody.isEmpty && !_isSwitchingCamera)
-                FutureBuilder<void>(
-                  future: _initializeControllerFuture,
-                  builder: (context, snapshot) {
-                    if (snapshot.connectionState == ConnectionState.done) {
-                      return CameraPreviewWidget(
-                        controller: _controller!,
-                        capturedImage: _isAnalyzing ? _capturedImage : null,
-                      );
-                    } else {
-                      return const CircularProgressIndicator(valueColor: AlwaysStoppedAnimation<Color>(Colors.white));
-                    }
-                  },
-                ),
-              const SizedBox(height: 16),
-              if (!_isAnalyzing && _responseBody.isNotEmpty)
-                Expanded(
+          if (_initializeControllerFuture != null && !_isSwitchingCamera)
+            FutureBuilder<void>(
+              future: _initializeControllerFuture,
+              builder: (context, snapshot) {
+                if (snapshot.connectionState == ConnectionState.done) {
+                  return CameraPreviewWidget(
+                    controller: _controller!,
+                    capturedImage: _capturedImage,
+                  );
+                } else {
+                  return const CircularProgressIndicator(valueColor: AlwaysStoppedAnimation<Color>(Colors.white));
+                }
+              },
+            ),
+          if (_isAnalyzing)
+            Positioned.fill(
+              child: Container(
+                color: Colors.black.withOpacity(0.5),
+                child: Scrollbar(
+                  thickness: 6.0,
+                  thumbVisibility: true,
                   child: SingleChildScrollView(
-                    child: ResponseView(
-                      imageFile: _capturedImage,
-                      responseBody: _responseBody,
-                      prompt: selectedPrompt['prompt']!,
+                    child: Padding(
+                      padding: const EdgeInsets.all(16.0),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          const Text(
+                            'Analyzing...',
+                            style: TextStyle(
+                              color: Colors.white,
+                              fontWeight: FontWeight.bold,
+                              fontSize: 18,
+                            ),
+                          ),
+                          const SizedBox(height: 8),
+                          Text(
+                            selectedPrompt['prompt']!,
+                            style: TextStyle(
+                              color: Colors.grey.shade100,
+                            ),
+                          ),
+                        ],
+                      ),
                     ),
                   ),
                 ),
-            ],
-          ),
+              ),
+            ),
+          if (!_isAnalyzing && _responseBody.isNotEmpty)
+            Positioned.fill(
+              child: Container(
+                color: Colors.black.withOpacity(0.5),
+                child: Scrollbar(
+                  thickness: 6.0,
+                  thumbVisibility: true,
+                  child: SingleChildScrollView(
+                    child: Padding(
+                      padding: const EdgeInsets.all(16.0),
+                      child: ResponseView(
+                        imageFile: _capturedImage,
+                        responseBody: _responseBody,
+                        prompt: selectedPrompt['prompt']!,
+                      ),
+                    ),
+                  ),
+                ),
+              ),
+            ),
           if (!_isAnalyzing && _responseBody.isEmpty)
             Align(
               alignment: Alignment.bottomCenter,

@@ -18,65 +18,48 @@ class ResponseView extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return SingleChildScrollView(
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          if (imageFile != null)
-            Padding(
-              padding: const EdgeInsets.all(5.0),
-              child: SizedBox(
-                width: 300,
-                height: 300,
-                child: Image.file(imageFile!),
-              ),
-            ),
-          Container(
-            margin: const EdgeInsets.fromLTRB(16.0, 16.0, 16.0, 200.0), // Add 100px of padding to the bottom
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                const Text(
-                  'Analysis Complete:',
-                  style: TextStyle(
-                    color: Colors.white,
-                    fontWeight: FontWeight.bold,
-                  ),
-                ),
-                const SizedBox(height: 8),
-                MarkdownBody(
-                  data: responseBody,
-                  styleSheet: MarkdownStyleSheet.fromTheme(Theme.of(context)).copyWith(
-                    p: TextStyle(color: Colors.white),
-                  ),
-                  onTapLink: (String text, String? href, String title) async {
-                    if (href != null) {
-                      if (await canLaunch(href)) {
-                        await launch(href);
-                      }
-                    }
-                  },
-                ),
-                const SizedBox(height: 16),
-                const Text(
-                  'Prompt:',
-                  style: TextStyle(
-                    color: Colors.white,
-                    fontWeight: FontWeight.bold,
-                  ),
-                ),
-                const SizedBox(height: 8),
-                Text(
-                  prompt,
-                  style: TextStyle(
-                    color: Colors.grey.shade100,
-                  ),
-                ),
-              ],
-            ),
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        const Text(
+          'Analysis Complete:',
+          style: TextStyle(
+            color: Colors.white,
+            fontWeight: FontWeight.bold,
+            fontSize: 18,
           ),
-        ],
-      ),
+        ),
+        const SizedBox(height: 8),
+        MarkdownBody(
+          data: responseBody,
+          styleSheet: MarkdownStyleSheet.fromTheme(Theme.of(context)).copyWith(
+            p: TextStyle(color: Colors.white),
+          ),
+          onTapLink: (String text, String? href, String title) async {
+            if (href != null) {
+              if (await canLaunch(href)) {
+                await launch(href);
+              }
+            }
+          },
+        ),
+        const SizedBox(height: 16),
+        const Text(
+          'Prompt:',
+          style: TextStyle(
+            color: Colors.white,
+            fontWeight: FontWeight.bold,
+            fontSize: 18,
+          ),
+        ),
+        const SizedBox(height: 8),
+        Text(
+          prompt,
+          style: TextStyle(
+            color: Colors.grey.shade100,
+          ),
+        ),
+      ],
     );
   }
 }
