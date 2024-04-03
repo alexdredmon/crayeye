@@ -244,10 +244,9 @@ class _MyHomePageState extends State<MyHomePage> {
                 }
               },
             ),
-          if (_isAnalyzing)
-            Positioned.fill(
+           if (_isAnalyzing)
+            Expanded(
               child: Container(
-                // color: Colors.black.withOpacity(0.5),
                 child: Scrollbar(
                   thickness: 6.0,
                   thumbVisibility: true,
@@ -257,20 +256,11 @@ class _MyHomePageState extends State<MyHomePage> {
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          const Text(
-                            'Analyzing...',
-                            style: TextStyle(
-                              color: Colors.white,
-                              fontWeight: FontWeight.bold,
-                              fontSize: 18,
-                            ),
-                          ),
-                          const SizedBox(height: 8),
-                          Text(
-                            selectedPrompt['prompt']!,
-                            style: TextStyle(
-                              color: Colors.grey.shade100,
-                            ),
+                          ResponseView(
+                            imageFile: _capturedImage,
+                            responseBody: _responseBody,
+                            prompt: selectedPrompt['prompt']!,
+                            promptTitle: selectedPrompt['title']!,
                           ),
                         ],
                       ),
@@ -280,9 +270,8 @@ class _MyHomePageState extends State<MyHomePage> {
               ),
             ),
           if (!_isAnalyzing && _responseBody.isNotEmpty)
-            Positioned.fill(
+            Expanded(
               child: Container(
-                // color: Colors.black.withOpacity(0.5),
                 child: Scrollbar(
                   thickness: 6.0,
                   thumbVisibility: true,
@@ -293,6 +282,7 @@ class _MyHomePageState extends State<MyHomePage> {
                         imageFile: _capturedImage,
                         responseBody: _responseBody,
                         prompt: selectedPrompt['prompt']!,
+                        promptTitle: selectedPrompt['title']!,
                       ),
                     ),
                   ),

@@ -15,7 +15,7 @@ class DarkerImage extends StatelessWidget {
         1, 0, 0, 0, 0, // red channel
         0, 1, 0, 0, 0, // green channel
         0, 0, 1, 0, 0, // blue channel
-        0, 0, 0, 1, -150, // apply a darker overlay
+        0, 0, 0, 1, -175, // apply a darker overlay
       ]),
       child: Image.file(imageFile),
     );

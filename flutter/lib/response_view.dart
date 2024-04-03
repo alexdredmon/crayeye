@@ -8,6 +8,7 @@ class ResponseView extends StatelessWidget {
   final File? imageFile;
   final String responseBody;
   final String prompt;
+  final String promptTitle;
 
 
   const ResponseView({
@@ -15,6 +16,7 @@ class ResponseView extends StatelessWidget {
     required this.imageFile,
     required this.responseBody,
     required this.prompt,
+    required this.promptTitle,
   }) : super(key: key);
 
   @override
@@ -22,8 +24,8 @@ class ResponseView extends StatelessWidget {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        const Text(
-          'Analysis:',
+        Text(
+          promptTitle,
           style: TextStyle(
             color: Colors.white,
             fontWeight: FontWeight.bold,
@@ -60,6 +62,7 @@ class ResponseView extends StatelessWidget {
             color: Colors.grey.shade100,
           ),
         ),
+        const SizedBox(height: 50),
       ],
     );
   }
