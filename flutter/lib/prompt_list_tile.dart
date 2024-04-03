@@ -3,18 +3,16 @@ import 'package:flutter/material.dart';
 
 class PromptListTile extends StatelessWidget {
   final Map<String, String> prompt;
-  final int index;
-  final int selectedPromptIndex;
-  final Function(int) onEditPrompt;
-  final Function(int) onDeletePrompt;
+  final bool isSelected;
+  final Function(String) onEditPrompt;
+  final Function(String) onDeletePrompt;
   final Function(String, String) onSharePrompt;
-  final Function(int) onPromptTapped;
+  final Function(String) onPromptTapped;
 
   const PromptListTile({
     Key? key,
     required this.prompt,
-    required this.index,
-    required this.selectedPromptIndex,
+    required this.isSelected,
     required this.onEditPrompt,
     required this.onDeletePrompt,
     required this.onSharePrompt,
@@ -28,18 +26,18 @@ class PromptListTile extends StatelessWidget {
       title: Text(
         prompt['title']!,
         style: TextStyle(
-          color: index == selectedPromptIndex ? Color(0xFF4EFFB6) : Colors.white,
-        ),  
+          color: isSelected ? Color(0xFF4EFFB6) : Colors.white,
+        ),
       ),
       trailing: PopupMenuButton<String>(
         color: Colors.blueGrey.shade800,
         onSelected: (String value) {
           switch (value) {
             case 'Edit':
-              onEditPrompt(index);
+              onEditPrompt(prompt['id']!);
               break;
             case 'Delete':
-              onDeletePrompt(index);
+              onDeletePrompt(prompt['id']!);
               break;
             case 'Share':
               onSharePrompt(prompt['title']!, prompt['prompt']!);
@@ -55,10 +53,10 @@ class PromptListTile extends StatelessWidget {
             ),
           ),
           const PopupMenuItem<String>(
-            value: 'Delete', 
+            value: 'Delete',
             child: ListTile(
               leading: Icon(Icons.delete, color: Colors.white),
-              title: Text('Delete', style: TextStyle(color: Colors.white)),  
+              title: Text('Delete', style: TextStyle(color: Colors.white)),
             ),
           ),
           const PopupMenuItem<String>(
@@ -71,7 +69,7 @@ class PromptListTile extends StatelessWidget {
         ],
         icon: const Icon(Icons.more_vert, color: Colors.white),
       ),
-      onTap: () => onPromptTapped(index),
+      onTap: () => onPromptTapped(prompt['id']!),
     );
   }
 }

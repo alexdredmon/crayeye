@@ -35,7 +35,7 @@ class _MyHomePageState extends State<MyHomePage> {
   CameraLensDirection _cameraDirection = CameraLensDirection.back;
   bool _isAnalyzing = false;
   List<Map<String, String>> _prompts = [];
-  int _selectedPromptIndex = 0;
+  String _selectedPromptUuid = '';
   bool _isSwitchingCamera = false;
   bool _isFlashOn = false;
   late AudioManager _audioManager;
@@ -56,10 +56,10 @@ class _MyHomePageState extends State<MyHomePage> {
 
   void _loadPrompts() async {
     List<Map<String, String>> loadedPrompts = await loadPrompts();
-    int loadedSelectedPromptIndex = await loadSelectedPromptIndex();
+    String loadedSelectedPromptUuid = await loadSelectedPromptUuid();
     setState(() {
       _prompts = loadedPrompts;
-      _selectedPromptIndex = loadedSelectedPromptIndex;
+      _selectedPromptUuid = loadedSelectedPromptUuid;
     });
 
     var promptNotifier = Provider.of<PromptNotifier>(context, listen: false);
@@ -123,13 +123,13 @@ class _MyHomePageState extends State<MyHomePage> {
     }
   }
 
-  void _updatePrompts(List<Map<String, String>> updatedPrompts, int updatedSelectedPromptIndex) {
+  void _updatePrompts(List<Map<String, String>> updatedPrompts, String updatedSelectedPromptUuid) {
     setState(() {
       _prompts = updatedPrompts;
-      _selectedPromptIndex = updatedSelectedPromptIndex;
+      _selectedPromptUuid = updatedSelectedPromptUuid;
     });
     savePrompts(_prompts);
-    saveSelectedPromptIndex(_selectedPromptIndex);
+    saveSelectedPromptUuid(_selectedPromptUuid);
   }
 
   void _onOpenAIKeyMissing() {
@@ -139,26 +139,28 @@ class _MyHomePageState extends State<MyHomePage> {
   void _handleInitialPrompt(String prompt, String title) {
     showAddPromptDialog(
       context,
-      (title, prompt) {
+      (title, prompt, _) {
+        String newPromptId = uuid.v4(); // Generate the UUID here
         setState(() {
-          _prompts.add({'title': title, 'prompt': prompt});
-          _selectedPromptIndex = _prompts.length - 1;
+          _prompts.add({'id': newPromptId, 'title': title, 'prompt': prompt});
+          _selectedPromptUuid = newPromptId;
         });
         savePrompts(_prompts);
-        saveSelectedPromptIndex(_selectedPromptIndex);
+        saveSelectedPromptUuid(_selectedPromptUuid);
       },
       initialPrompt: prompt,
       initialTitle: title,
     );
   }
 
+  
   void _analyzeImage() async {
     _audioManager.playRandomAudio();
     _analyzeOperation = CancelableOperation.fromFuture(
       CameraFunctions.analyzePicture(
         _controller!,
         _prompts,
-        _selectedPromptIndex,
+        _selectedPromptUuid, // Pass the UUID as a String
         (capturedImage, responseBody, isAnalyzing) {
           setState(() {
             _capturedImage = capturedImage;
@@ -219,8 +221,8 @@ class _MyHomePageState extends State<MyHomePage> {
       });
     }
 
-    final isValidIndex = _selectedPromptIndex >= 0 && _selectedPromptIndex < _prompts.length;
-    final currentPromptTitle = isValidIndex ? _prompts[_selectedPromptIndex]['title'] : 'Select a Prompt';
+    final selectedPrompt = _prompts.firstWhere((prompt) => prompt['id'] == _selectedPromptUuid, orElse: () => {'title': 'Select a Prompt'});
+    final currentPromptTitle = selectedPrompt['title'];
 
     return Scaffold(
       appBar: HomeAppBar(
@@ -252,7 +254,7 @@ class _MyHomePageState extends State<MyHomePage> {
                     child: ResponseView(
                       imageFile: _capturedImage,
                       responseBody: _responseBody,
-                      prompt: _prompts[_selectedPromptIndex]['prompt']!,
+                      prompt: selectedPrompt['prompt']!,
                     ),
                   ),
                 ),
@@ -271,7 +273,7 @@ class _MyHomePageState extends State<MyHomePage> {
                       showPromptsDrawer(
                         context: context,
                         prompts: _prompts,
-                        selectedPromptIndex: _selectedPromptIndex,
+                        selectedPromptUuid: _selectedPromptUuid,
                         onPromptsUpdated: _updatePrompts,
                         onAnalyzePressed: _analyzeImage,
                       );

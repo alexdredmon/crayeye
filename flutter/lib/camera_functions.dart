@@ -50,7 +50,7 @@ class CameraFunctions {
   static Future<void> analyzePicture(
     CameraController controller,
     List<Map<String, String>> prompts,
-    int selectedPromptIndex,
+    String selectedPromptUuid, // Update the parameter name
     Function(File?, String, bool) onAnalysisComplete,
     Function() onOpenAIKeyMissing,
     bool keepFlashOn,
@@ -79,7 +79,7 @@ class CameraFunctions {
       String base64Image = base64Encode(bytes);
 
       // Prepare the request payload
-      String prompt = prompts[selectedPromptIndex]['prompt']!;
+      String prompt = prompts.firstWhere((prompt) => prompt['id'] == selectedPromptUuid)['prompt']!; // Find the prompt using UUID
 
       // Request location permissions
       LocationPermission permission = await Geolocator.requestPermission();

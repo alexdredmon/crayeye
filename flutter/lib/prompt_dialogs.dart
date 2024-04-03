@@ -2,7 +2,8 @@
 
 import 'package:flutter/material.dart';
 
-void showAddPromptDialog(BuildContext context, Function(String, String) onSave, {String? initialPrompt, String?initialTitle}) {
+
+void showAddPromptDialog(BuildContext context, Function(String, String, String) onSave, {String? initialPrompt, String? initialTitle}) {
   String newTitle = initialTitle ?? '';
   String newPrompt = initialPrompt ?? '';
   showDialog(
@@ -53,7 +54,7 @@ void showAddPromptDialog(BuildContext context, Function(String, String) onSave, 
           ),
           ElevatedButton(
             onPressed: () {
-              onSave(newTitle, newPrompt);
+              onSave(newTitle, newPrompt, ''); // Pass an empty string as a placeholder for the UUID
               Navigator.of(context).pop();
             },
             child: const Text('Save'),
@@ -66,10 +67,10 @@ void showAddPromptDialog(BuildContext context, Function(String, String) onSave, 
 
 void showEditPromptDialog(
   BuildContext context,
-  int index,
+  String promptId,
   String currentTitle,
   String currentPrompt,
-  Function(int, String, String) onSave,
+  Function(String, String, String) onSave,
 ) {
   String updatedTitle = currentTitle;
   String updatedPrompt = currentPrompt;
@@ -136,7 +137,7 @@ void showEditPromptDialog(
           ),
           ElevatedButton(
             onPressed: () {
-              onSave(index, updatedTitle, updatedPrompt);
+              onSave(promptId, updatedTitle, updatedPrompt);
               Navigator.of(context).pop();
             },
             child: const Text('Save'),
