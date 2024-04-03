@@ -66,8 +66,8 @@ class _MyAppState extends State<MyApp> {
       title: 'CrayEye',
       theme: ThemeData(
         colorScheme: ColorScheme.fromSeed(
-          seedColor: Colors.blueGrey,
-          background: Colors.blueGrey.shade800,
+          seedColor: Colors.grey,
+          background: Colors.black,
           onBackground: Colors.white,
         ),
         useMaterial3: true,

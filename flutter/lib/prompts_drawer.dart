@@ -18,7 +18,7 @@ Future<void> showPromptsDrawer({
 }) async {
   await showModalBottomSheet(
     context: context,
-    backgroundColor: Colors.blueGrey.shade900,
+    backgroundColor: Colors.grey.shade900,
     builder: (BuildContext context) {
       return PromptsDrawer(
         prompts: prompts,
@@ -89,7 +89,7 @@ class _PromptsDrawerState extends State<PromptsDrawer> {
                     }
                   },
                   style: ElevatedButton.styleFrom(
-                    backgroundColor: Colors.blueGrey.shade800,
+                    backgroundColor: Colors.black,
                     foregroundColor: Colors.white,
                   ),
                   child: Text('Reset'),

@@ -69,7 +69,7 @@ class ResponseView extends StatelessWidget {
                 Text(
                   prompt,
                   style: TextStyle(
-                    color: Colors.blueGrey.shade100,
+                    color: Colors.grey.shade100,
                   ),
                 ),
               ],

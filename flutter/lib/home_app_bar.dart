@@ -16,7 +16,7 @@ class HomeAppBar extends StatelessWidget implements PreferredSizeWidget {
   @override
   Widget build(BuildContext context) {
     return AppBar(
-      backgroundColor: Colors.blueGrey.shade900,
+      backgroundColor: Colors.black,
       leading: ValueListenableBuilder<bool>(
         valueListenable: audioManager.isAudioEnabledNotifier,
         builder: (context, isAudioEnabled, child) {

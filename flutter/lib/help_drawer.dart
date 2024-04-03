@@ -6,7 +6,7 @@ import 'package:url_launcher/url_launcher.dart';
 void showHelpDrawer(BuildContext context) {
   showModalBottomSheet(
     context: context,
-    backgroundColor: Colors.blueGrey.shade900,
+    backgroundColor: Colors.grey.shade900,
     builder: (BuildContext context) {
       return Container(
         padding: const EdgeInsets.all(16.0),

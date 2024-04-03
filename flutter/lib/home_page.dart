@@ -264,10 +264,11 @@ class _MyHomePageState extends State<MyHomePage> {
             Align(
               alignment: Alignment.bottomCenter,
               child: Container(
-                height: 70,
+                height: 90,
                 padding: const EdgeInsets.only(bottom: 20),
                 child: Center(
                   child: PromptButton(
+                    onAnalyzePressed: _analyzeImage,
                     currentPromptTitle: currentPromptTitle!,
                     onPressed: () {
                       showPromptsDrawer(
@@ -294,6 +295,15 @@ class _MyHomePageState extends State<MyHomePage> {
         cancelAnalysis: _cancelAnalysis,
         startNewScan: _startNewScan,
         analyzeImage: _analyzeImage,
+        openSettings: () {
+          showPromptsDrawer(
+            context: context,
+            prompts: _prompts,
+            selectedPromptUuid: _selectedPromptUuid,
+            onPromptsUpdated: _updatePrompts,
+            onAnalyzePressed: _analyzeImage,
+          );
+        },
       ),
     );
   }

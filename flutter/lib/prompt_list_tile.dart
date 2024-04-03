@@ -30,7 +30,7 @@ class PromptListTile extends StatelessWidget {
         ),
       ),
       trailing: PopupMenuButton<String>(
-        color: Colors.blueGrey.shade800,
+        color: Colors.black,
         onSelected: (String value) {
           switch (value) {
             case 'Edit':

@@ -4,23 +4,26 @@ import 'package:flutter/material.dart';
 class PromptButton extends StatelessWidget {
   final String currentPromptTitle;
   final VoidCallback onPressed;
+  final VoidCallback onAnalyzePressed;
 
   const PromptButton({
     Key? key,
     required this.currentPromptTitle,
     required this.onPressed,
+    required this.onAnalyzePressed,
+
   }) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
     return ElevatedButton(
-      onPressed: onPressed,
+      onPressed: onAnalyzePressed,
       style: ElevatedButton.styleFrom(
-        backgroundColor: Colors.blueGrey.shade900,
+        backgroundColor: Colors.deepPurple.shade700,
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(50),
         ),
-        padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
+        padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 15),
       ),
       child: Row(
         mainAxisSize: MainAxisSize.min,
@@ -32,8 +35,6 @@ class PromptButton extends StatelessWidget {
               fontSize: 18,
             ),
           ),
-          const SizedBox(width: 8),
-          const Icon(Icons.settings, color: Colors.white),
         ],
       ),
     );

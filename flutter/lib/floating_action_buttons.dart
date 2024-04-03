@@ -12,6 +12,7 @@ class FloatingActionButtons extends StatelessWidget {
   final VoidCallback cancelAnalysis;
   final VoidCallback startNewScan;
   final VoidCallback analyzeImage;
+  final VoidCallback openSettings;
 
   const FloatingActionButtons({
     Key? key,
@@ -24,6 +25,7 @@ class FloatingActionButtons extends StatelessWidget {
     required this.cancelAnalysis,
     required this.startNewScan,
     required this.analyzeImage,
+    required this.openSettings,
   }) : super(key: key);
 
   @override
@@ -33,12 +35,14 @@ class FloatingActionButtons extends StatelessWidget {
       children: [
         if (!isAnalyzing && responseBody.isEmpty && cameraDirection == CameraLensDirection.back)
           FloatingActionButton(
+            backgroundColor: Color(0xFF4EFFB6),
             onPressed: toggleFlash,
             child: Icon(isFlashOn ? Icons.flash_off : Icons.flash_on),
           ),
         if (!isAnalyzing && responseBody.isEmpty && cameraDirection == CameraLensDirection.back) const SizedBox(height: 16),
         if (!isAnalyzing && responseBody.isEmpty)
           FloatingActionButton(
+            backgroundColor: Color(0xFF4EFFB6),
             onPressed: switchCamera,
             child: const Icon(Icons.cameraswitch),
           ),
@@ -57,16 +61,22 @@ class FloatingActionButtons extends StatelessWidget {
             ? const CircularProgressIndicator(
                 valueColor: AlwaysStoppedAnimation<Color>(Colors.white))
             : FloatingActionButton(
-                backgroundColor: Colors.deepPurple.shade700,
+                // backgroundColor: Colors.deepPurple.shade700,
+                // backgroundColor: Color(0xFFff80ab),
+                // backgroundColor: Color(0xFF4EFFB6),
+                // backgroundColor: Colors.black,
+                backgroundColor: responseBody.isNotEmpty ? Colors.deepPurple.shade700 : Colors.black,
                 onPressed: responseBody.isNotEmpty
                     ? startNewScan
-                    : analyzeImage,
+                    // : analyzeImage,
+                    : openSettings,
                 child: Icon(responseBody.isNotEmpty
                     ? Icons.arrow_back
-                    : Icons.visibility,
+                    // : Icons.visibility,
+                    : Icons.settings,
                     color: Colors.white),
               ),
-        if (!isAnalyzing && responseBody.isEmpty) const SizedBox(height: 40),
+        if (!isAnalyzing && responseBody.isEmpty) const SizedBox(height: 50),
       ],
     );
   }

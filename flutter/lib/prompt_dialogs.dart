@@ -79,7 +79,7 @@ void showEditPromptDialog(
     barrierColor: Colors.black54,
     builder: (BuildContext context) {
       return AlertDialog(
-        backgroundColor: Colors.blueGrey.shade800,
+        backgroundColor: Colors.black,
         title: const Text(
           'Edit Prompt',
           style: TextStyle(color: Colors.white),
