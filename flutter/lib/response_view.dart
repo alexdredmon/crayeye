@@ -62,9 +62,10 @@ class ResponseView extends StatelessWidget {
             color: Colors.grey.shade100,
           ),
         ),
-        const SizedBox(height: 50),
+        const SizedBox(height: 200),
       ],
     );
   }
 }
+
 // eof

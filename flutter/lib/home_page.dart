@@ -140,7 +140,7 @@ class _MyHomePageState extends State<MyHomePage> {
     showAddPromptDialog(
       context,
       (title, prompt, _) {
-        String newPromptId = uuid.v4(); // Generate the UUID here
+        String newPromptId = uuid.v4();
         setState(() {
           _prompts.add({'id': newPromptId, 'title': title, 'prompt': prompt});
           _selectedPromptUuid = newPromptId;
@@ -159,7 +159,7 @@ class _MyHomePageState extends State<MyHomePage> {
       CameraFunctions.analyzePicture(
         _controller!,
         _prompts,
-        _selectedPromptUuid, // Pass the UUID as a String
+        _selectedPromptUuid,
         (capturedImage, responseBody, isAnalyzing) {
           setState(() {
             _capturedImage = capturedImage;
@@ -207,6 +207,35 @@ class _MyHomePageState extends State<MyHomePage> {
     initCamera();
   }
 
+  Widget _buildScrollableResponseView({
+    required File? imageFile,
+    required String responseBody,
+    required String prompt,
+    required String promptTitle,
+  }) {
+    return Column(
+      children: [
+        Expanded(
+          child: Scrollbar(
+            thickness: 6.0,
+            thumbVisibility: true,
+            child: SingleChildScrollView(
+              child: Padding(
+                padding: const EdgeInsets.all(16.0),
+                child: ResponseView(
+                  imageFile: imageFile,
+                  responseBody: responseBody,
+                  prompt: prompt,
+                  promptTitle: promptTitle,
+                ),
+              ),
+            ),
+          ),
+        ),
+      ],
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     String? prompt = Provider.of<PromptNotifier>(context).prompt;
@@ -244,50 +273,19 @@ class _MyHomePageState extends State<MyHomePage> {
                 }
               },
             ),
-           if (_isAnalyzing)
-            Expanded(
-              child: Container(
-                child: Scrollbar(
-                  thickness: 6.0,
-                  thumbVisibility: true,
-                  child: SingleChildScrollView(
-                    child: Padding(
-                      padding: const EdgeInsets.all(16.0),
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          ResponseView(
-                            imageFile: _capturedImage,
-                            responseBody: _responseBody,
-                            prompt: selectedPrompt['prompt']!,
-                            promptTitle: selectedPrompt['title']!,
-                          ),
-                        ],
-                      ),
-                    ),
-                  ),
-                ),
-              ),
+          if (_isAnalyzing)
+            _buildScrollableResponseView(
+              imageFile: _capturedImage,
+              responseBody: _responseBody,
+              prompt: selectedPrompt['prompt']!,
+              promptTitle: selectedPrompt['title']!,
             ),
           if (!_isAnalyzing && _responseBody.isNotEmpty)
-            Expanded(
-              child: Container(
-                child: Scrollbar(
-                  thickness: 6.0,
-                  thumbVisibility: true,
-                  child: SingleChildScrollView(
-                    child: Padding(
-                      padding: const EdgeInsets.all(16.0),
-                      child: ResponseView(
-                        imageFile: _capturedImage,
-                        responseBody: _responseBody,
-                        prompt: selectedPrompt['prompt']!,
-                        promptTitle: selectedPrompt['title']!,
-                      ),
-                    ),
-                  ),
-                ),
-              ),
+            _buildScrollableResponseView(
+              imageFile: _capturedImage,
+              responseBody: _responseBody,
+              prompt: selectedPrompt['prompt']!,
+              promptTitle: selectedPrompt['title']!,
             ),
           if (!_isAnalyzing && _responseBody.isEmpty)
             Align(
@@ -337,4 +335,5 @@ class _MyHomePageState extends State<MyHomePage> {
     );
   }
 }
+
 // eof

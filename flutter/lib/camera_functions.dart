@@ -158,9 +158,7 @@ class CameraFunctions {
           String responseBody = '';
           await for (var chunk in response.stream.transform(utf8.decoder).transform(const LineSplitter())) {
             if (chunk.startsWith('data:') && chunk != 'data: [DONE]') {
-              print(chunk);
               var data = jsonDecode(chunk.substring(5).trim());
-              // responseBody += 'x';
               onAnalysisComplete(imageFile, responseBody, true);
               if (data['choices'] != null && data['choices'].isNotEmpty) {
                 String content = data['choices'][0]['delta']['content'] ?? '';
