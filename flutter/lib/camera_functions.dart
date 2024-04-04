@@ -54,6 +54,7 @@ class CameraFunctions {
     Function(File?, String, bool) onAnalysisComplete,
     Function() onOpenAIKeyMissing,
     bool keepFlashOn,
+    CancelToken cancelToken,
   ) async {
     String openAIKey = await loadOpenAIKey();
     if (openAIKey.isEmpty) {
@@ -157,6 +158,11 @@ class CameraFunctions {
         if (response.statusCode == 200) {
           String responseBody = '';
           await for (var chunk in response.stream.transform(utf8.decoder).transform(const LineSplitter())) {
+            if (cancelToken.isCancellationRequested) {
+              response.stream.listen((_) {}).cancel(); // Cancel the stream
+              break;
+            }
+
             if (chunk.startsWith('data:') && chunk != 'data: [DONE]') {
               var data = jsonDecode(chunk.substring(5).trim());
               onAnalysisComplete(imageFile, responseBody, true);
@@ -167,19 +173,32 @@ class CameraFunctions {
               }
             }
           }
-          onAnalysisComplete(imageFile, responseBody, false);
+
+          if (!cancelToken.isCancellationRequested) {
+            onAnalysisComplete(imageFile, responseBody, false);
+          }
         } else {
           print('Request failed with status: ${response.statusCode}.');
-          onAnalysisComplete(null, 'Error sending image', false);
+          if (!cancelToken.isCancellationRequested) {
+            onAnalysisComplete(null, 'Error sending image', false);
+          }
         }
       } catch (e) {
         // Update the state with the error message and loading state
-        onAnalysisComplete(null, 'Error sending image: $e', false);
+        if (!cancelToken.isCancellationRequested) {
+          onAnalysisComplete(null, 'Error sending image: $e', false);
+        }
       }
     } else {
       // Update the state indicating no image was captured and loading state
-      onAnalysisComplete(null, 'Failed to capture image', false);
+      if (!cancelToken.isCancellationRequested) {
+        onAnalysisComplete(null, 'Failed to capture image', false);
+      }
     }
   }
+}
+
+class CancelToken {
+  bool isCancellationRequested = false;
 }
 // eof

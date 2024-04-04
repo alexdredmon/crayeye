@@ -40,6 +40,7 @@ class _MyHomePageState extends State<MyHomePage> {
   bool _isFlashOn = false;
   late AudioManager _audioManager;
   CancelableOperation<void>? _analyzeOperation;
+  CancelToken _cancelToken = CancelToken();
 
   @override
   void initState() {
@@ -155,6 +156,7 @@ class _MyHomePageState extends State<MyHomePage> {
 
   void _analyzeImage() async {
     _audioManager.playRandomAudio();
+    _cancelToken = CancelToken(); // Create a new CancelToken for each analysis
     _analyzeOperation = CancelableOperation.fromFuture(
       CameraFunctions.analyzePicture(
         _controller!,
@@ -176,12 +178,14 @@ class _MyHomePageState extends State<MyHomePage> {
         },
         _onOpenAIKeyMissing,
         _isFlashOn,
+        _cancelToken, // Pass the CancelToken to the analyzePicture function
       ),
     );
   }
 
   void _cancelAnalysis() {
     if (_analyzeOperation != null && !_analyzeOperation!.isCompleted) {
+      _cancelToken.isCancellationRequested = true; // Set the cancellation flag
       _analyzeOperation!.cancel();
       setState(() {
         _isAnalyzing = false;
@@ -335,5 +339,4 @@ class _MyHomePageState extends State<MyHomePage> {
     );
   }
 }
-
 // eof
