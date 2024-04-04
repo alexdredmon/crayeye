@@ -13,6 +13,7 @@ class FloatingActionButtons extends StatelessWidget {
   final VoidCallback startNewScan;
   final VoidCallback analyzeImage;
   final VoidCallback openSettings;
+  final VoidCallback addToFavorites;
 
   const FloatingActionButtons({
     Key? key,
@@ -26,6 +27,7 @@ class FloatingActionButtons extends StatelessWidget {
     required this.startNewScan,
     required this.analyzeImage,
     required this.openSettings,
+    required this.addToFavorites,
   }) : super(key: key);
 
   @override
@@ -57,6 +59,16 @@ class FloatingActionButtons extends StatelessWidget {
             ),
           ),
         if (isAnalyzing) const SizedBox(height: 16),
+        if (!isAnalyzing && responseBody.isNotEmpty)
+          FloatingActionButton(
+            onPressed: addToFavorites,
+            backgroundColor: Colors.red,
+            child: Icon(
+              Icons.favorite,
+              color: Colors.white,
+            ),
+          ),
+        if (!isAnalyzing && responseBody.isNotEmpty) const SizedBox(height: 16),
         isAnalyzing
             ? const CircularProgressIndicator(
                 valueColor: AlwaysStoppedAnimation<Color>(Colors.white))

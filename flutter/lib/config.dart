@@ -1,6 +1,8 @@
 // FILENAME: config.dart
+import 'dart:convert';
 import 'dart:io';
 
+import 'package:path_provider/path_provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:uuid/uuid.dart';
 
@@ -17,6 +19,39 @@ List<Map<String, String>> defaultPrompts = [
   {'id': uuid.v4(), 'title': '📚 Keyword extraction ', 'prompt': 'Analyze the following scene and return only a list of keywords for items/concepts you find in the scene.  Keywords should be separated by commas and ordered by their relevance to the scene.  Return nothing but these keywords, say nothing else in your response.'},
   {'id': uuid.v4(), 'title': '🐈 Is it a cat? ', 'prompt': 'Is this an image of a cat?  Only respond yes or no.'},
 ];
+
+// Add this class to represent a favorite item
+class FavoriteItem {
+  final String uuid;
+  final File imageFile;
+  final String response;
+  final String promptTitle;
+  final String prompt;
+
+  FavoriteItem({
+    required this.uuid,
+    required this.imageFile,
+    required this.response,
+    required this.promptTitle,
+    required this.prompt,
+  });
+
+  Map<String, dynamic> toJson() => {
+        'uuid': uuid,
+        'imageFilePath': imageFile.path,
+        'response': response,
+        'promptTitle': promptTitle,
+        'prompt': prompt,
+      };
+
+  static FavoriteItem fromJson(Map<String, dynamic> json) => FavoriteItem(
+        uuid: json['uuid'],
+        imageFile: File(json['imageFilePath']),
+        response: json['response'],
+        promptTitle: json['promptTitle'],
+        prompt: json['prompt'],
+      );
+}
 
 Future<void> savePrompts(List<Map<String, String>> prompts) async {
   SharedPreferences prefs = await SharedPreferences.getInstance();
@@ -62,4 +97,19 @@ Future<String> loadOpenAIKey() async {
   return openAIKey;
 }
 
+// Add these methods to save and load favorites
+Future<void> saveFavorites(List<FavoriteItem> favorites) async {
+  SharedPreferences prefs = await SharedPreferences.getInstance();
+  List<String> favoriteList = favorites.map((favorite) => json.encode(favorite.toJson())).toList();
+  await prefs.setStringList('favorites', favoriteList);
+}
+
+Future<List<FavoriteItem>> loadFavorites() async {
+  SharedPreferences prefs = await SharedPreferences.getInstance();
+  List<String>? favoriteList = prefs.getStringList('favorites');
+  if (favoriteList != null) {
+    return favoriteList.map((favorite) => FavoriteItem.fromJson(json.decode(favorite))).toList();
+  }
+  return [];
+}
 // eof

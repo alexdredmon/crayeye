@@ -3,7 +3,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'prompt_dialogs.dart';
 import 'key_dialog.dart';
-
 import 'package:share_plus/share_plus.dart';
 import 'config.dart';
 import 'prompt_list_tile.dart';
@@ -17,6 +16,7 @@ Future<void> showPromptsDrawer({
   required String selectedPromptUuid,
   required Function(List<Map<String, String>>, String) onPromptsUpdated,
   required VoidCallback onAnalyzePressed,
+  required GlobalKey<ScaffoldState> scaffoldKey,
 }) async {
   await showModalBottomSheet(
     context: context,
@@ -27,6 +27,7 @@ Future<void> showPromptsDrawer({
         selectedPromptUuid: selectedPromptUuid,
         onPromptsUpdated: onPromptsUpdated,
         onAnalyzePressed: onAnalyzePressed,
+        scaffoldKey: scaffoldKey,
       );
     },
   );
@@ -37,6 +38,7 @@ class PromptsDrawer extends StatefulWidget {
   final String selectedPromptUuid;
   final Function(List<Map<String, String>>, String) onPromptsUpdated;
   final VoidCallback onAnalyzePressed;
+  final GlobalKey<ScaffoldState> scaffoldKey;
 
   const PromptsDrawer({
     Key? key,
@@ -44,6 +46,7 @@ class PromptsDrawer extends StatefulWidget {
     required this.selectedPromptUuid,
     required this.onPromptsUpdated,
     required this.onAnalyzePressed,
+    required this.scaffoldKey,
   }) : super(key: key);
 
   @override
@@ -92,7 +95,7 @@ class _PromptsDrawerState extends State<PromptsDrawer> {
                   },
                   style: ElevatedButton.styleFrom(
                     backgroundColor: Colors.black,
-                    foregroundColor: Colors.white,
+                    foregroundColor: Color(0xFFff80ab),
                   ),
                   child: Text('Reset'),
                 ),
@@ -143,9 +146,8 @@ class _PromptsDrawerState extends State<PromptsDrawer> {
                     onSharePrompt: (title, prompt) {
                       String titleEncoded = encode_b64(title).replaceAll('+', '%2b');
                       String promptEncoded = encode_b64(prompt).replaceAll('+', '%2b');
-                      String titleSlug = title.replaceAll(' ','_').replaceAll('?', '');
+                      String titleSlug = title.replaceAll(' ', '_').replaceAll('?', '');
                       Share.share('crayeye://$titleSlug?title=$titleEncoded&prompt=$promptEncoded');
-
                     },
                     onPromptTapped: (uuid) {
                       widget.onPromptsUpdated(_prompts, uuid);
@@ -159,6 +161,10 @@ class _PromptsDrawerState extends State<PromptsDrawer> {
           PromptsDrawerButtons(
             onShowKeyDialog: () {
               showKeyDialog(context);
+            },
+            onShowFavoritesDrawer: () {
+              Navigator.pop(context);
+              widget.scaffoldKey.currentState?.openEndDrawer();
             },
             onAddPrompt: () {
               PromptsDrawerMethods.addPrompt(

@@ -17,6 +17,7 @@ import 'floating_action_buttons.dart';
 import 'home_app_bar.dart';
 import 'cancelable_operation.dart';
 import 'prompt_button.dart';
+import 'favorites_drawer.dart';
 
 class MyHomePage extends StatefulWidget {
   const MyHomePage({super.key, required this.title});
@@ -41,12 +42,15 @@ class _MyHomePageState extends State<MyHomePage> {
   late AudioManager _audioManager;
   CancelableOperation<void>? _analyzeOperation;
   CancelToken _cancelToken = CancelToken();
+  List<FavoriteItem> _favorites = [];
+  final GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey<ScaffoldState>();
 
   @override
   void initState() {
     super.initState();
     initCamera();
     _audioManager = AudioManager();
+    _loadFavorites();
   }
 
   @override
@@ -67,6 +71,13 @@ class _MyHomePageState extends State<MyHomePage> {
     if (promptNotifier.prompt != null) {
       _handleInitialPrompt(promptNotifier.prompt!, promptNotifier.title!);
     }
+  }
+
+  void _loadFavorites() async {
+    List<FavoriteItem> loadedFavorites = await loadFavorites();
+    setState(() {
+      _favorites = loadedFavorites;
+    });
   }
 
   void initCamera() async {
@@ -211,6 +222,34 @@ class _MyHomePageState extends State<MyHomePage> {
     initCamera();
   }
 
+  void _addToFavorites() {
+    if (_capturedImage != null) {
+      String selectedPrompt = _prompts.firstWhere((prompt) => prompt['id'] == _selectedPromptUuid)['prompt']!;
+      String selectedPromptTitle = _prompts.firstWhere((prompt) => prompt['id'] == _selectedPromptUuid)['title']!;
+      FavoriteItem newFavorite = FavoriteItem(
+        uuid: uuid.v4(),
+        imageFile: _capturedImage!,
+        response: _responseBody,
+        promptTitle: selectedPromptTitle,
+        prompt: selectedPrompt,
+      );
+      setState(() {
+        _favorites.add(newFavorite);
+      });
+      saveFavorites(_favorites);
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('This response added to your favorites')),
+      );
+    }
+  }
+
+  void _deleteFavorite(FavoriteItem favoriteItem) {
+    setState(() {
+      _favorites.remove(favoriteItem);
+    });
+    saveFavorites(_favorites);
+  }
+
   Widget _buildScrollableResponseView({
     required File? imageFile,
     required String responseBody,
@@ -257,6 +296,7 @@ class _MyHomePageState extends State<MyHomePage> {
     final currentPromptTitle = selectedPrompt['title'];
 
     return Scaffold(
+      key: _scaffoldKey,
       appBar: HomeAppBar(
         audioManager: _audioManager,
         toggleAudio: _toggleAudio,
@@ -308,6 +348,7 @@ class _MyHomePageState extends State<MyHomePage> {
                         selectedPromptUuid: _selectedPromptUuid,
                         onPromptsUpdated: _updatePrompts,
                         onAnalyzePressed: _analyzeImage,
+                        scaffoldKey: _scaffoldKey, // Pass the scaffold key
                       );
                     },
                   ),
@@ -315,6 +356,16 @@ class _MyHomePageState extends State<MyHomePage> {
               ),
             ),
         ],
+      ),
+      endDrawer: FavoritesDrawer(
+        favorites: _favorites,
+        onFavoriteItemTapped: (favoriteItem) {
+          showDialog(
+            context: context,
+            builder: (context) => FavoriteItemDialog(favoriteItem: favoriteItem),
+          );
+        },
+        onFavoriteItemDeleted: _deleteFavorite,
       ),
       floatingActionButton: FloatingActionButtons(
         isAnalyzing: _isAnalyzing,
@@ -333,8 +384,10 @@ class _MyHomePageState extends State<MyHomePage> {
             selectedPromptUuid: _selectedPromptUuid,
             onPromptsUpdated: _updatePrompts,
             onAnalyzePressed: _analyzeImage,
+            scaffoldKey: _scaffoldKey, // Pass the scaffold key
           );
         },
+        addToFavorites: _addToFavorites,
       ),
     );
   }
