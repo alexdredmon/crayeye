@@ -48,13 +48,13 @@ class FavoritesDrawer extends StatelessWidget {
                   builder: (BuildContext context) {
                     return AlertDialog(
                       title: Text(
-                        "Delete Favorite",
+                        "Delete Fave",
                         style: TextStyle(
                           color: Colors.white,
                         ),
                       ),
                       content: Text(
-                        "Are you sure you want to delete this favorite?",
+                        "Are you sure you want to delete this fave?",
                         style: TextStyle(
                           color: Colors.white,
                         ),
@@ -72,6 +72,9 @@ class FavoritesDrawer extends StatelessWidget {
                           },
                         ),
                         TextButton(
+                          style: ElevatedButton.styleFrom(
+                            backgroundColor: Colors.redAccent,
+                          ),
                           child: Text(
                             "Delete",
                             style: TextStyle(
