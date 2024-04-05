@@ -12,7 +12,7 @@ class FloatingActionButtons extends StatelessWidget {
   final VoidCallback cancelAnalysis;
   final VoidCallback startNewScan;
   final VoidCallback analyzeImage;
-  final VoidCallback openSettings;
+  final VoidCallback openFavorites;
   final VoidCallback addToFavorites;
 
   const FloatingActionButtons({
@@ -26,7 +26,7 @@ class FloatingActionButtons extends StatelessWidget {
     required this.cancelAnalysis,
     required this.startNewScan,
     required this.analyzeImage,
-    required this.openSettings,
+    required this.openFavorites,
     required this.addToFavorites,
   }) : super(key: key);
 
@@ -35,11 +35,20 @@ class FloatingActionButtons extends StatelessWidget {
     return Column(
       mainAxisAlignment: MainAxisAlignment.end,
       children: [
+        if (!isAnalyzing && responseBody.isEmpty)
+          FloatingActionButton(
+            backgroundColor: Color(0xFFff80ab),
+            onPressed: openFavorites,
+            child: Icon(Icons.favorite),
+          ),
+        if (!isAnalyzing && responseBody.isEmpty) const SizedBox(height: 16),
         if (!isAnalyzing && responseBody.isEmpty && cameraDirection == CameraLensDirection.back)
           FloatingActionButton(
             backgroundColor: Color(0xFF4EFFB6),
             onPressed: toggleFlash,
-            child: Icon(isFlashOn ? Icons.flash_off : Icons.flash_on),
+            child: Icon(
+              isFlashOn ? Icons.flash_off : Icons.flash_on,
+            ),
           ),
         if (!isAnalyzing && responseBody.isEmpty && cameraDirection == CameraLensDirection.back) const SizedBox(height: 16),
         if (!isAnalyzing && responseBody.isEmpty)
@@ -62,26 +71,23 @@ class FloatingActionButtons extends StatelessWidget {
         if (!isAnalyzing && responseBody.isNotEmpty)
           FloatingActionButton(
             onPressed: addToFavorites,
-            backgroundColor: Colors.red,
+            backgroundColor: Color(0xFFff80ab),
             child: Icon(
               Icons.favorite,
-              color: Colors.white,
+              color: Colors.black,
             ),
           ),
         if (!isAnalyzing && responseBody.isNotEmpty) const SizedBox(height: 16),
         isAnalyzing
             ? const CircularProgressIndicator(
                 valueColor: AlwaysStoppedAnimation<Color>(Colors.white))
-            : FloatingActionButton(
-                backgroundColor: responseBody.isNotEmpty ? Colors.deepPurple.shade700 : Colors.black,
-                onPressed: responseBody.isNotEmpty
-                    ? startNewScan
-                    : openSettings,
-                child: Icon(responseBody.isNotEmpty
-                    ? Icons.arrow_back
-                    : Icons.settings,
-                    color: Colors.white),
-              ),
+            : responseBody.isNotEmpty
+                ? FloatingActionButton(
+                    backgroundColor: Colors.deepPurple.shade700,
+                    onPressed: startNewScan,
+                    child: Icon(Icons.arrow_back, color: Colors.white),
+                  )
+                : const SizedBox.shrink(),
         if (!isAnalyzing && responseBody.isEmpty) const SizedBox(height: 50),
       ],
     );

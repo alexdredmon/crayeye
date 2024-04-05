@@ -25,93 +25,102 @@ class FavoritesDrawer extends StatelessWidget {
         backgroundColor: Colors.grey.shade900,
         appBar: AppBar(
           title: Text(
-            '❤️ Faves',
+            'Faves',
             style: TextStyle(
               color: Colors.white,
             ),
           ),
           backgroundColor: Colors.black,
         ),
-        body: ListView.builder(
-          itemCount: favorites.length,
-          itemBuilder: (context, index) {
-            FavoriteItem favorite = favorites[index];
-            return Dismissible(
-              key: Key(favorite.uuid),
-              direction: DismissDirection.endToStart,
-              onDismissed: (direction) {
-                onFavoriteItemDeleted(favorite);
-              },
-              confirmDismiss: (direction) async {
-                return await showDialog(
-                  context: context,
-                  builder: (BuildContext context) {
-                    return AlertDialog(
+        body: favorites.isEmpty
+            ? Center(
+                child: Text(
+                  'No faves yet',
+                  style: TextStyle(
+                    color: Colors.white,
+                  ),
+                ),
+              )
+            : ListView.builder(
+                itemCount: favorites.length,
+                itemBuilder: (context, index) {
+                  FavoriteItem favorite = favorites[index];
+                  return Dismissible(
+                    key: Key(favorite.uuid),
+                    direction: DismissDirection.endToStart,
+                    onDismissed: (direction) {
+                      onFavoriteItemDeleted(favorite);
+                    },
+                    confirmDismiss: (direction) async {
+                      return await showDialog(
+                        context: context,
+                        builder: (BuildContext context) {
+                          return AlertDialog(
+                            title: Text(
+                              "Delete Fave",
+                              style: TextStyle(
+                                color: Colors.white,
+                              ),
+                            ),
+                            content: Text(
+                              "Are you sure you want to delete this fave?",
+                              style: TextStyle(
+                                color: Colors.white,
+                              ),
+                            ),
+                            actions: [
+                              TextButton(
+                                child: Text(
+                                  "Cancel",
+                                  style: TextStyle(
+                                    color: Colors.white,
+                                  ),
+                                ),
+                                onPressed: () {
+                                  Navigator.of(context).pop(false);
+                                },
+                              ),
+                              TextButton(
+                                style: ElevatedButton.styleFrom(
+                                  backgroundColor: Colors.redAccent,
+                                ),
+                                child: Text(
+                                  "Delete",
+                                  style: TextStyle(
+                                    color: Colors.white,
+                                  ),
+                                ),
+                                onPressed: () {
+                                  Navigator.of(context).pop(true);
+                                },
+                              ),
+                            ],
+                          );
+                        },
+                      );
+                    },
+                    background: Container(
+                      alignment: Alignment.centerRight,
+                      padding: EdgeInsets.only(right: 20.0),
+                      color: Colors.red,
+                      child: Icon(Icons.delete, color: Colors.white),
+                    ),
+                    child: ListTile(
+                      leading: Image.file(
+                        favorite.imageFile,
+                        width: 50,
+                        height: 50,
+                        fit: BoxFit.cover,
+                      ),
                       title: Text(
-                        "Delete Fave",
-                        style: TextStyle(
-                          color: Colors.white,
-                        ),
+                        favorite.promptTitle,
+                        style: TextStyle(color: Colors.white),
                       ),
-                      content: Text(
-                        "Are you sure you want to delete this fave?",
-                        style: TextStyle(
-                          color: Colors.white,
-                        ),
-                      ),
-                      actions: [
-                        TextButton(
-                          child: Text(
-                            "Cancel",
-                            style: TextStyle(
-                              color: Colors.white,
-                            ),
-                          ),
-                          onPressed: () {
-                            Navigator.of(context).pop(false);
-                          },
-                        ),
-                        TextButton(
-                          style: ElevatedButton.styleFrom(
-                            backgroundColor: Colors.redAccent,
-                          ),
-                          child: Text(
-                            "Delete",
-                            style: TextStyle(
-                              color: Colors.white,
-                            ),
-                          ),
-                          onPressed: () {
-                            Navigator.of(context).pop(true);
-                          },
-                        ),
-                      ],
-                    );
-                  },
-                );
-              },
-              background: Container(
-                alignment: Alignment.centerRight,
-                padding: EdgeInsets.only(right: 20.0),
-                color: Colors.red,
-                child: Icon(Icons.delete, color: Colors.white),
+                      onTap: () => onFavoriteItemTapped(favorite),
+                    ),
+                  );
+                },
               ),
-              child: ListTile(
-                leading: Image.file(
-                  favorite.imageFile,
-                  width: 50,
-                  height: 50,
-                  fit: BoxFit.cover,
-                ),
-                title: Text(
-                  favorite.promptTitle,
-                  style: TextStyle(color: Colors.white),
-                ),
-                onTap: () => onFavoriteItemTapped(favorite),
-              ),
-            );
-          },
-        ),
       ),
     );
   }
@@ -127,6 +136,8 @@ class FavoriteItemDialog extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final themeData = Theme.of(context);
+    final baseTextStyle = TextStyle(color: Colors.white);
     return Dialog(
       child: Scaffold(
         backgroundColor: Colors.black,
@@ -151,8 +162,24 @@ class FavoriteItemDialog extends StatelessWidget {
                     SizedBox(height: 8),
                     MarkdownBody(
                       data: favoriteItem.response,
-                      styleSheet: MarkdownStyleSheet.fromTheme(Theme.of(context)).copyWith(
-                        p: TextStyle(color: Colors.white),
+                      styleSheet: MarkdownStyleSheet.fromTheme(themeData).copyWith(
+                        p: baseTextStyle,
+                        h1: baseTextStyle,
+                        h2: baseTextStyle,
+                        h3: baseTextStyle,
+                        h4: baseTextStyle,
+                        h5: baseTextStyle,
+                        h6: baseTextStyle,
+                        em: baseTextStyle,
+                        strong: baseTextStyle,
+                        blockquote: baseTextStyle,
+                        img: baseTextStyle,
+                        listBullet: baseTextStyle,
+                        tableHead: baseTextStyle,
+                        tableBody: baseTextStyle,
+                        horizontalRuleDecoration: BoxDecoration(
+                          border: Border(top: BorderSide(width: 3.0, color: Colors.white)),
+                        ),
                       ),
                       onTapLink: (String text, String? href, String title) async {
                         if (href != null) {

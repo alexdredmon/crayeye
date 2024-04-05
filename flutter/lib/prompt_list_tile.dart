@@ -27,6 +27,7 @@ class PromptListTile extends StatelessWidget {
         prompt['title']!,
         style: TextStyle(
           color: isSelected ? Color(0xFF4EFFB6) : Colors.white,
+          fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
         ),
       ),
       trailing: PopupMenuButton<String>(

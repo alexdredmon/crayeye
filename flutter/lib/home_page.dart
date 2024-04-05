@@ -238,7 +238,16 @@ class _MyHomePageState extends State<MyHomePage> {
       });
       saveFavorites(_favorites);
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('This response added to your favorites')),
+        SnackBar(
+          backgroundColor: Color(0xFF4EFFB6),
+          content: Text(
+            'Response added to your faves ❤️',
+            style: TextStyle(
+              color: Colors.black,
+              fontWeight: FontWeight.bold,
+            )
+          )
+        ),
       );
     }
   }
@@ -300,6 +309,9 @@ class _MyHomePageState extends State<MyHomePage> {
       appBar: HomeAppBar(
         audioManager: _audioManager,
         toggleAudio: _toggleAudio,
+        onShowKeyDialog: () {
+          showKeyDialog(context);
+        },
       ),
       body: Stack(
         children: [
@@ -337,21 +349,47 @@ class _MyHomePageState extends State<MyHomePage> {
               child: Container(
                 height: 90,
                 padding: const EdgeInsets.only(bottom: 20),
-                child: Center(
-                  child: PromptButton(
-                    onAnalyzePressed: _analyzeImage,
-                    currentPromptTitle: currentPromptTitle!,
-                    onPressed: () {
-                      showPromptsDrawer(
-                        context: context,
-                        prompts: _prompts,
-                        selectedPromptUuid: _selectedPromptUuid,
-                        onPromptsUpdated: _updatePrompts,
-                        onAnalyzePressed: _analyzeImage,
-                        scaffoldKey: _scaffoldKey, // Pass the scaffold key
-                      );
-                    },
-                  ),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    PromptButton(
+                      onAnalyzePressed: _analyzeImage,
+                      currentPromptTitle: currentPromptTitle!,
+                      onPressed: () {
+                        showPromptsDrawer(
+                          context: context,
+                          prompts: _prompts,
+                          selectedPromptUuid: _selectedPromptUuid,
+                          onPromptsUpdated: _updatePrompts,
+                          onAnalyzePressed: _analyzeImage,
+                          scaffoldKey: _scaffoldKey, // Pass the scaffold key
+                        );
+                      },
+                    ),
+                    SizedBox(width: 16),
+                    ElevatedButton(
+                      onPressed: () {
+                        showPromptsDrawer(
+                          context: context,
+                          prompts: _prompts,
+                          selectedPromptUuid: _selectedPromptUuid,
+                          onPromptsUpdated: _updatePrompts,
+                          onAnalyzePressed: _analyzeImage,
+                          scaffoldKey: _scaffoldKey, // Pass the scaffold key
+                        );
+                      },
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: Colors.black,
+                        shape: CircleBorder(),
+                        padding: EdgeInsets.all(13),
+                      ),
+                      child: Icon(
+                        Icons.keyboard_arrow_up,
+                        color: Colors.white,
+                        size: 30,
+                      ),
+                    ),
+                  ],
                 ),
               ),
             ),
@@ -377,15 +415,8 @@ class _MyHomePageState extends State<MyHomePage> {
         cancelAnalysis: _cancelAnalysis,
         startNewScan: _startNewScan,
         analyzeImage: _analyzeImage,
-        openSettings: () {
-          showPromptsDrawer(
-            context: context,
-            prompts: _prompts,
-            selectedPromptUuid: _selectedPromptUuid,
-            onPromptsUpdated: _updatePrompts,
-            onAnalyzePressed: _analyzeImage,
-            scaffoldKey: _scaffoldKey, // Pass the scaffold key
-          );
+        openFavorites: () {
+          _scaffoldKey.currentState?.openEndDrawer();
         },
         addToFavorites: _addToFavorites,
       ),

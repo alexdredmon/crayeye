@@ -159,13 +159,6 @@ class _PromptsDrawerState extends State<PromptsDrawer> {
             ),
           ),
           PromptsDrawerButtons(
-            onShowKeyDialog: () {
-              showKeyDialog(context);
-            },
-            onShowFavoritesDrawer: () {
-              Navigator.pop(context);
-              widget.scaffoldKey.currentState?.openEndDrawer();
-            },
             onAddPrompt: () {
               PromptsDrawerMethods.addPrompt(
                 context: context,
@@ -173,6 +166,9 @@ class _PromptsDrawerState extends State<PromptsDrawer> {
                 onPromptsUpdated: widget.onPromptsUpdated,
                 selectedPromptUuid: widget.selectedPromptUuid,
               );
+            },
+            onClosePromptsDrawer: () {
+              Navigator.pop(context);
             },
           ),
           const SizedBox(height: 8),

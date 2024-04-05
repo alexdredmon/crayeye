@@ -2,15 +2,13 @@
 import 'package:flutter/material.dart';
 
 class PromptsDrawerButtons extends StatelessWidget {
-  final VoidCallback onShowKeyDialog;
-  final VoidCallback onShowFavoritesDrawer; // Add this line
   final VoidCallback onAddPrompt;
+  final VoidCallback onClosePromptsDrawer; // Add this line
 
   const PromptsDrawerButtons({
     Key? key,
-    required this.onShowKeyDialog,
-    required this.onShowFavoritesDrawer, // Add this line
     required this.onAddPrompt,
+    required this.onClosePromptsDrawer, // Add this line
   }) : super(key: key);
 
   @override
@@ -21,28 +19,22 @@ class PromptsDrawerButtons extends StatelessWidget {
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
           ElevatedButton(
-            onPressed: onShowKeyDialog,
-            style: ElevatedButton.styleFrom(
-              backgroundColor: Colors.black,
-              foregroundColor: Colors.white,
-            ),
-            child: const Text('🔑 API'),
-          ),
-          ElevatedButton(
-            onPressed: onShowFavoritesDrawer, // Add this button
-            style: ElevatedButton.styleFrom(
-              backgroundColor: Colors.black,
-              foregroundColor: Colors.white,
-            ),
-            child: const Text('❤️ Faves'),
-          ),
-          ElevatedButton(
             onPressed: onAddPrompt,
             style: ElevatedButton.styleFrom(
               backgroundColor: Colors.black,
               foregroundColor: Color(0xFF4effb6),
             ),
             child: const Text('+ Prompt'),
+          ),
+          ElevatedButton(
+            onPressed: onClosePromptsDrawer, // Update this line
+            style: ElevatedButton.styleFrom(
+              backgroundColor: Colors.black,
+              foregroundColor: Colors.white,
+            ),
+            child: const Icon(
+              Icons.keyboard_arrow_down,
+            ),
           ),
         ],
       ),

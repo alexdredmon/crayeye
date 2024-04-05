@@ -21,6 +21,8 @@ class ResponseView extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final themeData = Theme.of(context);
+    final baseTextStyle = TextStyle(color: Colors.white);
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -35,8 +37,24 @@ class ResponseView extends StatelessWidget {
         const SizedBox(height: 8),
         MarkdownBody(
           data: responseBody,
-          styleSheet: MarkdownStyleSheet.fromTheme(Theme.of(context)).copyWith(
-            p: TextStyle(color: Colors.white),
+          styleSheet: MarkdownStyleSheet.fromTheme(themeData).copyWith(
+            p: baseTextStyle,
+            h1: baseTextStyle,
+            h2: baseTextStyle,
+            h3: baseTextStyle,
+            h4: baseTextStyle,
+            h5: baseTextStyle,
+            h6: baseTextStyle,
+            em: baseTextStyle,
+            strong: baseTextStyle,
+            blockquote: baseTextStyle,
+            img: baseTextStyle,
+            listBullet: baseTextStyle,
+            tableHead: baseTextStyle,
+            tableBody: baseTextStyle,
+            horizontalRuleDecoration: BoxDecoration(
+              border: Border(top: BorderSide(width: 3.0, color: Colors.white)),
+            ),
           ),
           onTapLink: (String text, String? href, String title) async {
             if (href != null) {
