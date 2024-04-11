@@ -1,4 +1,4 @@
-package com.example.crayeye
+package com.crayeye.app
 
 import io.flutter.embedding.android.FlutterActivity
 

@@ -8,7 +8,7 @@ import 'package:path/path.dart' show join;
 import 'package:path_provider/path_provider.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:permission_handler/permission_handler.dart';
-import 'package:flutter_compass/flutter_compass.dart';
+// import 'package:flutter_compass/flutter_compass.dart';
 import 'config.dart';
 
 class CameraFunctions {
@@ -66,7 +66,7 @@ class CameraFunctions {
     }
 
     // Get the user's current heading
-    double? heading = await FlutterCompass.events!.first.then((value) => value.heading);
+    // double? heading = await FlutterCompass.events!.first.then((value) => value.heading);
 
     // Take a picture without the default shutter sound, keeping the flash on if necessary
     File? imageFile = await takePicture(controller, keepFlashOn: keepFlashOn);
@@ -104,23 +104,23 @@ class CameraFunctions {
       }
 
       // Replace the orientation token in the prompt with actual value
-      if (prompt.contains("{location.orientation}")) {
-        String orientation;
-        if (heading != null) {
-          if (heading >= 315 || heading < 45) {
-            orientation = "north";
-          } else if (heading >= 45 && heading < 135) { 
-            orientation = "east";
-          } else if (heading >= 135 && heading < 225) {
-            orientation = "south";
-          } else {
-            orientation = "west";
-          }
-        } else {
-          orientation = "unknown";
-        }
-        prompt = prompt.replaceAll("{location.orientation}", orientation);
-      }
+      // if (prompt.contains("{location.orientation}")) {
+      //   String orientation;
+      //   if (heading != null) {
+      //     if (heading >= 315 || heading < 45) {
+      //       orientation = "north";
+      //     } else if (heading >= 45 && heading < 135) { 
+      //       orientation = "east";
+      //     } else if (heading >= 135 && heading < 225) {
+      //       orientation = "south";
+      //     } else {
+      //       orientation = "west";
+      //     }
+      //   } else {
+      //     orientation = "unknown";
+      //   }
+      //   prompt = prompt.replaceAll("{location.orientation}", orientation);
+      // }
 
       Map<String, dynamic> body = {
         'model': 'gpt-4-vision-preview',
