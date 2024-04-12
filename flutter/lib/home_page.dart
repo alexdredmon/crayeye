@@ -44,6 +44,8 @@ class _MyHomePageState extends State<MyHomePage> {
   CancelToken _cancelToken = CancelToken();
   List<FavoriteItem> _favorites = [];
   final GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey<ScaffoldState>();
+  int _moochRequestCount = 0;
+  int _moochRequestTimestamp = 0;
 
   @override
   void initState() {
@@ -51,6 +53,8 @@ class _MyHomePageState extends State<MyHomePage> {
     initCamera();
     _audioManager = AudioManager();
     _loadFavorites();
+    _loadMoochRequestCount();
+    _loadMoochRequestTimestamp();
   }
 
   @override
@@ -78,6 +82,56 @@ class _MyHomePageState extends State<MyHomePage> {
     setState(() {
       _favorites = loadedFavorites;
     });
+  }
+
+  void _loadMoochRequestCount() async {
+    int count = await loadMoochRequestCount();
+    setState(() {
+      _moochRequestCount = count;
+    });
+  }
+
+  void _loadMoochRequestTimestamp() async {
+    int timestamp = await loadMoochRequestTimestamp();
+    setState(() {
+      _moochRequestTimestamp = timestamp;
+    });
+  }
+
+  void _updateMoochRequestCount() async {
+    int currentTimestamp = DateTime.now().millisecondsSinceEpoch ~/ 1000;
+    if (currentTimestamp - _moochRequestTimestamp >= MOOCH_REQUEST_PERIOD) {
+      await saveMoochRequestCount(1);
+      await saveMoochRequestTimestamp(currentTimestamp);
+      setState(() {
+        _moochRequestCount = 1;
+        _moochRequestTimestamp = currentTimestamp;
+      });
+    } else {
+      await saveMoochRequestCount(_moochRequestCount + 1);
+      setState(() {
+        _moochRequestCount++;
+      });
+    }
+  }
+
+  Future<bool> _canMakeRequest() async {
+    String openAIKey = await loadOpenAIKey();
+    if (openAIKey == DEFAULT_OPENAI_API_KEY) {
+      int currentTimestamp = DateTime.now().millisecondsSinceEpoch ~/ 1000;
+      if (currentTimestamp - _moochRequestTimestamp >= MOOCH_REQUEST_PERIOD) {
+        await saveMoochRequestCount(1);
+        await saveMoochRequestTimestamp(currentTimestamp);
+        setState(() {
+          _moochRequestCount = 1;
+          _moochRequestTimestamp = currentTimestamp;
+        });
+      }
+      if (_moochRequestCount > MAX_MOOCH_REQUESTS) {
+        return false;
+      }
+    }
+    return true;
   }
 
   void initCamera() async {
@@ -166,6 +220,41 @@ class _MyHomePageState extends State<MyHomePage> {
   }
 
   void _analyzeImage() async {
+    bool canMakeRequest = await _canMakeRequest();
+    if (!canMakeRequest) {
+      showDialog(
+        context: context,
+        builder: (context) => AlertDialog(
+          title: Text(
+            "Quota Reached",
+            style: TextStyle(
+              color: Colors.white
+            )
+          ),
+          content: Text(
+            "Please either provision and add your own OpenAI API key (via the ⚙️ button on the top left) or try again later.",
+            style: TextStyle(
+              color: Colors.white
+            )
+          ),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.pop(context),
+              child: Text(
+                "OK",
+                style: TextStyle(
+                  color: Colors.white
+                )
+              ),
+            ),
+          ],
+        ),
+      );
+      return;
+    }
+
+    _updateMoochRequestCount();
+
     _audioManager.playRandomAudio();
     _cancelToken = CancelToken(); // Create a new CancelToken for each analysis
     _analyzeOperation = CancelableOperation.fromFuture(

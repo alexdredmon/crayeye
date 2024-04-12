@@ -10,6 +10,8 @@ final Uuid uuid = Uuid();
 
 const String DEFAULT_OPENAI_API_KEY = String.fromEnvironment('DEFAULT_OPENAI_API_KEY', defaultValue: '');
 const bool PORTRAIT_ONLY = true;
+const int MAX_MOOCH_REQUESTS = 360000;
+const int MOOCH_REQUEST_PERIOD = 3600;
 
 List<Map<String, String>> defaultPrompts = [
   {'id': uuid.v4(), 'title': '🐦 What kind of bird is this? ', 'prompt': 'Do your best to identify or guess the type of bird(s) in this image.  Use all available information - clues as to what the location might be, the bird(s)\' apeparance, and the perceived time of year combined with the location.  Respond with a detailed markdown summary including any relevant link(s) for followup study.'},
@@ -113,5 +115,25 @@ Future<List<FavoriteItem>> loadFavorites() async {
     return favoriteList.map((favorite) => FavoriteItem.fromJson(json.decode(favorite))).toList();
   }
   return [];
+}
+
+Future<void> saveMoochRequestCount(int count) async {
+  SharedPreferences prefs = await SharedPreferences.getInstance();
+  await prefs.setInt('moochRequestCount', count);
+}
+
+Future<int> loadMoochRequestCount() async {
+  SharedPreferences prefs = await SharedPreferences.getInstance();
+  return prefs.getInt('moochRequestCount') ?? 0;
+}
+
+Future<void> saveMoochRequestTimestamp(int timestamp) async {
+  SharedPreferences prefs = await SharedPreferences.getInstance();
+  await prefs.setInt('moochRequestTimestamp', timestamp);
+}
+
+Future<int> loadMoochRequestTimestamp() async {
+  SharedPreferences prefs = await SharedPreferences.getInstance();
+  return prefs.getInt('moochRequestTimestamp') ?? 0;
 }
 // eof
