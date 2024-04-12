@@ -277,8 +277,40 @@ class _MyHomePageState extends State<MyHomePage> {
           });
         },
         _onOpenAIKeyMissing,
+        _onInvalidOpenAIKey, // Add this line
         _isFlashOn,
         _cancelToken, // Pass the CancelToken to the analyzePicture function
+      ),
+    );
+  }
+
+  void _onInvalidOpenAIKey() {
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: Text(
+          "Invalid OpenAI API Key",
+          style: TextStyle(
+            color: Colors.white,
+          )
+        ),
+        content: Text(
+          "Invalid OpenAI API Key - please provision and set your own API key via the ⚙️ button in the top left or update this app.",
+          style: TextStyle(
+            color: Colors.white,
+          )
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context),
+            child: Text(
+              "OK",
+              style: TextStyle(
+                color: Colors.white,
+              )
+            ),
+          ),
+        ],
       ),
     );
   }

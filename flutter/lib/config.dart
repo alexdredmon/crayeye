@@ -10,7 +10,7 @@ final Uuid uuid = Uuid();
 
 const String DEFAULT_OPENAI_API_KEY = String.fromEnvironment('DEFAULT_OPENAI_API_KEY', defaultValue: '');
 const bool PORTRAIT_ONLY = true;
-const int MAX_MOOCH_REQUESTS = 360000;
+const int MAX_MOOCH_REQUESTS = 12;
 const int MOOCH_REQUEST_PERIOD = 3600;
 
 List<Map<String, String>> defaultPrompts = [

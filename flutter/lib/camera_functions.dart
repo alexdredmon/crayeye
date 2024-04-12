@@ -53,6 +53,7 @@ class CameraFunctions {
     String selectedPromptUuid,
     Function(File?, String, bool) onAnalysisComplete,
     Function() onOpenAIKeyMissing,
+    Function() onInvalidOpenAIKey, // Add this line
     bool keepFlashOn,
     CancelToken cancelToken,
   ) async {
@@ -177,6 +178,9 @@ class CameraFunctions {
           if (!cancelToken.isCancellationRequested) {
             onAnalysisComplete(imageFile, responseBody, false);
           }
+        } else if (response.statusCode == 401 || response.statusCode == 403) {
+          onInvalidOpenAIKey(); // Call the callback function when the API key is invalid
+          onAnalysisComplete(null, 'Invalid API Key', false);
         } else {
           print('Request failed with status: ${response.statusCode}.');
           if (!cancelToken.isCancellationRequested) {
