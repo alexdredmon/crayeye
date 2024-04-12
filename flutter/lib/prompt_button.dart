@@ -17,7 +17,7 @@ class PromptButton extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return ElevatedButton(
-      onPressed: onAnalyzePressed,
+      onPressed: currentPromptTitle == 'Select a Prompt' ? onPressed : onAnalyzePressed,
       style: ElevatedButton.styleFrom(
         backgroundColor: Colors.deepPurple.shade700,
         shape: RoundedRectangleBorder(
