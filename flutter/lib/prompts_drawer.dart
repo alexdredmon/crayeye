@@ -71,35 +71,13 @@ class _PromptsDrawerState extends State<PromptsDrawer> {
         children: [
           Padding(
             padding: EdgeInsets.all(16.0),
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                Text(
-                  'Prompts',
-                  style: TextStyle(
-                    fontSize: 20,
-                    fontWeight: FontWeight.bold,
-                    color: Colors.white,
-                  ),
-                ),
-                ElevatedButton(
-                  onPressed: () async {
-                    bool confirm = await showResetPromptsConfirmationDialog(context);
-                    if (confirm == true) {
-                      PromptsDrawerMethods.resetPrompts(
-                        prompts: _prompts,
-                        onPromptsUpdated: widget.onPromptsUpdated,
-                      );
-                      Navigator.pop(context);
-                    }
-                  },
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: Colors.black,
-                    foregroundColor: Color(0xFFff80ab),
-                  ),
-                  child: Text('Reset'),
-                ),
-              ],
+            child: Text(
+              'Prompts',
+              style: TextStyle(
+                fontSize: 20,
+                fontWeight: FontWeight.bold,
+                color: Colors.white,
+              ),
             ),
           ),
           Expanded(

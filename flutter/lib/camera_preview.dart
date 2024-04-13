@@ -2,6 +2,7 @@
 import 'dart:io';
 import 'package:camera/camera.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart'; // Add this import statement
 
 class DarkerImage extends StatelessWidget {
   final File imageFile;
@@ -22,7 +23,6 @@ class DarkerImage extends StatelessWidget {
   }
 }
 
-
 class CameraPreviewWidget extends StatelessWidget {
   final CameraController controller;
   final File? capturedImage;
@@ -33,13 +33,16 @@ class CameraPreviewWidget extends StatelessWidget {
   Widget build(BuildContext context) {
     final mediaSize = MediaQuery.of(context).size;
     final scale = 1 / (controller.value.aspectRatio * mediaSize.aspectRatio);
+
+    // Lock the camera's capture orientation
+    controller.lockCaptureOrientation(DeviceOrientation.portraitUp);
+
     return ClipRect(
       clipper: _MediaSizeClipper(mediaSize),
       child: Transform.scale(
         scale: scale,
         alignment: Alignment.topCenter,
         child: capturedImage != null
-            // ? Image.file(capturedImage!)
             ? DarkerImage(imageFile: capturedImage!)
             : CameraPreview(controller),
       ),
