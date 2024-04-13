@@ -19,9 +19,9 @@ class HomeAppBar extends StatelessWidget implements PreferredSizeWidget {
     return AppBar(
       backgroundColor: Colors.black,
       leading: IconButton(
-        icon: Icon(Icons.settings, color: Colors.white),
+        icon: Icon(Icons.help, color: Colors.white),
         onPressed: () {
-          showSettingsDrawer(context, audioManager, onShowKeyDialog);
+          showHelpDrawer(context);
         },
       ),
       title: Center(
@@ -32,9 +32,9 @@ class HomeAppBar extends StatelessWidget implements PreferredSizeWidget {
       ),
       actions: [
         IconButton(
-          icon: Icon(Icons.help, color: Colors.white),
+          icon: Icon(Icons.settings, color: Colors.white),
           onPressed: () {
-            showHelpDrawer(context);
+            showSettingsDrawer(context, audioManager, onShowKeyDialog);
           },
         ),
       ],

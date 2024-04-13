@@ -123,7 +123,7 @@ class _MyHomePageState extends State<MyHomePage> {
 
   Future<bool> _canMakeRequest() async {
     String openAIKey = await loadOpenAIKey();
-    if (openAIKey == DEFAULT_OPENAI_API_KEY) {
+    if (openAIKey.isEmpty) {
       int currentTimestamp = DateTime.now().millisecondsSinceEpoch ~/ 1000;
       if (currentTimestamp - _moochRequestTimestamp >= MOOCH_REQUEST_PERIOD) {
         await saveMoochRequestCount(1);
@@ -226,7 +226,9 @@ class _MyHomePageState extends State<MyHomePage> {
   }
 
   void _analyzeImage() async {
-    bool canMakeRequest = await _canMakeRequest();
+    String openAIKey = await loadOpenAIKey();
+    bool canMakeRequest = openAIKey.isEmpty ? await _canMakeRequest() : true;
+
     if (!canMakeRequest) {
       showDialog(
         context: context,
@@ -238,7 +240,7 @@ class _MyHomePageState extends State<MyHomePage> {
             )
           ),
           content: Text(
-            "Please either provision and add your own OpenAI API key (via the ⚙️ button on the top left) or try again later.",
+            "Please either provision and add your own OpenAI API key (via the ⚙️ button on the top right) or try again later.",
             style: TextStyle(
               color: Colors.white
             )
@@ -259,7 +261,9 @@ class _MyHomePageState extends State<MyHomePage> {
       return;
     }
 
-    _updateMoochRequestCount();
+    if (openAIKey.isEmpty) {
+      _updateMoochRequestCount();
+    }
 
     _audioManager.playRandomAudio();
     _cancelToken = CancelToken(); // Create a new CancelToken for each analysis
@@ -283,9 +287,9 @@ class _MyHomePageState extends State<MyHomePage> {
           });
         },
         _onOpenAIKeyMissing,
-        _onInvalidOpenAIKey, // Add this line
+        _onInvalidOpenAIKey,
         _isFlashOn,
-        _cancelToken, // Pass the CancelToken to the analyzePicture function
+        _cancelToken,
       ),
     );
   }
@@ -301,7 +305,7 @@ class _MyHomePageState extends State<MyHomePage> {
           )
         ),
         content: Text(
-          "Invalid OpenAI API Key - please provision and set your own API key via the ⚙️ button in the top left or update this app.",
+          "Invalid OpenAI API Key - please provision and set your own API key via the ⚙️ button in the top right or update this app.",
           style: TextStyle(
             color: Colors.white,
           )
