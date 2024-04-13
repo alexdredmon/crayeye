@@ -5,7 +5,7 @@ import 'key_dialog.dart';
 import 'prompt_dialogs.dart';
 import 'config.dart';
 
-void showSettingsDrawer(BuildContext context, AudioManager audioManager, VoidCallback toggleAudio, VoidCallback onShowKeyDialog) {
+void showSettingsDrawer(BuildContext context, AudioManager audioManager, VoidCallback onShowKeyDialog) {
   showModalBottomSheet(
     context: context,
     backgroundColor: Colors.grey.shade900,
@@ -26,20 +26,17 @@ void showSettingsDrawer(BuildContext context, AudioManager audioManager, VoidCal
             ),
             SizedBox(height: 16),
             ListTile(
-              leading: ValueListenableBuilder<bool>(
-                valueListenable: audioManager.isAudioEnabledNotifier,
-                builder: (context, isAudioEnabled, child) {
-                  return Icon(
-                    isAudioEnabled ? Icons.volume_up : Icons.volume_off,
-                    color: Colors.grey,
-                  );
-                },
-              ),
+              leading: Icon(Icons.volume_up, color: Colors.grey),
               title: Text(
-                'Mute/Unmute',
+                'Volume',
                 style: TextStyle(color: Colors.white),
               ),
-              onTap: toggleAudio,
+              onTap: () {
+                showDialog(
+                  context: context,
+                  builder: (context) => VolumeDialog(audioManager: audioManager),
+                );
+              },
             ),
             ListTile(
               leading: Icon(Icons.vpn_key, color: Colors.greenAccent),
@@ -69,5 +66,75 @@ void showSettingsDrawer(BuildContext context, AudioManager audioManager, VoidCal
       );
     },
   );
+}
+
+class VolumeDialog extends StatefulWidget {
+  final AudioManager audioManager;
+
+  const VolumeDialog({Key? key, required this.audioManager}) : super(key: key);
+
+  @override
+  _VolumeDialogState createState() => _VolumeDialogState();
+}
+
+class _VolumeDialogState extends State<VolumeDialog> {
+  late double _volume;
+
+  @override
+  void initState() {
+    super.initState();
+    _volume = widget.audioManager.getVolume();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return AlertDialog(
+      backgroundColor: Colors.grey.shade900,
+      title: Text(
+        'Volume',
+        style: TextStyle(color: Colors.white),
+      ),
+      content: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Slider(
+            value: _volume,
+            min: 0.0,
+            max: 1.0,
+            onChanged: (value) {
+              setState(() {
+                _volume = value;
+              });
+              widget.audioManager.setVolume(_volume);
+            },
+            activeColor: Colors.grey,
+            inactiveColor: Colors.grey.shade700,
+          ),
+          SizedBox(height: 16),
+          ValueListenableBuilder<bool>(
+            valueListenable: widget.audioManager.isAudioEnabledNotifier,
+            builder: (context, isAudioEnabled, child) {
+              return ElevatedButton.icon(
+                onPressed: () {
+                  if (isAudioEnabled) {
+                    widget.audioManager.disableAudio();
+                    widget.audioManager.stopAudio();
+                  } else {
+                    widget.audioManager.enableAudio();
+                  }
+                },
+                icon: Icon(isAudioEnabled ? Icons.volume_up : Icons.volume_off),
+                label: Text(isAudioEnabled ? 'Mute' : 'Unmute'),
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: isAudioEnabled ? Colors.grey : Colors.grey.shade700,
+                  foregroundColor: Colors.white,
+                ),
+              );
+            },
+          ),
+        ],
+      ),
+    );
+  }
 }
 // eof

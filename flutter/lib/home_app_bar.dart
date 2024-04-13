@@ -2,18 +2,16 @@
 import 'package:flutter/material.dart';
 import 'audio_manager.dart';
 import 'help_drawer.dart';
-import 'settings_drawer.dart'; // Add this import
+import 'settings_drawer.dart';
 
 class HomeAppBar extends StatelessWidget implements PreferredSizeWidget {
   final AudioManager audioManager;
-  final VoidCallback toggleAudio;
-  final VoidCallback onShowKeyDialog; // Add this line
+  final VoidCallback onShowKeyDialog;
 
   const HomeAppBar({
     Key? key,
     required this.audioManager,
-    required this.toggleAudio,
-    required this.onShowKeyDialog, // Add this line
+    required this.onShowKeyDialog,
   }) : super(key: key);
 
   @override
@@ -21,9 +19,9 @@ class HomeAppBar extends StatelessWidget implements PreferredSizeWidget {
     return AppBar(
       backgroundColor: Colors.black,
       leading: IconButton(
-        icon: Icon(Icons.help, color: Colors.white),
+        icon: Icon(Icons.settings, color: Colors.white),
         onPressed: () {
-          showHelpDrawer(context);
+          showSettingsDrawer(context, audioManager, onShowKeyDialog);
         },
       ),
       title: Center(
@@ -34,11 +32,11 @@ class HomeAppBar extends StatelessWidget implements PreferredSizeWidget {
       ),
       actions: [
         IconButton(
-          icon: Icon(Icons.settings, color: Colors.white), // Replace volume icon with settings icon
+          icon: Icon(Icons.help, color: Colors.white),
           onPressed: () {
-            showSettingsDrawer(context, audioManager, toggleAudio, onShowKeyDialog); // Open settings drawer
+            showHelpDrawer(context);
           },
-        )
+        ),
       ],
     );
   }

@@ -7,14 +7,16 @@ class AudioManager {
   final AudioPlayer _audioPlayer = AudioPlayer();
   final List<String> _audioFiles = ['loading1.wav', 'loading2.wav', 'loading3.wav', 'loading4.wav'];
   final ValueNotifier<bool> _isAudioEnabledNotifier = ValueNotifier<bool>(true);
+  double _volume = 0.2;
+  final VoidCallback onAudioEnabled;
 
-  AudioManager() {
+  AudioManager({required this.onAudioEnabled}) {
     _initAudioPlayer();
   }
 
   Future<void> _initAudioPlayer() async {
     await _audioPlayer.setReleaseMode(ReleaseMode.loop);
-    await _audioPlayer.setVolume(20.0);
+    await _audioPlayer.setVolume(_volume);
   }
 
   Future<void> playRandomAudio() async {
@@ -31,13 +33,24 @@ class AudioManager {
 
   void enableAudio() {
     _isAudioEnabledNotifier.value = true;
+    onAudioEnabled();
   }
 
   void disableAudio() {
     _isAudioEnabledNotifier.value = false;
+    stopAudio();
   }
 
   ValueNotifier<bool> get isAudioEnabledNotifier => _isAudioEnabledNotifier;
+
+  double getVolume() {
+    return _volume;
+  }
+
+  Future<void> setVolume(double volume) async {
+    _volume = volume;
+    await _audioPlayer.setVolume(_volume);
+  }
 
   void dispose() {
     _audioPlayer.dispose();

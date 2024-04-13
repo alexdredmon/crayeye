@@ -51,7 +51,13 @@ class _MyHomePageState extends State<MyHomePage> {
   void initState() {
     super.initState();
     initCamera();
-    _audioManager = AudioManager();
+    _audioManager = AudioManager(
+      onAudioEnabled: () {
+        if (_isAnalyzing) {
+          _audioManager.playRandomAudio();
+        }
+      },
+    );
     _loadFavorites();
     _loadMoochRequestCount();
     _loadMoochRequestTimestamp();
@@ -429,7 +435,7 @@ class _MyHomePageState extends State<MyHomePage> {
       key: _scaffoldKey,
       appBar: HomeAppBar(
         audioManager: _audioManager,
-        toggleAudio: _toggleAudio,
+
         onShowKeyDialog: () {
           showKeyDialog(context);
         },
