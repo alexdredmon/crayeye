@@ -205,7 +205,9 @@ class _MyHomePageState extends State<MyHomePage> {
   }
 
   void _onOpenAIKeyMissing() {
-    showKeyDialog(context);
+    if (ALLOW_USER_API_KEY) {
+      showKeyDialog(context);
+    }
   }
 
   void _handleInitialPrompt(String prompt, String title) {
@@ -240,7 +242,10 @@ class _MyHomePageState extends State<MyHomePage> {
             )
           ),
           content: Text(
-            "Please either provision and add your own OpenAI API key (via the ⚙️ button on the top right) or try again later.",
+            ALLOW_USER_API_KEY ?
+            "Please either provision and add your own OpenAI API key (via the ⚙️ button on the top right) or try again later."
+            :
+            "Please try again later.",
             style: TextStyle(
               color: Colors.white
             )
@@ -299,13 +304,16 @@ class _MyHomePageState extends State<MyHomePage> {
       context: context,
       builder: (context) => AlertDialog(
         title: Text(
-          "Invalid OpenAI API Key",
+          "Invalid API Key",
           style: TextStyle(
             color: Colors.white,
           )
         ),
         content: Text(
-          "Invalid OpenAI API Key - please provision and set your own API key via the ⚙️ button in the top right or update this app.",
+          ALLOW_USER_API_KEY ?
+          "Invalid OpenAI API Key - please provision and set your own API key via the ⚙️ button in the top right or update this app."
+          :
+          "Please try updating this app.",
           style: TextStyle(
             color: Colors.white,
           )

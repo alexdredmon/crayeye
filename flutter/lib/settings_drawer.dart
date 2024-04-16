@@ -38,14 +38,15 @@ void showSettingsDrawer(BuildContext context, AudioManager audioManager, VoidCal
                 );
               },
             ),
-            ListTile(
-              leading: Icon(Icons.vpn_key, color: Colors.greenAccent),
-              title: Text(
-                'OpenAI API Key',
-                style: TextStyle(color: Colors.white),
+            if (ALLOW_USER_API_KEY)
+              ListTile(
+                leading: Icon(Icons.vpn_key, color: Colors.greenAccent),
+                title: Text(
+                  'OpenAI API Key',
+                  style: TextStyle(color: Colors.white),
+                ),
+                onTap: onShowKeyDialog,
               ),
-              onTap: onShowKeyDialog,
-            ),
             ListTile(
               leading: Icon(Icons.restart_alt, color: Colors.redAccent),
               title: Text(

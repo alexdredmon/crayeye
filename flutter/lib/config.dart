@@ -9,6 +9,7 @@ import 'package:uuid/uuid.dart';
 final Uuid uuid = Uuid();
 
 const String DEFAULT_OPENAI_API_KEY = String.fromEnvironment('DEFAULT_OPENAI_API_KEY', defaultValue: '');
+const bool ALLOW_USER_API_KEY = true;
 const bool PORTRAIT_ONLY = true;
 const int MAX_MOOCH_REQUESTS = 12;
 const int MOOCH_REQUEST_PERIOD = 3600;
