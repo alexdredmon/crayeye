@@ -43,10 +43,6 @@ Your prompts can contain the following tokens which will be replaced with the re
 
 *e.g. -74.0060*
 
-**Orientation:** {location.orientation}
-
-*e.g. west*
-
 For more information visit [CrayEye.com](https://crayeye.com)
 """,
                   styleSheet: MarkdownStyleSheet.fromTheme(themeData).copyWith(
