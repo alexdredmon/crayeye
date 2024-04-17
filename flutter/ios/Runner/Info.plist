@@ -28,7 +28,7 @@
 			<key>CFBundleTypeRole</key>
 			<string>Editor</string>
 			<key>CFBundleURLIconFile</key>
-			<string>DALL·E 2024-03-26 22.34.13 - A 1960s comic book print illustration featuring an extreme close-up on a woman's eye, executed with a limited and muted color palette. This image is r</string>
+			<string>DALL·E 2024-03-26 22.34.13 - A 1960s comic book print illustration featuring an extreme close-up on a woman&apos;s eye, executed with a limited and muted color palette. This image is r</string>
 			<key>CFBundleURLName</key>
 			<string>com.crayeye.app</string>
 			<key>CFBundleURLSchemes</key>
@@ -65,10 +65,10 @@
 		<string>UIInterfaceOrientationLandscapeRight</string>
 	</array>
 	<key>NSLocationAlwaysAndWhenInUseUsageDescription</key>
-		<string>Your app needs access to the device's location.</string>
+	<string>CrayEye needs access to the device&apos;s location in order to interpolate it into prompts of your choosing so that your multimodal LLM analysis can take your location into account</string>
 	<key>NSLocationWhenInUseUsageDescription</key>
-		<string>Your app needs access to the device's location.</string>
+	<string>CrayEye needs access to the device&apos;s location in order to interpolate it into prompts of your choosing so that your multimodal LLM analysis can take your location into account</string>
 	<key>NSLocationAlwaysUsageDescription</key>
-		<string>Your app needs access to the device's location.</string>
+	<string>CrayEye needs access to the device&apos;s location in order to interpolate it into prompts of your choosing so that your multimodal LLM analysis can take your location into account</string>
 </dict>
 </plist>
