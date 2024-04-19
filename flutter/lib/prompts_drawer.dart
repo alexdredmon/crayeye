@@ -122,9 +122,9 @@ class _PromptsDrawerState extends State<PromptsDrawer> {
                       }
                     },
                     onSharePrompt: (title, prompt) {
-                      String titleEncoded = encode_b64(title).replaceAll('+', '%2b');
-                      String promptEncoded = encode_b64(prompt).replaceAll('+', '%2b');
-                      String titleSlug = title.replaceAll(' ', '_').replaceAll('?', '');
+                      String titleEncoded = Uri.encodeComponent(title);
+                      String promptEncoded = Uri.encodeComponent(prompt);
+                      String titleSlug = Uri.encodeComponent(title);
                       Share.share('crayeye://$titleSlug?title=$titleEncoded&prompt=$promptEncoded');
                     },
                     onPromptTapped: (uuid) {
