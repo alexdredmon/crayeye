@@ -85,24 +85,23 @@ class CameraFunctions {
 
       // Request location permissions
       LocationPermission permission = await Geolocator.requestPermission();
-      if (permission == LocationPermission.denied || permission == LocationPermission.deniedForever) {
-        onAnalysisComplete(null, 'Location permissions denied', false);
-        return;
+      if (permission != LocationPermission.denied && permission != LocationPermission.deniedForever) {
+        // Get the user's current location
+        Position position = await Geolocator.getCurrentPosition(desiredAccuracy: LocationAccuracy.high);
+
+        // Replace the location tokens in the prompt with actual values
+        if (prompt.contains("{location.lat}")) {
+          prompt = prompt.replaceAll("{location.lat}", position.latitude.toString());
+        }
+        if (prompt.contains("{location.long}")) {
+          prompt = prompt.replaceAll("{location.long}", position.longitude.toString());
+        }
+        if (prompt.contains("{location.alt}")) {
+          prompt = prompt.replaceAll("{location.alt}", position.altitude.toString());
+        }
       }
 
-      // Get the user's current location
-      Position position = await Geolocator.getCurrentPosition(desiredAccuracy: LocationAccuracy.high);
-
-      // Replace the location tokens in the prompt with actual values
-      if (prompt.contains("{location.lat}")) {
-        prompt = prompt.replaceAll("{location.lat}", position.latitude.toString());
-      }
-      if (prompt.contains("{location.long}")) {
-        prompt = prompt.replaceAll("{location.long}", position.longitude.toString());
-      }
-      if (prompt.contains("{location.alt}")) {
-        prompt = prompt.replaceAll("{location.alt}", position.altitude.toString());
-      }
+      
 
       // Replace the orientation token in the prompt with actual value
       // if (prompt.contains("{location.orientation}")) {
