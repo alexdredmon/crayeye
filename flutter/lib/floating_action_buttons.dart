@@ -40,6 +40,7 @@ class FloatingActionButtons extends StatelessWidget {
             backgroundColor: Color(0xFFff80ab),
             onPressed: openFavorites,
             child: Icon(Icons.favorite),
+            shape: CircleBorder(), // This ensures the button is fully round
           ),
         if (!isAnalyzing && responseBody.isEmpty) const SizedBox(height: 16),
         if (!isAnalyzing && responseBody.isEmpty && cameraDirection == CameraLensDirection.back)
@@ -49,6 +50,7 @@ class FloatingActionButtons extends StatelessWidget {
             child: Icon(
               isFlashOn ? Icons.flash_off : Icons.flash_on,
             ),
+            shape: CircleBorder(), // This ensures the button is fully round
           ),
         if (!isAnalyzing && responseBody.isEmpty && cameraDirection == CameraLensDirection.back) const SizedBox(height: 16),
         if (!isAnalyzing && responseBody.isEmpty)
@@ -56,22 +58,25 @@ class FloatingActionButtons extends StatelessWidget {
             backgroundColor: Color(0xFF4EFFB6),
             onPressed: switchCamera,
             child: const Icon(Icons.cameraswitch),
+            shape: CircleBorder(), // This ensures the button is fully round
           ),
         if (!isAnalyzing && responseBody.isEmpty) const SizedBox(height: 16),
         if (isAnalyzing)
           FloatingActionButton(
             onPressed: cancelAnalysis,
             backgroundColor: Colors.red,
+            shape: CircleBorder(), // This ensures the button is fully round
             child: Icon(
               Icons.cancel,
               color: Colors.white,
             ),
           ),
-        if (isAnalyzing) const SizedBox(height: 16),
+        if (isAnalyzing) const SizedBox(height: 25),
         if (!isAnalyzing && responseBody.isNotEmpty)
           FloatingActionButton(
             onPressed: addToFavorites,
             backgroundColor: Color(0xFFff80ab),
+            shape: CircleBorder(), // This ensures the button is fully round
             child: Icon(
               Icons.favorite,
               color: Colors.black,
@@ -86,9 +91,11 @@ class FloatingActionButtons extends StatelessWidget {
                     backgroundColor: Colors.deepPurple.shade700,
                     onPressed: startNewScan,
                     child: Icon(Icons.arrow_back, color: Colors.white),
+                    shape: CircleBorder(), // This ensures the button is fully round
                   )
                 : const SizedBox.shrink(),
         if (!isAnalyzing && responseBody.isEmpty) const SizedBox(height: 50),
+        if (isAnalyzing) const SizedBox(height: 12),
       ],
     );
   }
