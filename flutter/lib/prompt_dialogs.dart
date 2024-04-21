@@ -27,6 +27,7 @@ void showAddPromptDialog(BuildContext context, Function(String, String, String) 
               onChanged: (value) {
                 newTitle = value;
               },
+              maxLength: 27,
             ),
             TextField(
               style: const TextStyle(color: Colors.white),
@@ -103,6 +104,7 @@ void showEditPromptDialog(
               onChanged: (value) {
                 updatedTitle = value;
               },
+              maxLength: 27,
             ),
             const SizedBox(height: 16),
             TextField(

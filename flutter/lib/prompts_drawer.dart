@@ -64,13 +64,19 @@ class _PromptsDrawerState extends State<PromptsDrawer> {
   void initState() {
     super.initState();
     _prompts = List.from(widget.prompts);
+    _searchFocusNode.addListener(_onSearchFocusChange);
   }
 
   @override
   void dispose() {
     _searchController.dispose();
+    _searchFocusNode.removeListener(_onSearchFocusChange);
     _searchFocusNode.dispose();
     super.dispose();
+  }
+
+  void _onSearchFocusChange() {
+    setState(() {});
   }
 
   void _updateSearchText(String searchText) {
@@ -129,7 +135,12 @@ class _PromptsDrawerState extends State<PromptsDrawer> {
                         hintText: 'Search',
                         hintStyle: TextStyle(color: Colors.white54),
                         border: InputBorder.none,
-                        suffixIcon: Icon(Icons.search, color: Colors.white),
+                        suffixIcon: _searchFocusNode.hasFocus
+                            ? IconButton(
+                                icon: Icon(Icons.clear, color: Colors.white),
+                                onPressed: _clearSearchText,
+                              )
+                            : Icon(Icons.search, color: Colors.white),
                       ),
                     ),
                   ),
