@@ -159,7 +159,12 @@ class _PromptsDrawerState extends State<PromptsDrawer> {
                       prompts: _prompts,
                       oldIndex: oldIndex,
                       newIndex: newIndex,
-                      onPromptsUpdated: widget.onPromptsUpdated,
+                      onPromptsUpdated: (updatedPrompts, selectedUuid) {
+                        setState(() {
+                          _prompts = updatedPrompts;
+                        });
+                        widget.onPromptsUpdated(updatedPrompts, selectedUuid);
+                      },
                     );
                   },
                   itemCount: _getFilteredPrompts().length,
@@ -174,7 +179,12 @@ class _PromptsDrawerState extends State<PromptsDrawer> {
                           context: context,
                           prompts: _prompts,
                           uuid: uuid,
-                          onPromptsUpdated: widget.onPromptsUpdated,
+                          onPromptsUpdated: (updatedPrompts, selectedUuid) {
+                            setState(() {
+                              _prompts = updatedPrompts;
+                            });
+                            widget.onPromptsUpdated(updatedPrompts, selectedUuid);
+                          },
                           selectedPromptUuid: widget.selectedPromptUuid,
                         );
                       },
@@ -184,7 +194,12 @@ class _PromptsDrawerState extends State<PromptsDrawer> {
                           PromptsDrawerMethods.deletePrompt(
                             prompts: _prompts,
                             uuid: uuid,
-                            onPromptsUpdated: widget.onPromptsUpdated,
+                            onPromptsUpdated: (updatedPrompts, selectedUuid) {
+                              setState(() {
+                                _prompts = updatedPrompts;
+                              });
+                              widget.onPromptsUpdated(updatedPrompts, selectedUuid);
+                            },
                             selectedPromptUuid: widget.selectedPromptUuid,
                           );
                           Navigator.pop(context);
@@ -210,7 +225,12 @@ class _PromptsDrawerState extends State<PromptsDrawer> {
                 PromptsDrawerMethods.addPrompt(
                   context: context,
                   prompts: _prompts,
-                  onPromptsUpdated: widget.onPromptsUpdated,
+                  onPromptsUpdated: (updatedPrompts, selectedUuid) {
+                    setState(() {
+                      _prompts = updatedPrompts;
+                    });
+                    widget.onPromptsUpdated(updatedPrompts, selectedUuid);
+                  },
                   selectedPromptUuid: widget.selectedPromptUuid,
                 );
               },

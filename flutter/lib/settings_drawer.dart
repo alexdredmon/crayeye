@@ -5,7 +5,14 @@ import 'key_dialog.dart';
 import 'prompt_dialogs.dart';
 import 'config.dart';
 
-void showSettingsDrawer(BuildContext context, AudioManager audioManager, VoidCallback onShowKeyDialog) {
+import 'home_page.dart'; // Add this import
+
+void showSettingsDrawer(
+  BuildContext context,
+  AudioManager audioManager,
+  VoidCallback onShowKeyDialog,
+  Function(List<Map<String, String>>) onResetPrompts, // Update this line
+) {
   showModalBottomSheet(
     context: context,
     backgroundColor: Colors.grey.shade900,
@@ -58,6 +65,7 @@ void showSettingsDrawer(BuildContext context, AudioManager audioManager, VoidCal
                 if (confirm == true) {
                   List<Map<String, String>> defaultPromptsList = defaultPrompts.map((prompt) => Map<String, String>.from(prompt)).toList();
                   await savePrompts(defaultPromptsList);
+                  onResetPrompts(defaultPromptsList); // Update this line
                   Navigator.pop(context);
                 }
               },

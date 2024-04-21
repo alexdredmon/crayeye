@@ -69,6 +69,14 @@ class _MyHomePageState extends State<MyHomePage> {
     _loadPrompts();
   }
 
+  void resetPrompts(List<Map<String, String>> defaultPromptsList) {
+    setState(() {
+      _prompts = defaultPromptsList;
+      _selectedPromptUuid = defaultPromptsList.first['id']!;
+    });
+  }
+
+
   void _loadPrompts() async {
     List<Map<String, String>> loadedPrompts = await loadPrompts();
     String loadedSelectedPromptUuid = await loadSelectedPromptUuid();
@@ -447,10 +455,10 @@ class _MyHomePageState extends State<MyHomePage> {
       key: _scaffoldKey,
       appBar: HomeAppBar(
         audioManager: _audioManager,
-
         onShowKeyDialog: () {
           showKeyDialog(context);
         },
+        onResetPrompts: resetPrompts, // Pass the resetPrompts method
       ),
       body: Stack(
         children: [

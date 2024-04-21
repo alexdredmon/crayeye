@@ -3,12 +3,12 @@ import 'package:flutter/material.dart';
 
 class PromptsDrawerButtons extends StatelessWidget {
   final VoidCallback onAddPrompt;
-  final VoidCallback onClosePromptsDrawer; // Add this line
+  final VoidCallback onClosePromptsDrawer;
 
   const PromptsDrawerButtons({
     Key? key,
     required this.onAddPrompt,
-    required this.onClosePromptsDrawer, // Add this line
+    required this.onClosePromptsDrawer,
   }) : super(key: key);
 
   @override
@@ -27,7 +27,7 @@ class PromptsDrawerButtons extends StatelessWidget {
             child: const Text('+ Prompt'),
           ),
           ElevatedButton(
-            onPressed: onClosePromptsDrawer, // Update this line
+            onPressed: onClosePromptsDrawer,
             style: ElevatedButton.styleFrom(
               backgroundColor: Colors.black,
               foregroundColor: Colors.white,
@@ -41,4 +41,5 @@ class PromptsDrawerButtons extends StatelessWidget {
     );
   }
 }
+
 // eof

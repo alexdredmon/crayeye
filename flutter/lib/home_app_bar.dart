@@ -7,11 +7,13 @@ import 'settings_drawer.dart';
 class HomeAppBar extends StatelessWidget implements PreferredSizeWidget {
   final AudioManager audioManager;
   final VoidCallback onShowKeyDialog;
+  final Function(List<Map<String, String>>) onResetPrompts; // Update this line
 
   const HomeAppBar({
     Key? key,
     required this.audioManager,
     required this.onShowKeyDialog,
+    required this.onResetPrompts, // Update this line
   }) : super(key: key);
 
   @override
@@ -34,7 +36,7 @@ class HomeAppBar extends StatelessWidget implements PreferredSizeWidget {
         IconButton(
           icon: Icon(Icons.settings, color: Colors.white),
           onPressed: () {
-            showSettingsDrawer(context, audioManager, onShowKeyDialog);
+            showSettingsDrawer(context, audioManager, onShowKeyDialog, onResetPrompts); // Update this line
           },
         ),
       ],
