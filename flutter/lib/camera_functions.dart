@@ -85,7 +85,11 @@ class CameraFunctions {
 
       // Request location permissions
       LocationPermission permission = await Geolocator.requestPermission();
-      if (permission != LocationPermission.denied && permission != LocationPermission.deniedForever) {
+      if (
+        prompt.contains("{location.")
+        && permission != LocationPermission.denied
+        && permission != LocationPermission.deniedForever
+      ) {
         // Get the user's current location
         Position position = await Geolocator.getCurrentPosition(desiredAccuracy: LocationAccuracy.high);
 
@@ -100,8 +104,6 @@ class CameraFunctions {
           prompt = prompt.replaceAll("{location.alt}", position.altitude.toString());
         }
       }
-
-      
 
       // Replace the orientation token in the prompt with actual value
       // if (prompt.contains("{location.orientation}")) {

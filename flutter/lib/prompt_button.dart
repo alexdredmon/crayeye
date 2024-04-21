@@ -18,13 +18,28 @@ class PromptButton extends StatelessWidget {
   Widget build(BuildContext context) {
     return ElevatedButton(
       onPressed: currentPromptTitle == 'Select a Prompt' ? onPressed : onAnalyzePressed,
-      style: ElevatedButton.styleFrom(
-        backgroundColor: Colors.deepPurple.shade700,
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(50),
+        style: ButtonStyle(
+          backgroundColor: MaterialStateProperty.resolveWith<Color>((Set<MaterialState> states) {
+            if (states.contains(MaterialState.pressed)) {
+              return Colors.black; // Background color when button is pressed
+            }
+            return Colors.deepPurple.shade700; // Default background color
+          }),
+          foregroundColor: MaterialStateProperty.resolveWith<Color>((Set<MaterialState> states) {
+            if (states.contains(MaterialState.pressed)) {
+              return Colors.white; // Text color when button is pressed
+            }
+            return Colors.white; // Default text color
+          }),
+          shape: MaterialStateProperty.all<RoundedRectangleBorder>(
+            RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(50),
+            ),
+          ),
+          padding: MaterialStateProperty.all<EdgeInsetsGeometry>(
+            const EdgeInsets.symmetric(horizontal: 20, vertical: 15),
+          ),
         ),
-        padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 15),
-      ),
       child: Row(
         mainAxisSize: MainAxisSize.min,
         children: [
