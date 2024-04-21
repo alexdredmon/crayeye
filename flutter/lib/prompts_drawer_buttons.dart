@@ -23,6 +23,11 @@ class PromptsDrawerButtons extends StatelessWidget {
             style: ElevatedButton.styleFrom(
               backgroundColor: Colors.black,
               foregroundColor: Color(0xFF4effb6),
+              padding: EdgeInsets.symmetric(vertical: 13, horizontal: 23),
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(50),
+                side: BorderSide(color: Color(0xFF4effb6), width: 3),
+              ),
             ),
             child: const Text('+ Prompt'),
           ),
@@ -30,10 +35,16 @@ class PromptsDrawerButtons extends StatelessWidget {
             onPressed: onClosePromptsDrawer,
             style: ElevatedButton.styleFrom(
               backgroundColor: Colors.black,
-              foregroundColor: Colors.white,
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(50),
+                side: BorderSide(color: Colors.white, width: 3),
+              ),
+              padding: EdgeInsets.all(13),
+              minimumSize: Size(30, 30), // Set a fixed size for the button
             ),
             child: const Icon(
               Icons.keyboard_arrow_down,
+              color: Colors.white,
             ),
           ),
         ],

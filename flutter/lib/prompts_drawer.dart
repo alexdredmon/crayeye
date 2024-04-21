@@ -105,7 +105,7 @@ class _PromptsDrawerState extends State<PromptsDrawer> {
   Widget build(BuildContext context) {
     return SingleChildScrollView(
       child: Container(
-        padding: EdgeInsets.only(top: 40, bottom: MediaQuery.of(context).viewInsets.bottom),
+        padding: EdgeInsets.only(top: _searchFocusNode.hasFocus ? 40 : 15, bottom: MediaQuery.of(context).viewInsets.bottom),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           mainAxisSize: MainAxisSize.min,
@@ -115,7 +115,7 @@ class _PromptsDrawerState extends State<PromptsDrawer> {
               child: Row(
                 crossAxisAlignment: CrossAxisAlignment.center,
                 children: [
-                  Text(
+                  _searchFocusNode.hasFocus ? SizedBox.shrink() : Text(
                     'Prompts',
                     style: TextStyle(
                       fontSize: 20,
@@ -123,16 +123,23 @@ class _PromptsDrawerState extends State<PromptsDrawer> {
                       color: Colors.white,
                     ),
                   ),
-                  SizedBox(width: 30),
+                  (! _searchFocusNode.hasFocus && _searchText != "") ? SizedBox(width: 10) : SizedBox.shrink(),
+                  (! _searchFocusNode.hasFocus && _searchText != "") ? Text(
+                    '>',
+                    style: TextStyle(
+                      color: Colors.grey,
+                    ),
+                  ) : SizedBox.shrink(),
+                  (! _searchFocusNode.hasFocus && _searchText != "") ? SizedBox(width: 10) : SizedBox.shrink(),
                   Expanded(
                     child: TextField(
                       controller: _searchController,
                       focusNode: _searchFocusNode,
                       onChanged: _updateSearchText,
                       style: TextStyle(color: Colors.white),
-                      textAlign: TextAlign.right,
+                      // textAlign: TextAlign.right,
                       decoration: InputDecoration(
-                        hintText: 'Search',
+                        hintText: _searchFocusNode.hasFocus ? 'Search prompts... ' : '',
                         hintStyle: TextStyle(color: Colors.white54),
                         border: InputBorder.none,
                         suffixIcon: _searchFocusNode.hasFocus
@@ -140,7 +147,17 @@ class _PromptsDrawerState extends State<PromptsDrawer> {
                                 icon: Icon(Icons.clear, color: Colors.white),
                                 onPressed: _clearSearchText,
                               )
-                            : Icon(Icons.search, color: Colors.white),
+                            : Container(
+                                decoration: BoxDecoration(
+                                  color: Colors.black, // Background color
+                                  borderRadius: BorderRadius.circular(100), // Rounded corners
+                                ),
+                                padding: EdgeInsets.all(8), // Padding inside the container
+                                child: Icon(
+                                  Icons.search,
+                                  color: Colors.white,
+                                ),
+                              )
                       ),
                     ),
                   ),
