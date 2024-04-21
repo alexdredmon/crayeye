@@ -21,6 +21,7 @@ Future<void> showPromptsDrawer({
   await showModalBottomSheet(
     context: context,
     backgroundColor: Colors.grey.shade900,
+    isScrollControlled: true,
     builder: (BuildContext context) {
       return PromptsDrawer(
         prompts: prompts,
@@ -55,6 +56,9 @@ class PromptsDrawer extends StatefulWidget {
 
 class _PromptsDrawerState extends State<PromptsDrawer> {
   late List<Map<String, String>> _prompts;
+  String _searchText = '';
+  final TextEditingController _searchController = TextEditingController();
+  final FocusNode _searchFocusNode = FocusNode();
 
   @override
   void initState() {
@@ -63,94 +67,149 @@ class _PromptsDrawerState extends State<PromptsDrawer> {
   }
 
   @override
+  void dispose() {
+    _searchController.dispose();
+    _searchFocusNode.dispose();
+    super.dispose();
+  }
+
+  void _updateSearchText(String searchText) {
+    setState(() {
+      _searchText = searchText;
+      _searchController.text = searchText;
+    });
+  }
+
+  void _clearSearchText() {
+    setState(() {
+      _searchText = '';
+      _searchController.clear();
+      _searchFocusNode.unfocus();
+    });
+  }
+
+  List<Map<String, String>> _getFilteredPrompts() {
+    if (_searchText.isEmpty) {
+      return _prompts;
+    }
+    return _prompts.where((prompt) => prompt['title']!.toLowerCase().contains(_searchText.toLowerCase())).toList();
+  }
+
+  @override
   Widget build(BuildContext context) {
-    return Container(
-      padding: const EdgeInsets.all(0),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Padding(
-            padding: EdgeInsets.all(16.0),
-            child: Text(
-              'Prompts',
-              style: TextStyle(
-                fontSize: 20,
-                fontWeight: FontWeight.bold,
-                color: Colors.white,
+    return SingleChildScrollView(
+      child: Container(
+        padding: EdgeInsets.only(top: 40, bottom: MediaQuery.of(context).viewInsets.bottom),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Padding(
+              padding: EdgeInsets.symmetric(horizontal: 16.0),
+              child: Row(
+                crossAxisAlignment: CrossAxisAlignment.center,
+                children: [
+                  Text(
+                    'Prompts',
+                    style: TextStyle(
+                      fontSize: 20,
+                      fontWeight: FontWeight.bold,
+                      color: Colors.white,
+                    ),
+                  ),
+                  SizedBox(width: 30),
+                  Expanded(
+                    child: TextField(
+                      controller: _searchController,
+                      focusNode: _searchFocusNode,
+                      onChanged: _updateSearchText,
+                      style: TextStyle(color: Colors.white),
+                      textAlign: TextAlign.right,
+                      decoration: InputDecoration(
+                        hintText: 'Search',
+                        hintStyle: TextStyle(color: Colors.white54),
+                        border: InputBorder.none,
+                        suffixIcon: Icon(Icons.search, color: Colors.white),
+                      ),
+                    ),
+                  ),
+                ],
               ),
             ),
-          ),
-          Expanded(
-            child: Scrollbar(
-              thickness: 6.0,
-              thumbVisibility: true,
-              child: ReorderableListView.builder(
-                onReorder: (int oldIndex, int newIndex) {
-                  PromptsDrawerMethods.reorderPrompts(
-                    prompts: _prompts,
-                    oldIndex: oldIndex,
-                    newIndex: newIndex,
-                    onPromptsUpdated: widget.onPromptsUpdated,
-                  );
-                },
-                itemCount: _prompts.length,
-                itemBuilder: (context, index) {
-                  Map<String, String> prompt = _prompts[index];
-                  return PromptListTile(
-                    key: ValueKey(prompt),
-                    prompt: prompt,
-                    isSelected: prompt['id'] == widget.selectedPromptUuid,
-                    onEditPrompt: (uuid) {
-                      PromptsDrawerMethods.editPrompt(
-                        context: context,
-                        prompts: _prompts,
-                        uuid: uuid,
-                        onPromptsUpdated: widget.onPromptsUpdated,
-                        selectedPromptUuid: widget.selectedPromptUuid,
-                      );
-                    },
-                    onDeletePrompt: (uuid) async {
-                      bool confirm = await showDeletePromptConfirmationDialog(context);
-                      if (confirm == true) {
-                        PromptsDrawerMethods.deletePrompt(
+            SizedBox(
+              height: MediaQuery.of(context).size.height * 0.6,
+              child: Scrollbar(
+                thickness: 6.0,
+                thumbVisibility: true,
+                child: ReorderableListView.builder(
+                  shrinkWrap: true,
+                  onReorder: (int oldIndex, int newIndex) {
+                    PromptsDrawerMethods.reorderPrompts(
+                      prompts: _prompts,
+                      oldIndex: oldIndex,
+                      newIndex: newIndex,
+                      onPromptsUpdated: widget.onPromptsUpdated,
+                    );
+                  },
+                  itemCount: _getFilteredPrompts().length,
+                  itemBuilder: (context, index) {
+                    Map<String, String> prompt = _getFilteredPrompts()[index];
+                    return PromptListTile(
+                      key: ValueKey(prompt),
+                      prompt: prompt,
+                      isSelected: prompt['id'] == widget.selectedPromptUuid,
+                      onEditPrompt: (uuid) {
+                        PromptsDrawerMethods.editPrompt(
+                          context: context,
                           prompts: _prompts,
                           uuid: uuid,
                           onPromptsUpdated: widget.onPromptsUpdated,
                           selectedPromptUuid: widget.selectedPromptUuid,
                         );
+                      },
+                      onDeletePrompt: (uuid) async {
+                        bool confirm = await showDeletePromptConfirmationDialog(context);
+                        if (confirm == true) {
+                          PromptsDrawerMethods.deletePrompt(
+                            prompts: _prompts,
+                            uuid: uuid,
+                            onPromptsUpdated: widget.onPromptsUpdated,
+                            selectedPromptUuid: widget.selectedPromptUuid,
+                          );
+                          Navigator.pop(context);
+                        }
+                      },
+                      onSharePrompt: (title, prompt) {
+                        String titleEncoded = Uri.encodeComponent(title);
+                        String promptEncoded = Uri.encodeComponent(prompt);
+                        String titleSlug = Uri.encodeComponent(title);
+                        Share.share('crayeye://$titleSlug?title=$titleEncoded&prompt=$promptEncoded');
+                      },
+                      onPromptTapped: (uuid) {
+                        widget.onPromptsUpdated(_prompts, uuid);
                         Navigator.pop(context);
-                      }
-                    },
-                    onSharePrompt: (title, prompt) {
-                      String titleEncoded = Uri.encodeComponent(title);
-                      String promptEncoded = Uri.encodeComponent(prompt);
-                      String titleSlug = Uri.encodeComponent(title);
-                      Share.share('crayeye://$titleSlug?title=$titleEncoded&prompt=$promptEncoded');
-                    },
-                    onPromptTapped: (uuid) {
-                      widget.onPromptsUpdated(_prompts, uuid);
-                      Navigator.pop(context);
-                    },
-                  );
-                },
+                      },
+                    );
+                  },
+                ),
               ),
             ),
-          ),
-          PromptsDrawerButtons(
-            onAddPrompt: () {
-              PromptsDrawerMethods.addPrompt(
-                context: context,
-                prompts: _prompts,
-                onPromptsUpdated: widget.onPromptsUpdated,
-                selectedPromptUuid: widget.selectedPromptUuid,
-              );
-            },
-            onClosePromptsDrawer: () {
-              Navigator.pop(context);
-            },
-          ),
-          const SizedBox(height: 8),
-        ],
+            PromptsDrawerButtons(
+              onAddPrompt: () {
+                PromptsDrawerMethods.addPrompt(
+                  context: context,
+                  prompts: _prompts,
+                  onPromptsUpdated: widget.onPromptsUpdated,
+                  selectedPromptUuid: widget.selectedPromptUuid,
+                );
+              },
+              onClosePromptsDrawer: () {
+                Navigator.pop(context);
+              },
+            ),
+            const SizedBox(height: 8),
+          ],
+        ),
       ),
     );
   }
