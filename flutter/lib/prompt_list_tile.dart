@@ -49,21 +49,21 @@ class PromptListTile extends StatelessWidget {
           const PopupMenuItem<String>(
             value: 'Edit',
             child: ListTile(
-              leading: Icon(Icons.edit, color: Colors.white),
+              leading: Icon(Icons.edit, color: Colors.orangeAccent),
               title: Text('Edit', style: TextStyle(color: Colors.white)),
             ),
           ),
           const PopupMenuItem<String>(
             value: 'Delete',
             child: ListTile(
-              leading: Icon(Icons.delete, color: Colors.white),
+              leading: Icon(Icons.delete, color: Colors.redAccent),
               title: Text('Delete', style: TextStyle(color: Colors.white)),
             ),
           ),
           const PopupMenuItem<String>(
             value: 'Share',
             child: ListTile(
-              leading: Icon(Icons.share, color: Colors.white),
+              leading: Icon(Icons.send, color: Colors.blueAccent),
               title: Text('Share', style: TextStyle(color: Colors.white)),
             ),
           ),

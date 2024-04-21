@@ -529,7 +529,7 @@ class _MyHomePageState extends State<MyHomePage> {
                         backgroundColor: Colors.black,
                         shape: RoundedRectangleBorder(
                           borderRadius: BorderRadius.circular(50),
-                          side: BorderSide(color: Colors.white, width: 3),
+                          side: BorderSide(color: Colors.deepPurple.shade700, width: 3),
                         ),
                         padding: EdgeInsets.all(13),
                         minimumSize: Size(60, 60), // Set a fixed size for the button

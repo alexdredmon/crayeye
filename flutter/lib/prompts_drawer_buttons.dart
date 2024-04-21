@@ -37,7 +37,7 @@ class PromptsDrawerButtons extends StatelessWidget {
               backgroundColor: Colors.black,
               shape: RoundedRectangleBorder(
                 borderRadius: BorderRadius.circular(50),
-                side: BorderSide(color: Colors.white, width: 3),
+                side: BorderSide(color: Colors.deepPurple.shade700, width: 3),
               ),
               padding: EdgeInsets.all(13),
               minimumSize: Size(30, 30), // Set a fixed size for the button
