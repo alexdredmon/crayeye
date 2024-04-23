@@ -127,9 +127,9 @@ class _VolumeDialogState extends State<VolumeDialog> {
                 onPressed: () {
                   if (isAudioEnabled) {
                     widget.audioManager.disableAudio();
-                    widget.audioManager.stopAudio();
                   } else {
                     widget.audioManager.enableAudio();
+                    widget.audioManager.playRandomAudio();
                   }
                 },
                 icon: Icon(isAudioEnabled ? Icons.volume_up : Icons.volume_off),

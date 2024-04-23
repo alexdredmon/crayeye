@@ -6,7 +6,7 @@ import 'package:flutter/foundation.dart';
 class AudioManager {
   final AudioPlayer _audioPlayer = AudioPlayer();
   final List<String> _audioFiles = ['loading1.wav', 'loading2.wav', 'loading3.wav', 'loading4.wav'];
-  final ValueNotifier<bool> _isAudioEnabledNotifier = ValueNotifier<bool>(true);
+  final ValueNotifier<bool> _isAudioEnabledNotifier = ValueNotifier<bool>(false);
   double _volume = 0.2;
   final VoidCallback onAudioEnabled;
 
