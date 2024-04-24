@@ -224,7 +224,7 @@ class _PromptsDrawerState extends State<PromptsDrawer> {
                       },
                       onSharePrompt: (title, prompt) {
                         String titleEncoded = Uri.encodeComponent(title);
-                        String promptEncoded = Uri.encodeComponent(prompt);
+                        String promptEncoded = Uri.encodeComponent(prompt.replaceAll('{', '__/_').replaceAll('}', '__\\_',));
                         String titleSlug = Uri.encodeComponent(title);
                         Share.share('crayeye://$titleSlug?title=$titleEncoded&prompt=$promptEncoded');
                       },
