@@ -27,6 +27,9 @@ Install via the:
  - [Apple App Store](https://apps.apple.com/us/app/crayeye/id6480090992)
  - [Google Play Store](https://play.google.com/store/apps/details?id=com.crayeye.app)
 
+## How it's made
+CrayEye is the product of A.I. driven development.  Read more about how it was created (here)[https://www.alexandriaredmon.com/blog/the-app-that-ai-made]
+
 ## Backronym
 *"Cognitive Recognition Analysis Yielding Eye"*
 
