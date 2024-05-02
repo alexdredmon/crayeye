@@ -28,7 +28,7 @@ Install via the:
  - [Google Play Store](https://play.google.com/store/apps/details?id=com.crayeye.app)
 
 ## How it's made
-CrayEye is the product of A.I. driven development.  Read more about how it was created (here)[https://www.alexandriaredmon.com/blog/the-app-that-ai-made]
+CrayEye is the product of A.I. driven development.  [Read more](https://www.alexandriaredmon.com/blog/the-app-that-ai-made) about how it was created.
 
 ## Backronym
 *"Cognitive Recognition Analysis Yielding Eye"*
