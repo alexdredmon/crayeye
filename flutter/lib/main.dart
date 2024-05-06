@@ -52,8 +52,9 @@ class _MyAppState extends State<MyApp> {
   void _handleIncomingLink(String? link) {
     if (link != null && link.startsWith('crayeye://')) {
       Uri uri = Uri.parse(link);
-      String? prompt = (uri.queryParameters['prompt'] ?? '').replaceAll('__/_', '{').replaceAll('__\\_','}');
-      String? title = uri.queryParameters['title']; // Get the title parameter
+      String? prompt = uri.queryParameters['prompt'] ?? '';
+      String? title = uri.queryParameters['title'] ?? ''; // Get the title parameter
+
       if (prompt != null && title != null) {
         Provider.of<PromptNotifier>(context, listen: false)
           .setPromptAndTitle(prompt, title);

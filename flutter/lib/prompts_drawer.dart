@@ -9,6 +9,7 @@ import 'prompt_list_tile.dart';
 import 'prompts_drawer_buttons.dart';
 import 'prompts_drawer_methods.dart';
 import 'utils.dart';
+import 'dart:convert';
 
 Future<void> showPromptsDrawer({
   required BuildContext context,
@@ -224,9 +225,16 @@ class _PromptsDrawerState extends State<PromptsDrawer> {
                       },
                       onSharePrompt: (title, prompt) {
                         String titleEncoded = Uri.encodeComponent(title);
-                        String promptEncoded = Uri.encodeComponent(prompt.replaceAll('{', '__/_').replaceAll('}', '__\\_',));
+                        String promptEncoded = Uri.encodeComponent(prompt);
                         String titleSlug = Uri.encodeComponent(title);
-                        Share.share('crayeye://$titleSlug?title=$titleEncoded&prompt=$promptEncoded');
+
+                        String shareUrl = 'crayeye://?title=$titleEncoded&prompt=$promptEncoded';
+                        if (shareUrl.length > 300) {
+                          shareUrl = '$title\n$prompt';
+                        } else {
+                          shareUrl = '$shareUrl\n\n$title\n$prompt';
+                        }
+                        Share.share(shareUrl);
                       },
                       onPromptTapped: (uuid) {
                         widget.onPromptsUpdated(_prompts, uuid);

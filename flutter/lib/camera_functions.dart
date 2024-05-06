@@ -9,6 +9,7 @@ import 'package:path_provider/path_provider.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:permission_handler/permission_handler.dart';
 // import 'package:flutter_compass/flutter_compass.dart';
+import 'package:intl/intl.dart';
 import 'config.dart';
 
 class CameraFunctions {
@@ -104,6 +105,19 @@ class CameraFunctions {
           prompt = prompt.replaceAll("{location.alt}", position.altitude.toString());
         }
       }
+
+      if (
+        prompt.contains("{time.")
+      ) {
+        final now = DateTime.now();
+        final timeZone = now.timeZoneName;
+
+        final formatter = DateFormat('EEEE, MMMM d y \'at\' h:mma');
+        final formattedDateTime = formatter.format(now);
+        prompt = prompt.replaceAll("{time.datetime}", '$formattedDateTime $timeZone');
+      }
+
+      
 
       // Replace the orientation token in the prompt with actual value
       // if (prompt.contains("{location.orientation}")) {
