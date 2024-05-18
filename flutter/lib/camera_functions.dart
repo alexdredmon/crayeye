@@ -139,7 +139,7 @@ class CameraFunctions {
       // }
 
       Map<String, dynamic> body = {
-        'model': 'gpt-4-vision-preview',
+        'model': 'gpt-4o',
         'messages': [
           {
             'role': 'user',
@@ -199,7 +199,7 @@ class CameraFunctions {
         } else {
           print('Request failed with status: ${response.statusCode}.');
           if (!cancelToken.isCancellationRequested) {
-            onAnalysisComplete(null, 'Error sending image', false);
+            onAnalysisComplete(null, 'Error sending image (${response.statusCode})', false);
           }
         }
       } catch (e) {
