@@ -27,9 +27,13 @@ class _EditEngineScreenState extends State<EditEngineScreen> {
   }
 
   String _formatJsonString(String jsonString) {
-    final parsedJson = json.decode(jsonString);
-    final prettyJsonString = JsonEncoder.withIndent('  ').convert(parsedJson);
-    return prettyJsonString;
+    try {
+      final parsedJson = json.decode(jsonString);
+      final prettyJsonString = JsonEncoder.withIndent('  ').convert(parsedJson);
+      return prettyJsonString;
+    } catch (e) {
+      return jsonString; // Return the original string if it's not valid JSON
+    }
   }
 
   @override
@@ -90,7 +94,7 @@ class _EditEngineScreenState extends State<EditEngineScreen> {
                     ),
                   ),
                   child: Text('Cancel'),
-                ),                
+                ),
                 ElevatedButton(
                   style: ElevatedButton.styleFrom(
                     backgroundColor: Colors.black,

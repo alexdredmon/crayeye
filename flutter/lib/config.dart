@@ -60,6 +60,7 @@ List<Map<String, String>> defaultEngines = [
         ],
         'stream': true,
       },
+      'responseShape': ['choices', 0, 'delta', 'content']
     }),
   },
 ];

@@ -28,15 +28,6 @@ class ResponseView extends StatelessWidget {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Text(
-          'Engine: $engineTitle',
-          style: TextStyle(
-            color: Colors.white,
-            fontWeight: FontWeight.bold,
-            fontSize: 18,
-          ),
-        ),
-        const SizedBox(height: 8),
-        Text(
           promptTitle,
           style: TextStyle(
             color: Colors.white,
@@ -75,6 +66,15 @@ class ResponseView extends StatelessWidget {
           },
         ),
         const SizedBox(height: 16),
+        Text(
+          'Engine: $engineTitle',
+          style: TextStyle(
+            color: Colors.white,
+            fontWeight: FontWeight.bold,
+            fontSize: 18,
+          ),
+        ),
+        const SizedBox(height: 8),
         const Text(
           'Prompt:',
           style: TextStyle(

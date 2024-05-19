@@ -8,7 +8,6 @@ import 'package:path/path.dart' show join;
 import 'package:path_provider/path_provider.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:permission_handler/permission_handler.dart';
-// import 'package:flutter_compass/flutter_compass.dart';
 import 'package:intl/intl.dart';
 import 'config.dart';
 
@@ -20,27 +19,15 @@ class CameraFunctions {
 
   static Future<File?> takePicture(CameraController controller, {bool keepFlashOn = false}) async {
     try {
-      // Ensure that the camera is initialized
       await controller.initialize();
-
-      // Construct the path where the image will be saved
-      final path = join(
-        (await getTemporaryDirectory()).path,
-        '${DateTime.now()}.png',
-      );
-
-      // Set the exposure mode to auto before capturing the image
+      final path = join((await getTemporaryDirectory()).path, '${DateTime.now()}.png');
       await controller.setExposureMode(ExposureMode.auto);
 
-      // Turn on the flash if it's supposed to be kept on
       if (keepFlashOn) {
         await controller.setFlashMode(FlashMode.torch);
       }
 
-      // Take the picture and save it to the constructed path
       XFile picture = await controller.takePicture();
-
-      // Return the image file
       return File(picture.path);
     } catch (e) {
       print('Error taking picture: $e');
@@ -54,7 +41,7 @@ class CameraFunctions {
     String selectedPromptUuid,
     Function(File?, String, bool) onAnalysisComplete,
     Function() onOpenAIKeyMissing,
-    Function() onInvalidOpenAIKey, // Add this line
+    Function() onInvalidOpenAIKey,
     bool keepFlashOn,
     CancelToken cancelToken,
     Map<String, String> selectedEngine,
@@ -68,34 +55,21 @@ class CameraFunctions {
       openAIKey = DEFAULT_OPENAI_API_KEY;
     }
 
-    // Get the user's current heading
-    // double? heading = await FlutterCompass.events!.first.then((value) => value.heading);
-
-    // Take a picture without the default shutter sound, keeping the flash on if necessary
     File? imageFile = await takePicture(controller, keepFlashOn: keepFlashOn);
 
     if (imageFile != null) {
-      // Set the initial state with the captured image and loading state
       onAnalysisComplete(imageFile, '', true);
-
-      // Read the image file as bytes
       final bytes = await imageFile.readAsBytes();
       String base64Image = base64Encode(bytes);
 
-      // Prepare the request payload
-      String prompt = prompts.firstWhere((prompt) => prompt['id'] == selectedPromptUuid)['prompt']!; // Find the prompt using UUID
-
-      // Request location permissions
+      String prompt = prompts.firstWhere((prompt) => prompt['id'] == selectedPromptUuid)['prompt']!;
       LocationPermission permission = await Geolocator.requestPermission();
       if (
         prompt.contains("{location.")
         && permission != LocationPermission.denied
         && permission != LocationPermission.deniedForever
       ) {
-        // Get the user's current location
         Position position = await Geolocator.getCurrentPosition(desiredAccuracy: LocationAccuracy.high);
-
-        // Replace the location tokens in the prompt with actual values
         if (prompt.contains("{location.lat}")) {
           prompt = prompt.replaceAll("{location.lat}", position.latitude.toString());
         }
@@ -110,30 +84,11 @@ class CameraFunctions {
       if (prompt.contains("{time.")) {
         final now = DateTime.now();
         final timeZone = now.timeZoneName;
-
         final formatter = DateFormat('EEEE, MMMM d y \'at\' h:mma');
         final formattedDateTime = formatter.format(now);
         prompt = prompt.replaceAll("{time.datetime}", '$formattedDateTime $timeZone');
       }
 
-      // Replace the orientation token in the prompt with actual value
-      // if (prompt contains("{location.orientation}")) {
-      //   String orientation;
-      //   if (heading != null) {
-      //     if (heading >= 315 || heading < 45) {
-      //       orientation = "north";
-      //     } else if (heading >= 45 && heading < 135) { 
-      //       orientation = "east";
-      //     } else if (heading >= 135 && heading < 225) {
-      //       orientation = "south";
-      //     } else {
-      //       orientation = "west";
-      //     }
-      //   } else {
-      //     orientation = "unknown";
-      //   }
-      //   prompt = prompt.replaceAll("{location.orientation}", orientation);
-      // }
       final engineTitle = selectedEngine['title'];
       print('TITLE: $engineTitle');
       final engineSpec = json.decode(selectedEngine['definition']!);
@@ -141,30 +96,14 @@ class CameraFunctions {
       final requestUrl = engineSpec['url'] as String;
       final method = engineSpec['method'] as String;
       final headers = (engineSpec['headers'] as Map<String, dynamic>).map((key, value) => MapEntry(key.toString(), value.toString().replaceAll('{apiKey}', openAIKey)));
-      final bodyMap = engineSpec['body'] as Map<String, dynamic>;
-      bodyMap['messages'] = [
-        {
-          'role': 'user',
-          'content': [
-            {
-              'type': 'text',
-              'text': prompt,
-            },
-            {
-              'type': 'image_url',
-              'image_url': {
-                'url': 'data:image/png;base64,$base64Image',
-              }
-            }
-          ]
-        }
-      ];
-      final body = json.encode(bodyMap);
+      final bodyTemplate = engineSpec['body'] as Map<String, dynamic>;
+      final body = json.encode(_interpolateBody(bodyTemplate, prompt, base64Image));
+      final responseShape = engineSpec['responseShape'] as List<dynamic>;
 
       print('Request URL: $requestUrl');
       print('Request Method: $method');
       print('Request Headers: $headers');
-      // print('Request Body: $body');
+      print('Request Body: $body');
 
       try {
         final request = http.Request(method, Uri.parse(requestUrl))
@@ -177,17 +116,22 @@ class CameraFunctions {
           String responseBody = '';
           await for (var chunk in response.stream.transform(utf8.decoder).transform(const LineSplitter())) {
             if (cancelToken.isCancellationRequested) {
-              response.stream.listen((_) {}).cancel(); // Cancel the stream
+              print("cancel requested");
+              response.stream.listen((_) {}).cancel();
               break;
             }
-
             if (chunk.startsWith('data:') && chunk != 'data: [DONE]') {
               var data = jsonDecode(chunk.substring(5).trim()) as Map<String, dynamic>;
+              responseBody += _parseResponse(data, responseShape);
               onAnalysisComplete(imageFile, responseBody, true);
-              if (data['choices'] != null && (data['choices'] as List).isNotEmpty) {
-                String content = (data['choices'][0]['delta']['content'] ?? '') as String;
-                responseBody += content;
+            } else {
+              try {
+                Map<String, dynamic> decodedChunk = jsonDecode(chunk);
+                String parsed = _parseResponse(decodedChunk, responseShape);
+                responseBody += parsed;
                 onAnalysisComplete(imageFile, responseBody, true);
+              } catch (e) {
+                print("There was an error: $e");
               }
             }
           }
@@ -196,28 +140,60 @@ class CameraFunctions {
             onAnalysisComplete(imageFile, responseBody, false);
           }
         } else if (response.statusCode == 401 || response.statusCode == 403) {
-          onInvalidOpenAIKey(); // Call the callback function when the API key is invalid
+          onInvalidOpenAIKey();
           onAnalysisComplete(null, 'Invalid API Key', false);
         } else {
           print('Request failed with status: ${response.statusCode}.');
-          if (!cancelToken.isCancellationRequested) {
-            onAnalysisComplete(null, 'Error sending image (${response.statusCode})', false);
+          try {
+            String responseBody = await response.stream.bytesToString();
+            print('Response body: $responseBody');
+            if (!cancelToken.isCancellationRequested) {
+              onAnalysisComplete(null, 'Error sending image (${response.statusCode}): $responseBody', false);
+            }
+          } catch (e) {
+            print('Error reading response body: $e');
+            if (!cancelToken.isCancellationRequested) {
+              onAnalysisComplete(null, 'Error sending image (${response.statusCode})', false);
+            }
           }
         }
       } catch (e) {
-        // Update the state with the error message and loading state
         print('Error sending image: $e');
         if (!cancelToken.isCancellationRequested) {
           onAnalysisComplete(null, 'Error sending image: $e', false);
         }
       }
     } else {
-      // Update the state indicating no image was captured and loading state
       print('Failed to capture image');
       if (!cancelToken.isCancellationRequested) {
         onAnalysisComplete(null, 'Failed to capture image', false);
       }
     }
+  }
+
+  static Map<String, dynamic> _interpolateBody(Map<String, dynamic> bodyTemplate, String prompt, String base64Image) {
+    var body = json.decode(json.encode(bodyTemplate)); // deep copy
+    String bodyString = json.encode(body);
+
+    bodyString = bodyString.replaceAll("{prompt}", prompt);
+    bodyString = bodyString.replaceAll("{imageUrl}", "data:image/png;base64,$base64Image");
+    bodyString = bodyString.replaceAll("{imageBase64}", "$base64Image");
+
+    return json.decode(bodyString);
+  }
+
+  static String _parseResponse(Map<String, dynamic> data, List<dynamic> responseShape) {
+    dynamic current = data;
+    for (var path in responseShape) {
+      if (current is List) {
+        current = current[int.parse(path.toString())];
+      } else if (current is Map<String, dynamic>) {
+        current = current[path];
+      } else {
+        current = jsonDecode(current);
+      }
+    }
+    return current.toString();
   }
 }
 

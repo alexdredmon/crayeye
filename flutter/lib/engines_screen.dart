@@ -189,6 +189,7 @@ class _EnginesScreenState extends State<EnginesScreen> {
         onPressed: _addEngine,
         backgroundColor: Color(0xFF4effb6),
         child: Icon(Icons.add, color: Colors.black),
+        shape: CircleBorder(),
       ),
       backgroundColor: Colors.grey.shade900,
     );
