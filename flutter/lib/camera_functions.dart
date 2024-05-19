@@ -134,7 +134,8 @@ class CameraFunctions {
       //   }
       //   prompt = prompt.replaceAll("{location.orientation}", orientation);
       // }
-
+      final engineTitle = selectedEngine['title'];
+      print('TITLE: $engineTitle');
       final engineSpec = json.decode(selectedEngine['definition']!);
       print('engineSpec: $engineSpec');
       final requestUrl = engineSpec['url'] as String;

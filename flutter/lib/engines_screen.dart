@@ -1,8 +1,10 @@
 // FILENAME: engines_screen.dart
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 import 'config.dart';
 import 'edit_engine_screen.dart';
 import 'add_engine_screen.dart';
+import 'engine_notifier.dart'; // Add this import
 
 class EnginesScreen extends StatefulWidget {
   @override
@@ -26,6 +28,11 @@ class _EnginesScreenState extends State<EnginesScreen> {
       _engines = loadedEngines;
       _selectedEngineId = loadedSelectedEngineId;
     });
+
+    // Set the initial engine in the EngineNotifier
+    var engineNotifier = Provider.of<EngineNotifier>(context, listen: false);
+    var initialEngine = loadedEngines.firstWhere((engine) => engine['id'] == loadedSelectedEngineId, orElse: () => loadedEngines.first);
+    engineNotifier.setEngine(initialEngine);
   }
 
   void _updateEngines(List<Map<String, String>> updatedEngines, String updatedSelectedEngineId) {
@@ -47,8 +54,13 @@ class _EnginesScreenState extends State<EnginesScreen> {
             setState(() {
               final index = _engines.indexWhere((engine) => engine['id'] == editedEngine['id']);
               _engines[index] = editedEngine;
+              if (_selectedEngineId == editedEngine['id']) {
+                _updateEngines(_engines, _selectedEngineId);
+              }
             });
             saveEngines(_engines);
+            var engineNotifier = Provider.of<EngineNotifier>(context, listen: false);
+            engineNotifier.setEngine(editedEngine); // Update the engine in the notifier
           },
         ),
       ),
@@ -103,6 +115,8 @@ class _EnginesScreenState extends State<EnginesScreen> {
             });
             saveEngines(_engines);
             saveSelectedEngineId(_selectedEngineId);
+            var engineNotifier = Provider.of<EngineNotifier>(context, listen: false);
+            engineNotifier.setEngine(newEngine); // Set the new engine in the notifier
           },
         ),
       ),
@@ -163,6 +177,10 @@ class _EnginesScreenState extends State<EnginesScreen> {
                 _selectedEngineId = engine['id']!;
               });
               saveSelectedEngineId(_selectedEngineId);
+              // Refresh the parent screen to use the new selected engine
+              (context as Element).reassemble();
+              var engineNotifier = Provider.of<EngineNotifier>(context, listen: false);
+              engineNotifier.setEngine(engine); // Set the selected engine in the notifier
             },
           );
         },

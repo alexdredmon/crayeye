@@ -45,7 +45,7 @@ void showSettingsDrawer(
               },
             ),
             ListTile(
-              leading: Icon(Icons.engineering, color: Colors.blue),
+              leading: Icon(Icons.auto_fix_high, color: Colors.purple.shade300),
               title: Text(
                 'Engines',
                 style: TextStyle(color: Colors.white),

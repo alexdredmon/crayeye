@@ -8,7 +8,7 @@ import 'package:uuid/uuid.dart';
 final Uuid uuid = Uuid();
 
 const String DEFAULT_OPENAI_API_KEY = String.fromEnvironment('DEFAULT_OPENAI_API_KEY', defaultValue: '');
-const bool ALLOW_USER_API_KEY = true;
+const bool ALLOW_USER_API_KEY = false;
 const bool PORTRAIT_ONLY = true;
 const int MAX_MOOCH_REQUESTS = 15;
 const int MOOCH_REQUEST_PERIOD = 3600;
@@ -31,7 +31,7 @@ List<Map<String, String>> defaultPrompts = [
 List<Map<String, String>> defaultEngines = [
   {
     'id': uuid.v4(),
-    'title': 'GPT-4o',
+    'title': 'Default',
     'definition': json.encode({
       'url': 'https://api.openai.com/v1/chat/completions',
       'method': 'POST',

@@ -48,7 +48,7 @@ class _EditEngineScreenState extends State<EditEngineScreen> {
             SizedBox(height: 16),
             TextField(
               style: TextStyle(
-                color: Colors.white,
+                color: Color(0xFF4effb6),
                 fontFamily: 'CourierPrime'
               ),
               controller: _definitionController,
