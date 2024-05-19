@@ -45,17 +45,46 @@ class _AddEngineScreenState extends State<AddEngineScreen> {
               maxLines: 7,
             ),
             SizedBox(height: 16),
-            ElevatedButton(
-              onPressed: () {
-                final newEngine = {
-                  'id': uuid.v4(),
-                  'title': _titleController.text,
-                  'definition': _definitionController.text,
-                };
-                widget.onSave(newEngine);
-                Navigator.pop(context);
-              },
-              child: Text('Save'),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                ElevatedButton(
+                  onPressed: () {
+                    Navigator.pop(context);
+                  },
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: Colors.black,
+                    foregroundColor: Color(0xFFff80ab),
+                    padding: EdgeInsets.symmetric(vertical: 13, horizontal: 23),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(50),
+                      side: BorderSide(color: Color(0xFFff80ab), width: 3),
+                    ),
+                  ),
+                  child: Text('Cancel'),
+                ),
+                ElevatedButton(
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: Colors.black,
+                    foregroundColor: Color(0xFF4effb6),
+                    padding: EdgeInsets.symmetric(vertical: 13, horizontal: 23),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(50),
+                      side: BorderSide(color: Color(0xFF4effb6), width: 3),
+                    ),
+                  ),
+                  onPressed: () {
+                    final newEngine = {
+                      'id': uuid.v4(),
+                      'title': _titleController.text,
+                      'definition': _definitionController.text,
+                    };
+                    widget.onSave(newEngine);
+                    Navigator.pop(context);
+                  },
+                  child: Text('Save'),
+                ),
+              ],
             ),
           ],
         ),
