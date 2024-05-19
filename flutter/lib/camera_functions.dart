@@ -43,7 +43,7 @@ class CameraFunctions {
       // Return the image file
       return File(picture.path);
     } catch (e) {
-      print(e);
+      print('Error taking picture: $e');
       return null;
     }
   }
@@ -57,6 +57,7 @@ class CameraFunctions {
     Function() onInvalidOpenAIKey, // Add this line
     bool keepFlashOn,
     CancelToken cancelToken,
+    Map<String, String> selectedEngine,
   ) async {
     String openAIKey = await loadOpenAIKey();
     if (openAIKey.isEmpty) {
@@ -106,9 +107,7 @@ class CameraFunctions {
         }
       }
 
-      if (
-        prompt.contains("{time.")
-      ) {
+      if (prompt.contains("{time.")) {
         final now = DateTime.now();
         final timeZone = now.timeZoneName;
 
@@ -117,10 +116,8 @@ class CameraFunctions {
         prompt = prompt.replaceAll("{time.datetime}", '$formattedDateTime $timeZone');
       }
 
-      
-
       // Replace the orientation token in the prompt with actual value
-      // if (prompt.contains("{location.orientation}")) {
+      // if (prompt contains("{location.orientation}")) {
       //   String orientation;
       //   if (heading != null) {
       //     if (heading >= 315 || heading < 45) {
@@ -138,38 +135,42 @@ class CameraFunctions {
       //   prompt = prompt.replaceAll("{location.orientation}", orientation);
       // }
 
-      Map<String, dynamic> body = {
-        'model': 'gpt-4o',
-        'messages': [
-          {
-            'role': 'user',
-            'content': [
-              {
-                'type': 'text',
-                'text': prompt,
-              },
-              {
-                'type': 'image_url',
-                'image_url': {
-                  'url': 'data:image/png;base64,$base64Image',
-                }
+      final engineSpec = json.decode(selectedEngine['definition']!);
+      print('engineSpec: $engineSpec');
+      final requestUrl = engineSpec['url'] as String;
+      final method = engineSpec['method'] as String;
+      final headers = (engineSpec['headers'] as Map<String, dynamic>).map((key, value) => MapEntry(key.toString(), value.toString().replaceAll('{apiKey}', openAIKey)));
+      final bodyMap = engineSpec['body'] as Map<String, dynamic>;
+      bodyMap['messages'] = [
+        {
+          'role': 'user',
+          'content': [
+            {
+              'type': 'text',
+              'text': prompt,
+            },
+            {
+              'type': 'image_url',
+              'image_url': {
+                'url': 'data:image/png;base64,$base64Image',
               }
-            ]
-          }
-        ],
-        'stream': true, // Enable streaming
-      };
+            }
+          ]
+        }
+      ];
+      final body = json.encode(bodyMap);
+
+      print('Request URL: $requestUrl');
+      print('Request Method: $method');
+      print('Request Headers: $headers');
+      // print('Request Body: $body');
 
       try {
-        // Send the image to OpenAI for analysis
-        var request = http.Request('POST', Uri.parse('https://api.openai.com/v1/chat/completions'));
-        request.headers.addAll({
-          'Content-Type': 'application/json',
-          'Authorization': 'Bearer $openAIKey',
-        });
-        request.body = jsonEncode(body);
+        final request = http.Request(method, Uri.parse(requestUrl))
+          ..headers.addAll(headers)
+          ..body = body;
 
-        var response = await request.send();
+        final response = await request.send();
 
         if (response.statusCode == 200) {
           String responseBody = '';
@@ -180,10 +181,10 @@ class CameraFunctions {
             }
 
             if (chunk.startsWith('data:') && chunk != 'data: [DONE]') {
-              var data = jsonDecode(chunk.substring(5).trim());
+              var data = jsonDecode(chunk.substring(5).trim()) as Map<String, dynamic>;
               onAnalysisComplete(imageFile, responseBody, true);
-              if (data['choices'] != null && data['choices'].isNotEmpty) {
-                String content = data['choices'][0]['delta']['content'] ?? '';
+              if (data['choices'] != null && (data['choices'] as List).isNotEmpty) {
+                String content = (data['choices'][0]['delta']['content'] ?? '') as String;
                 responseBody += content;
                 onAnalysisComplete(imageFile, responseBody, true);
               }
@@ -204,12 +205,14 @@ class CameraFunctions {
         }
       } catch (e) {
         // Update the state with the error message and loading state
+        print('Error sending image: $e');
         if (!cancelToken.isCancellationRequested) {
           onAnalysisComplete(null, 'Error sending image: $e', false);
         }
       }
     } else {
       // Update the state indicating no image was captured and loading state
+      print('Failed to capture image');
       if (!cancelToken.isCancellationRequested) {
         onAnalysisComplete(null, 'Failed to capture image', false);
       }

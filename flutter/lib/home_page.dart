@@ -46,6 +46,8 @@ class _MyHomePageState extends State<MyHomePage> {
   final GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey<ScaffoldState>();
   int _moochRequestCount = 0;
   int _moochRequestTimestamp = 0;
+  List<Map<String, String>> _engines = [];
+  String _selectedEngineId = '';
 
   @override
   void initState() {
@@ -61,6 +63,7 @@ class _MyHomePageState extends State<MyHomePage> {
     _loadFavorites();
     _loadMoochRequestCount();
     _loadMoochRequestTimestamp();
+    _loadEngines();
   }
 
   @override
@@ -75,7 +78,6 @@ class _MyHomePageState extends State<MyHomePage> {
       _selectedPromptUuid = defaultPromptsList.first['id']!;
     });
   }
-
 
   void _loadPrompts() async {
     List<Map<String, String>> loadedPrompts = await loadPrompts();
@@ -235,6 +237,15 @@ class _MyHomePageState extends State<MyHomePage> {
     );
   }
 
+  void _loadEngines() async {
+    List<Map<String, String>> loadedEngines = await loadEngines();
+    String loadedSelectedEngineId = await loadSelectedEngineId();
+    setState(() {
+      _engines = loadedEngines;
+      _selectedEngineId = loadedSelectedEngineId;
+    });
+  }
+
   void _analyzeImage() async {
     String openAIKey = await loadOpenAIKey();
     bool canMakeRequest = openAIKey.isEmpty ? await _canMakeRequest() : true;
@@ -303,6 +314,15 @@ class _MyHomePageState extends State<MyHomePage> {
         _onInvalidOpenAIKey,
         _isFlashOn,
         _cancelToken,
+        _engines.firstWhere(
+          (engine) => engine['id'] == _selectedEngineId,
+          orElse: () {
+            // Provide a fallback if no engine is found
+            // You can also show an error message to the user here
+            // For simplicity, we'll use the first engine as a default
+            return _engines.first;
+          },
+        ),
       ),
     );
   }
@@ -575,3 +595,4 @@ class _MyHomePageState extends State<MyHomePage> {
   }
 }
 // eof
+

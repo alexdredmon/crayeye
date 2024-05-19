@@ -4,8 +4,7 @@ import 'audio_manager.dart';
 import 'key_dialog.dart';
 import 'prompt_dialogs.dart';
 import 'config.dart';
-
-import 'home_page.dart'; // Add this import
+import 'engines_screen.dart'; // Import EnginesScreen
 
 void showSettingsDrawer(
   BuildContext context,
@@ -42,6 +41,20 @@ void showSettingsDrawer(
                 showDialog(
                   context: context,
                   builder: (context) => VolumeDialog(audioManager: audioManager),
+                );
+              },
+            ),
+            ListTile(
+              leading: Icon(Icons.engineering, color: Colors.blue),
+              title: Text(
+                'Engines',
+                style: TextStyle(color: Colors.white),
+              ),
+              onTap: () {
+                Navigator.of(context).push(
+                  MaterialPageRoute(
+                    builder: (context) => EnginesScreen(),
+                  ),
                 );
               },
             ),

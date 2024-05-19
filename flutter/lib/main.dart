@@ -34,6 +34,7 @@ class _MyAppState extends State<MyApp> {
   void initState() {
     super.initState();
     _initUniLinks();
+    _initEngines();
   }
 
   Future<void> _initUniLinks() async {
@@ -47,6 +48,13 @@ class _MyAppState extends State<MyApp> {
     }, onError: (err) {
       // Handle errors
     });
+  }
+
+  Future<void> _initEngines() async {
+    List<Map<String, String>> engines = await loadEngines();
+    if (engines.isEmpty) {
+      await saveEngines(defaultEngines);
+    }
   }
 
   void _handleIncomingLink(String? link) {
