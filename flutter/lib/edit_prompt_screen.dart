@@ -43,7 +43,7 @@ class _EditPromptScreenState extends State<EditPromptScreen> {
       appBar: AppBar(
         title: Text('Edit Prompt', style: TextStyle(color: Colors.white),),
         backgroundColor: Colors.black,
-        iconTheme: IconThemeData(color: Colors.white), // Add this line
+        iconTheme: IconThemeData(color: Colors.white),
       ),
       body: Padding(
         padding: const EdgeInsets.symmetric(horizontal: 20.0),

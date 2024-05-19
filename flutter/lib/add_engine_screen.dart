@@ -21,21 +21,28 @@ class _AddEngineScreenState extends State<AddEngineScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('Add Engine'),
+        title: Text('Add Engine', style: TextStyle(color: Colors.white)),
+        backgroundColor: Colors.black,
+        iconTheme: IconThemeData(color: Colors.white),
       ),
       body: Padding(
         padding: const EdgeInsets.all(16.0),
         child: Column(
           children: [
             TextField(
+              style: TextStyle(color: Colors.white),
               controller: _titleController,
-              decoration: InputDecoration(labelText: 'Title'),
+              decoration: InputDecoration(labelText: 'Title', labelStyle: TextStyle(color: Colors.white)),
             ),
             SizedBox(height: 16),
             TextField(
+              style: TextStyle(
+                color: Color(0xFF4effb6),
+                fontFamily: 'CourierPrime'
+              ),
               controller: _definitionController,
-              decoration: InputDecoration(labelText: 'Definition'),
-              maxLines: 10,
+              decoration: InputDecoration(labelText: 'Definition', labelStyle: TextStyle(color: Colors.white)),
+              maxLines: 7,
             ),
             SizedBox(height: 16),
             ElevatedButton(
@@ -53,6 +60,7 @@ class _AddEngineScreenState extends State<AddEngineScreen> {
           ],
         ),
       ),
+      backgroundColor: Colors.grey.shade900,
     );
   }
 }

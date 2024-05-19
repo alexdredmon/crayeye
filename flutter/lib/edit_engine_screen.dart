@@ -35,6 +35,7 @@ class _EditEngineScreenState extends State<EditEngineScreen> {
       appBar: AppBar(
         title: Text('Edit Engine', style: TextStyle(color: Colors.white)),
         backgroundColor: Colors.black,
+        iconTheme: IconThemeData(color: Colors.white),
       ),
       body: Padding(
         padding: const EdgeInsets.all(16.0),
@@ -43,7 +44,7 @@ class _EditEngineScreenState extends State<EditEngineScreen> {
             TextField(
               style: TextStyle(color: Colors.white),
               controller: _titleController,
-              decoration: InputDecoration(labelText: 'Title'),
+              decoration: InputDecoration(labelText: 'Title', labelStyle: TextStyle(color: Colors.white)),
             ),
             SizedBox(height: 16),
             TextField(
@@ -52,7 +53,7 @@ class _EditEngineScreenState extends State<EditEngineScreen> {
                 fontFamily: 'CourierPrime'
               ),
               controller: _definitionController,
-              decoration: InputDecoration(labelText: 'Definition'),
+              decoration: InputDecoration(labelText: 'Definition', labelStyle: TextStyle(color: Colors.white),),
               maxLines: 7,
             ),
             SizedBox(height: 16),

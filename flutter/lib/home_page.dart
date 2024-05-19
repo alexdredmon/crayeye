@@ -65,6 +65,7 @@ class _MyHomePageState extends State<MyHomePage> {
     _loadFavorites();
     _loadMoochRequestCount();
     _loadMoochRequestTimestamp();
+    _loadEngines();
   }
 
   @override
@@ -413,6 +414,26 @@ class _MyHomePageState extends State<MyHomePage> {
     saveFavorites(_favorites);
   }
 
+  void _loadEngines() async {
+    List<Map<String, String>> loadedEngines = await loadEngines();
+    String loadedSelectedEngineId = await loadSelectedEngineId();
+    setState(() {
+      _engines = loadedEngines;
+      _selectedEngineId = loadedSelectedEngineId;
+    });
+
+    // Set the initial engine in the EngineNotifier
+    var engineNotifier = Provider.of<EngineNotifier>(context, listen: false);
+    if (loadedSelectedEngineId.isNotEmpty) {
+      var initialEngine = loadedEngines.firstWhere((engine) => engine['id'] == loadedSelectedEngineId, orElse: () => loadedEngines.first);
+      engineNotifier.setEngine(initialEngine);
+    } else {
+      var defaultEngine = loadedEngines.first;
+      _selectedEngineId = defaultEngine['id']!;
+      engineNotifier.setEngine(defaultEngine);
+    }
+  }
+
   Widget _buildScrollableResponseView({
     required File? imageFile,
     required String responseBody,
@@ -595,7 +616,7 @@ class _MyHomePageState extends State<MyHomePage> {
             },
           );
         },
-        onFavoriteItemDeleted: _deleteFavorite,
+        onFavoriteItemDeleted: _deleteFavorite, // Add this line
       ),
       drawer: PromptsDrawer(
         prompts: _prompts,
