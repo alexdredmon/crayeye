@@ -53,7 +53,7 @@ ngrok http 11434 --host-header="localhost:11434"
 In CrayEye, add an OpenAPI spec corresponding to your running instance.  For example if your host is `http://hostname` you could add the following definition to connect to the `llava` model running on it via Ollama:
 ```
 {
-  'url': 'REPLACE_WITH_YOUR_HOSTNAME/api/generate',
+  'url': 'http://hostname/api/generate',
   'method': 'POST',
   'headers': {
     'Content-Type': 'application/json'
