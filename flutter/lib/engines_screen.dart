@@ -176,7 +176,7 @@ class _EnginesScreenState extends State<EnginesScreen> {
             padding: const EdgeInsets.all(10.0),
             child:
               MarkdownBody(
-                data: "Configure custom engines via Open API specification, e.g. connect to locally hosted / development models.  \n\nFor more information view Swagger docs via [https://swagger.io/specification](https://swagger.io/specification)",
+                data: "Configure custom engines via Open API specification, e.g. connect to open-source, locally hosted, or development models.  \n\nFor more information view Swagger docs via [https://swagger.io/specification](https://swagger.io/specification)",
                 styleSheet: MarkdownStyleSheet.fromTheme(themeData).copyWith(
                   p: baseTextStyle,
                   h1: baseTextStyle,

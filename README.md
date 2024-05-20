@@ -31,7 +31,7 @@ Install via the:
 CrayEye is the product of A.I. driven development.  [Read more](https://www.alexandriaredmon.com/blog/the-app-that-ai-made) about how it was created.
 
 ## Local models
-You can configure custom engines using the OpenAPI spec which allows you to use any models you like.  Here's an example of how to run and connect to the open-source Llava model:
+You can configure custom engines using the [OpenAPI spec](https://swagger.io/specification) which allows you to use any models you like.  Here's an example of how to run and connect to the open-source Llava model:
 
 #### Step 1: Install Ollama
 Download and install Ollama from [https://github.com/ollama/ollama](https://github.com/ollama/ollama).
@@ -50,7 +50,7 @@ ngrok http 11434 --host-header="localhost:11434"
 ```
 
 #### Step 3: Add custom engine
-In CrayEye, add an OpenAPI spec corresponding to your running instance.  For example if your host is `http://hostname` you could add the following definition to connect to the `llava` model running on it via Ollama:
+In CrayEye, add an [OpenAPI spec](https://swagger.io/specification) corresponding to your running instance.  For example if your host is `http://hostname` you could add the following definition to connect to the `llava` model running on it via Ollama:
 ```
 {
   'url': 'http://hostname/api/generate',
