@@ -8,6 +8,7 @@ import 'home_page.dart';
 import 'prompt_dialogs.dart';
 import 'package:provider/provider.dart';
 import 'prompt_notifier.dart'; // Make sure to import PromptNotifier
+import 'engine_notifier.dart'; // Import EngineNotifier
 import 'utils.dart';
 
 void main() {
@@ -17,8 +18,11 @@ void main() {
     DeviceOrientation.portraitDown,
   ]);
   runApp(
-    ChangeNotifierProvider(
-      create: (context) => PromptNotifier(),
+    MultiProvider(
+      providers: [
+        ChangeNotifierProvider(create: (context) => PromptNotifier()),
+        ChangeNotifierProvider(create: (context) => EngineNotifier()), // Add this line
+      ],
       child: MyApp(),
     ),
   );
@@ -34,6 +38,7 @@ class _MyAppState extends State<MyApp> {
   void initState() {
     super.initState();
     _initUniLinks();
+    _initEngines();
   }
 
   Future<void> _initUniLinks() async {
@@ -47,6 +52,13 @@ class _MyAppState extends State<MyApp> {
     }, onError: (err) {
       // Handle errors
     });
+  }
+
+  Future<void> _initEngines() async {
+    List<Map<String, String>> engines = await loadEngines();
+    if (engines.isEmpty) {
+      await saveEngines(defaultEngines);
+    }
   }
 
   void _handleIncomingLink(String? link) {

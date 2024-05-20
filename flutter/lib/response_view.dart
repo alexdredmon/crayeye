@@ -9,7 +9,7 @@ class ResponseView extends StatelessWidget {
   final String responseBody;
   final String prompt;
   final String promptTitle;
-
+  final String engineTitle; // Add this parameter
 
   const ResponseView({
     Key? key,
@@ -17,6 +17,7 @@ class ResponseView extends StatelessWidget {
     required this.responseBody,
     required this.prompt,
     required this.promptTitle,
+    required this.engineTitle, // Add this parameter
   }) : super(key: key);
 
   @override
@@ -65,6 +66,15 @@ class ResponseView extends StatelessWidget {
           },
         ),
         const SizedBox(height: 16),
+        Text(
+          'Engine: $engineTitle',
+          style: TextStyle(
+            color: Colors.white,
+            fontWeight: FontWeight.bold,
+            fontSize: 18,
+          ),
+        ),
+        const SizedBox(height: 8),
         const Text(
           'Prompt:',
           style: TextStyle(

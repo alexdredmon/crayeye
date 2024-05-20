@@ -43,6 +43,14 @@ Your prompts can contain the following tokens which will be replaced with the re
 
 *e.g. -74.0060*
 
+**Date/Time:** {time.datetime}
+
+*Wednesday, October 29 1969 at 10:30pm*
+
+**GIFs:**
+{gif.yes}
+{gif.no}
+
 For more information visit [CrayEye.com](https://crayeye.com)
 """,
                   styleSheet: MarkdownStyleSheet.fromTheme(themeData).copyWith(

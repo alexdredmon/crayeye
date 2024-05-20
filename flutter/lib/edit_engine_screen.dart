@@ -1,39 +1,45 @@
-// FILENAME: edit_prompt_screen.dart
+// FILENAME: edit_engine_screen.dart
+
 import 'package:flutter/material.dart';
+import 'dart:convert';
 
-class EditPromptScreen extends StatefulWidget {
-  final String promptId;
-  final String currentTitle;
-  final String currentPrompt;
-  final Function(String, String, String) onSave;
+class EditEngineScreen extends StatefulWidget {
+  final Map<String, String> engine;
+  final Function(Map<String, String>) onSave;
 
-  const EditPromptScreen({
-    Key? key,
-    required this.promptId,
-    required this.currentTitle,
-    required this.currentPrompt,
-    required this.onSave,
-  }) : super(key: key);
+  EditEngineScreen({required this.engine, required this.onSave});
 
   @override
-  _EditPromptScreenState createState() => _EditPromptScreenState();
+  _EditEngineScreenState createState() => _EditEngineScreenState();
 }
 
-class _EditPromptScreenState extends State<EditPromptScreen> {
+class _EditEngineScreenState extends State<EditEngineScreen> {
   late TextEditingController _titleController;
-  late TextEditingController _promptController;
+  late TextEditingController _definitionController;
 
   @override
   void initState() {
     super.initState();
-    _titleController = TextEditingController(text: widget.currentTitle);
-    _promptController = TextEditingController(text: widget.currentPrompt);
+    _titleController = TextEditingController(text: widget.engine['title']);
+    _definitionController = TextEditingController(
+      text: _formatJsonString(widget.engine['definition']!),
+    );
+  }
+
+  String _formatJsonString(String jsonString) {
+    try {
+      final parsedJson = json.decode(jsonString);
+      final prettyJsonString = JsonEncoder.withIndent('  ').convert(parsedJson);
+      return prettyJsonString;
+    } catch (e) {
+      return jsonString; // Return the original string if it's not valid JSON
+    }
   }
 
   @override
   void dispose() {
     _titleController.dispose();
-    _promptController.dispose();
+    _definitionController.dispose();
     super.dispose();
   }
 
@@ -41,36 +47,36 @@ class _EditPromptScreenState extends State<EditPromptScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('Edit Prompt', style: TextStyle(color: Colors.white),),
+        title: Text('Edit Engine', style: TextStyle(color: Colors.white)),
         backgroundColor: Colors.black,
         iconTheme: IconThemeData(color: Colors.white),
       ),
       body: Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 20.0),
+        padding: const EdgeInsets.all(16.0),
         child: Column(
-          crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
-            SizedBox(height: 20),
             TextField(
-              controller: _titleController,
               style: TextStyle(color: Colors.white),
+              controller: _titleController,
               decoration: InputDecoration(
                 labelText: 'Title',
                 labelStyle: TextStyle(color: Colors.white),
               ),
-              maxLength: 28,
             ),
-            SizedBox(height: 20),
+            SizedBox(height: 16),
             TextField(
-              controller: _promptController,
-              style: TextStyle(color: Colors.white),
+              style: TextStyle(
+                color: Color(0xFF4effb6),
+                fontFamily: 'CourierPrime',
+              ),
+              controller: _definitionController,
               decoration: InputDecoration(
-                labelText: 'Prompt',
+                labelText: 'Definition',
                 labelStyle: TextStyle(color: Colors.white),
               ),
-              maxLines: 5,
+              maxLines: 7,
             ),
-            SizedBox(height: 20),
+            SizedBox(height: 16),
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
@@ -90,10 +96,6 @@ class _EditPromptScreenState extends State<EditPromptScreen> {
                   child: Text('Cancel'),
                 ),
                 ElevatedButton(
-                  onPressed: () {
-                    widget.onSave(widget.promptId, _titleController.text, _promptController.text);
-                    Navigator.pop(context);
-                  },
                   style: ElevatedButton.styleFrom(
                     backgroundColor: Colors.black,
                     foregroundColor: Color(0xFF4effb6),
@@ -103,9 +105,18 @@ class _EditPromptScreenState extends State<EditPromptScreen> {
                       side: BorderSide(color: Color(0xFF4effb6), width: 3),
                     ),
                   ),
+                  onPressed: () {
+                    final editedEngine = {
+                      'id': widget.engine['id']!,
+                      'title': _titleController.text,
+                      'definition': _definitionController.text,
+                    };
+                    widget.onSave(editedEngine);
+                    Navigator.pop(context);
+                  },
                   child: Text('Save'),
                 ),
-              ],
+              ]
             ),
           ],
         ),
@@ -114,4 +125,5 @@ class _EditPromptScreenState extends State<EditPromptScreen> {
     );
   }
 }
+
 // eof

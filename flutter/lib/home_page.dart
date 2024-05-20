@@ -18,6 +18,8 @@ import 'home_app_bar.dart';
 import 'cancelable_operation.dart';
 import 'prompt_button.dart';
 import 'favorites_drawer.dart';
+import 'edit_engine_screen.dart';
+import 'engine_notifier.dart'; // Add this import
 
 class MyHomePage extends StatefulWidget {
   const MyHomePage({super.key, required this.title});
@@ -46,6 +48,8 @@ class _MyHomePageState extends State<MyHomePage> {
   final GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey<ScaffoldState>();
   int _moochRequestCount = 0;
   int _moochRequestTimestamp = 0;
+  List<Map<String, String>> _engines = [];
+  String _selectedEngineId = '';
 
   @override
   void initState() {
@@ -61,6 +65,7 @@ class _MyHomePageState extends State<MyHomePage> {
     _loadFavorites();
     _loadMoochRequestCount();
     _loadMoochRequestTimestamp();
+    _loadEngines();
   }
 
   @override
@@ -75,7 +80,6 @@ class _MyHomePageState extends State<MyHomePage> {
       _selectedPromptUuid = defaultPromptsList.first['id']!;
     });
   }
-
 
   void _loadPrompts() async {
     List<Map<String, String>> loadedPrompts = await loadPrompts();
@@ -274,12 +278,15 @@ class _MyHomePageState extends State<MyHomePage> {
       return;
     }
 
-    if (openAIKey.isEmpty) {
+    _audioManager.playRandomAudio();
+    _cancelToken = CancelToken(); // Create a new CancelToken for each analysis
+    var engineNotifier = Provider.of<EngineNotifier>(context, listen: false);
+    var selectedEngine = engineNotifier.engine;
+
+    if(selectedEngine['origin'] == 'system') {
       _updateMoochRequestCount();
     }
 
-    _audioManager.playRandomAudio();
-    _cancelToken = CancelToken(); // Create a new CancelToken for each analysis
     _analyzeOperation = CancelableOperation.fromFuture(
       CameraFunctions.analyzePicture(
         _controller!,
@@ -303,6 +310,7 @@ class _MyHomePageState extends State<MyHomePage> {
         _onInvalidOpenAIKey,
         _isFlashOn,
         _cancelToken,
+        selectedEngine,
       ),
     );
   }
@@ -406,11 +414,32 @@ class _MyHomePageState extends State<MyHomePage> {
     saveFavorites(_favorites);
   }
 
+  void _loadEngines() async {
+    List<Map<String, String>> loadedEngines = await loadEngines();
+    String loadedSelectedEngineId = await loadSelectedEngineId();
+    setState(() {
+      _engines = loadedEngines;
+      _selectedEngineId = loadedSelectedEngineId;
+    });
+
+    // Set the initial engine in the EngineNotifier
+    var engineNotifier = Provider.of<EngineNotifier>(context, listen: false);
+    if (loadedSelectedEngineId.isNotEmpty) {
+      var initialEngine = loadedEngines.firstWhere((engine) => engine['id'] == loadedSelectedEngineId, orElse: () => loadedEngines.first);
+      engineNotifier.setEngine(initialEngine);
+    } else {
+      var defaultEngine = loadedEngines.first;
+      _selectedEngineId = defaultEngine['id']!;
+      engineNotifier.setEngine(defaultEngine);
+    }
+  }
+
   Widget _buildScrollableResponseView({
     required File? imageFile,
     required String responseBody,
     required String prompt,
     required String promptTitle,
+    required String engineTitle, // Add this parameter
   }) {
     return Column(
       children: [
@@ -426,6 +455,7 @@ class _MyHomePageState extends State<MyHomePage> {
                   responseBody: responseBody,
                   prompt: prompt,
                   promptTitle: promptTitle,
+                  engineTitle: engineTitle, // Pass the engineTitle parameter
                 ),
               ),
             ),
@@ -450,6 +480,8 @@ class _MyHomePageState extends State<MyHomePage> {
 
     final selectedPrompt = _prompts.firstWhere((prompt) => prompt['id'] == _selectedPromptUuid, orElse: () => {'title': 'Select a Prompt'});
     final currentPromptTitle = selectedPrompt['title'];
+    var engineNotifier = Provider.of<EngineNotifier>(context);
+    final currentEngineTitle = engineNotifier.engine['title']!; // Get the current engine title
 
     return Scaffold(
       key: _scaffoldKey,
@@ -482,6 +514,7 @@ class _MyHomePageState extends State<MyHomePage> {
               responseBody: _responseBody,
               prompt: selectedPrompt['prompt']!,
               promptTitle: selectedPrompt['title']!,
+              engineTitle: currentEngineTitle, // Pass the current engine title
             ),
           if (!_isAnalyzing && _responseBody.isNotEmpty)
             _buildScrollableResponseView(
@@ -489,6 +522,7 @@ class _MyHomePageState extends State<MyHomePage> {
               responseBody: _responseBody,
               prompt: selectedPrompt['prompt']!,
               promptTitle: selectedPrompt['title']!,
+              engineTitle: currentEngineTitle, // Pass the current engine title
             ),
           if (!_isAnalyzing && _responseBody.isEmpty)
             Align(
@@ -551,10 +585,45 @@ class _MyHomePageState extends State<MyHomePage> {
         onFavoriteItemTapped: (favoriteItem) {
           showDialog(
             context: context,
-            builder: (context) => FavoriteItemDialog(favoriteItem: favoriteItem),
+            builder: (BuildContext context) {
+              return AlertDialog(
+                title: Text(favoriteItem.promptTitle, style: TextStyle(color: Colors.white)),
+                content: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Image.file(favoriteItem.imageFile, fit: BoxFit.cover),
+                    SizedBox(height: 10),
+                    Text(favoriteItem.response, style: TextStyle(color: Colors.white)),
+                  ],
+                ),
+                actions: [
+                  TextButton(
+                    onPressed: () {
+                      Navigator.of(context).pop();
+                    },
+                    child: Text('Close', style: TextStyle(color: Colors.white)),
+                  ),
+                  TextButton(
+                    onPressed: () {
+                      _deleteFavorite(favoriteItem);
+                      Navigator.of(context).pop();
+                    },
+                    child: Text('Delete', style: TextStyle(color: Colors.red)),
+                  ),
+                ],
+                backgroundColor: Colors.grey.shade900,
+              );
+            },
           );
         },
-        onFavoriteItemDeleted: _deleteFavorite,
+        onFavoriteItemDeleted: _deleteFavorite, // Add this line
+      ),
+      drawer: PromptsDrawer(
+        prompts: _prompts,
+        selectedPromptUuid: _selectedPromptUuid,
+        onPromptsUpdated: _updatePrompts,
+        onAnalyzePressed: _analyzeImage,
+        scaffoldKey: _scaffoldKey, // Pass the scaffold key
       ),
       floatingActionButton: FloatingActionButtons(
         isAnalyzing: _isAnalyzing,
@@ -566,9 +635,7 @@ class _MyHomePageState extends State<MyHomePage> {
         cancelAnalysis: _cancelAnalysis,
         startNewScan: _startNewScan,
         analyzeImage: _analyzeImage,
-        openFavorites: () {
-          _scaffoldKey.currentState?.openEndDrawer();
-        },
+        openFavorites: () => _scaffoldKey.currentState!.openEndDrawer(),
         addToFavorites: _addToFavorites,
       ),
     );
