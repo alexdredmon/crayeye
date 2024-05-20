@@ -78,6 +78,7 @@ class _AddEngineScreenState extends State<AddEngineScreen> {
                       'id': uuid.v4(),
                       'title': _titleController.text,
                       'definition': _definitionController.text,
+                      'origin': 'user',
                     };
                     widget.onSave(newEngine);
                     Navigator.pop(context);

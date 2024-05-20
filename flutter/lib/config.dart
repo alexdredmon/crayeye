@@ -66,7 +66,7 @@ List<Map<String, String>> defaultEngines = [
   },
   {
     'id': uuid.v4(),
-    'title': '🦙 Ollama Llava',
+    'title': '🦙 Ollama Llava Example',
     'origin': 'user',
     'definition': json.encode({
       'url': 'REPLACE_WITH_YOUR_HOSTNAME/api/generate',
