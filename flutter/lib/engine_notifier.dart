@@ -6,6 +6,7 @@ class EngineNotifier extends ChangeNotifier {
     'id': '',
     'title': '',
     'definition': '',
+    'origin': '',
   };
 
   Map<String, String> get engine => _engine;

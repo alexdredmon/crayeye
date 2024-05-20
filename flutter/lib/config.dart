@@ -22,7 +22,7 @@ List<Map<String, String>> defaultPrompts = [
   {'id': uuid.v4(), 'title': '⚖️ Calorie counter', 'prompt': 'Identify the food in the image and estimate the calorie count - it is okay if you can\'t get ot exact or don\'t know for certain, feel free to give a range or make your best guess.  Respond first with the total caloric count of all food detected, then provide a detailed breakdown (using markdown to format and link to Wikipedia or other resources/references) of the caloric count estimation for each individual course and ingredient.  Do your best to guess what ingredients are in each item detected and feel free to make guesses.  If/when relevant you can also use the user\'s location to help with this request: latitude is {location.lat}, longitude is {location.long}.'},  
   {'id': uuid.v4(), 'title': '👷‍♀️ Who made this?', 'prompt': 'Who made the thing(s) in the image?  Focus on whatever the focal point is.  Use any and all clues to help and be as descriptive as possible, formatting your response in markdown and including any relevant links to Wikipedia or other sources.  You can also use the user\'s location to help with this request: latitude is {location.lat}, longitude is {location.long}.'},
   {'id': uuid.v4(), 'title': '📚 Extract keywords', 'prompt': 'Analyze the following scene and return only a list of keywords for items/concepts you find in the scene.  Keywords should be separated by commas and ordered by their relevance to the scene.  Return nothing but these keywords, say nothing else in your response.'},
-  {'id': uuid.v4(), 'title': '🐈 Is it a cat?', 'prompt': 'Is this an image of a cat?  Only respond yes or no.'},
+  {'id': uuid.v4(), 'title': '🐈 Is it a cat?', 'prompt': 'Is this an image of a cat?  Respond only with the markdown for the respective image for yes or no and no other text. Yes markdown: {gif.yes} No markdown: {gif.no}'},
   {'id': uuid.v4(), 'title': '👏 What do I do w/ my hands?', 'prompt': 'Looking at the provided image, please provide at least three suggestions of things one might do with their hands in the pictured location. Return your response in a markdown formatted list with links to Wikipedia and relevant resources. You can use the user’s location to help with your answer but you should primarily focus on the scene and description of the image for your suggestions - the user is at latitude {location.lat} and longitude {location.long}. Each of your suggestions should be prefaced by a two-emoji combo representing the suggestion, with one of the two emojis being some form of hand emoji. For example, if the suggestion was to disco dance you could do 👈🕺 Disco dance…'},
   {'id': uuid.v4(), 'title': '👃 Name that smell', 'prompt': 'Try to identify what smell(s) the item(s) in the focal point of this image might have. be descriptive and list results in markdown with markdown links to Wikipedia or other resources'},
   {'id': uuid.v4(), 'title': '🔊 What sound does it make?', 'prompt': 'Analyze the image and do your best to determine what sound(s) the item(s) in the focal point might make. be as accurate and specific as possible but guess if you have to - don’t tell me you can’t if it’s impossible, just do your best to ad lib. think improv: yes, and. respond using markdown with a list of the following:\nitem name\nphonetic onomatopoeia of noise\ndescription of noise\n\nYou can also use the user\'s location and orientation to help with this request: latitude is {location.lat}, longitude is {location.long}.'},
@@ -31,7 +31,8 @@ List<Map<String, String>> defaultPrompts = [
 List<Map<String, String>> defaultEngines = [
   {
     'id': uuid.v4(),
-    'title': 'Default',
+    'title': '👁️ Default',
+    'origin': 'system',
     'definition': json.encode({
       'url': 'https://api.openai.com/v1/chat/completions',
       'method': 'POST',
@@ -61,6 +62,31 @@ List<Map<String, String>> defaultEngines = [
         'stream': true,
       },
       'responseShape': ['choices', 0, 'delta', 'content']
+    }),
+  },
+  {
+    'id': uuid.v4(),
+    'title': '🦙 Ollama Llava',
+    'origin': 'user',
+    'definition': json.encode({
+      'url': 'REPLACE_WITH_YOUR_HOSTNAME/api/generate',
+      'method': 'POST',
+      'headers': {
+        'Content-Type': 'application/json'
+      },
+      'body': {
+          "model": "llava:latest",
+          "prompt": "{prompt}",
+          "images": [
+            "{imageBase64}"
+          ],
+          "stream": true
+        },
+        "responseShape": [
+          "response"
+        ]
+      ,
+      'responseShape': ['response']
     }),
   },
 ];

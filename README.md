@@ -30,6 +30,52 @@ Install via the:
 ## How it's made
 CrayEye is the product of A.I. driven development.  [Read more](https://www.alexandriaredmon.com/blog/the-app-that-ai-made) about how it was created.
 
+## Local models
+You can configure custom engines using the OpenAPI spec which allows you to use any models you like.  Here's an example of how to run and connect to the open-source Llava model:
+
+#### Step 1: Install Ollama
+Download and install Ollama from [https://github.com/ollama/ollama](https://github.com/ollama/ollama).
+
+Install a multimodal model such as Llava via:
+```bash
+ollama run llava
+```
+
+#### Step 2: Expose Ollama
+Using a tool such as [ngrok](https://ngrok.com/), expose the locally running model (or skip this step if you're on the same network as your locally running model and want to access it via network hostname).
+
+Using ngrok, ensure to pass along host headers - e.g. to run on port 11434 run:
+```bash
+ngrok http 11434 --host-header="localhost:11434"
+```
+
+#### Step 3: Add custom engine
+In CrayEye, add an OpenAPI spec corresponding to your running instance.  For example if your host is `http://hostname` you could add the following definition to connect to the `llava` model running on it via Ollama:
+```
+{
+  'url': 'REPLACE_WITH_YOUR_HOSTNAME/api/generate',
+  'method': 'POST',
+  'headers': {
+    'Content-Type': 'application/json'
+  },
+  'body': {
+      "model": "llava:latest",
+      "prompt": "{prompt}",
+      "images": [
+        "{imageBase64}"
+      ],
+      "stream": true
+    },
+    "responseShape": [
+      "response"
+    ]
+  ,
+  'responseShape': ['response']
+}
+```
+
+`responseShape` indicates which key(s) the response is expected in - for ollama, that's just "response" directly off the object returned by the API.
+
 ## Backronym
 *"Cognitive Recognition Analysis Yielding Eye"*
 

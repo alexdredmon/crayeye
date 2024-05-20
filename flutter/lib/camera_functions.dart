@@ -89,13 +89,19 @@ class CameraFunctions {
         prompt = prompt.replaceAll("{time.datetime}", '$formattedDateTime $timeZone');
       }
 
+      if (prompt.contains("{gif.")) {
+        prompt = prompt.replaceAll("{gif.yes}", '![Yes](https://www.crayeye.com/img/app/yes.gif)');
+        prompt = prompt.replaceAll("{gif.no}", '![No](https://www.crayeye.com/img/app/no.gif)');
+      }
+
       final engineTitle = selectedEngine['title'];
       print('TITLE: $engineTitle');
       final engineSpec = json.decode(selectedEngine['definition']!);
       print('engineSpec: $engineSpec');
       final requestUrl = engineSpec['url'] as String;
       final method = engineSpec['method'] as String;
-      final headers = (engineSpec['headers'] as Map<String, dynamic>).map((key, value) => MapEntry(key.toString(), value.toString().replaceAll('{apiKey}', openAIKey)));
+      String apiKey = (selectedEngine['origin'] == 'system' ? openAIKey : '');
+      final headers = (engineSpec['headers'] as Map<String, dynamic>).map((key, value) => MapEntry(key.toString(), value.toString().replaceAll('{apiKey}', apiKey)));
       final bodyTemplate = engineSpec['body'] as Map<String, dynamic>;
       final body = json.encode(_interpolateBody(bodyTemplate, prompt, base64Image));
       final responseShape = engineSpec['responseShape'] as List<dynamic>;
@@ -122,7 +128,8 @@ class CameraFunctions {
             }
             if (chunk.startsWith('data:') && chunk != 'data: [DONE]') {
               var data = jsonDecode(chunk.substring(5).trim()) as Map<String, dynamic>;
-              responseBody += _parseResponse(data, responseShape);
+              String parsed = _parseResponse(data, responseShape);
+              responseBody += parsed;
               onAnalysisComplete(imageFile, responseBody, true);
             } else {
               try {
@@ -192,6 +199,9 @@ class CameraFunctions {
       } else {
         current = jsonDecode(current);
       }
+    }
+    if (current == null) {
+      current = "";
     }
     return current.toString();
   }

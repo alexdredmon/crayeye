@@ -278,14 +278,14 @@ class _MyHomePageState extends State<MyHomePage> {
       return;
     }
 
-    if (openAIKey.isEmpty) {
-      _updateMoochRequestCount();
-    }
-
     _audioManager.playRandomAudio();
     _cancelToken = CancelToken(); // Create a new CancelToken for each analysis
     var engineNotifier = Provider.of<EngineNotifier>(context, listen: false);
     var selectedEngine = engineNotifier.engine;
+
+    if(selectedEngine['origin'] == 'system') {
+      _updateMoochRequestCount();
+    }
 
     _analyzeOperation = CancelableOperation.fromFuture(
       CameraFunctions.analyzePicture(
