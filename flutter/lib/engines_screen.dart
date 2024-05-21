@@ -7,6 +7,7 @@ import 'add_engine_screen.dart';
 import 'engine_notifier.dart';
 import 'package:flutter_markdown/flutter_markdown.dart';
 import 'package:url_launcher/url_launcher.dart';
+import 'package:share_plus/share_plus.dart'; // Import share_plus
 
 class EnginesScreen extends StatefulWidget {
   @override
@@ -159,6 +160,13 @@ class _EnginesScreenState extends State<EnginesScreen> {
     }
   }
 
+  void _shareEngine(String title, String definition) {
+    String titleEncoded = Uri.encodeComponent(title);
+    String definitionEncoded = Uri.encodeComponent(definition);
+    String shareUrl = 'crayeye://?title=$titleEncoded&engine=$definitionEncoded';
+    Share.share(shareUrl);
+  }
+
   @override
   Widget build(BuildContext context) {
     final themeData = Theme.of(context);
@@ -232,6 +240,8 @@ class _EnginesScreenState extends State<EnginesScreen> {
                               _editEngine(engine['id']!);
                             } else if (value == 'Delete') {
                               _deleteEngine(engine['id']!);
+                            } else if (value == 'Share') {
+                              _shareEngine(engine['title']!, engine['definition']!);
                             }
                           },
                           itemBuilder: (context) => [
@@ -250,6 +260,13 @@ class _EnginesScreenState extends State<EnginesScreen> {
                                   title: Text('Delete', style: TextStyle(color: Colors.white)),
                                 ),
                               ),
+                            PopupMenuItem(
+                              value: 'Share',
+                              child: ListTile(
+                                leading: Icon(Icons.share, color: Colors.blueAccent),
+                                title: Text('Share', style: TextStyle(color: Colors.white)),
+                              ),
+                            ),
                           ],
                           icon: Icon(Icons.more_vert, color: Colors.white),
                         ),

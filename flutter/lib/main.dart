@@ -10,6 +10,7 @@ import 'package:provider/provider.dart';
 import 'prompt_notifier.dart'; // Make sure to import PromptNotifier
 import 'engine_notifier.dart'; // Import EngineNotifier
 import 'utils.dart';
+import 'add_engine_screen.dart'; // Import AddEngineScreen
 
 void main() {
   WidgetsFlutterBinding.ensureInitialized();
@@ -34,6 +35,8 @@ class MyApp extends StatefulWidget {
 }
 
 class _MyAppState extends State<MyApp> {
+  final GlobalKey<NavigatorState> navigatorKey = GlobalKey<NavigatorState>();
+
   @override
   void initState() {
     super.initState();
@@ -64,12 +67,29 @@ class _MyAppState extends State<MyApp> {
   void _handleIncomingLink(String? link) {
     if (link != null && link.startsWith('crayeye://')) {
       Uri uri = Uri.parse(link);
-      String? prompt = uri.queryParameters['prompt'] ?? '';
-      String? title = uri.queryParameters['title'] ?? ''; // Get the title parameter
+      String? prompt = uri.queryParameters['prompt'];
+      String? title = uri.queryParameters['title'];
+      String? engineDefinition = uri.queryParameters['engine'];
 
       if (prompt != null && title != null) {
         Provider.of<PromptNotifier>(context, listen: false)
           .setPromptAndTitle(prompt, title);
+      } else if (engineDefinition != null && title != null) {
+        WidgetsBinding.instance.addPostFrameCallback((_) {
+          navigatorKey.currentState?.push(
+            MaterialPageRoute(
+              builder: (context) => AddEngineScreen(
+                onSave: (newEngine) async {
+                  List<Map<String, String>> engines = await loadEngines();
+                  engines.add(newEngine);
+                  await saveEngines(engines);
+                },
+                initialTitle: title,
+                initialDefinition: engineDefinition,
+              ),
+            ),
+          );
+        });
       }
     }
   }
@@ -78,6 +98,7 @@ class _MyAppState extends State<MyApp> {
   Widget build(BuildContext context) {
     return MaterialApp(
       debugShowCheckedModeBanner:false,
+      navigatorKey: navigatorKey,
       title: 'CrayEye',
       theme: ThemeData(
         colorScheme: ColorScheme.fromSeed(

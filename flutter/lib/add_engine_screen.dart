@@ -6,16 +6,36 @@ final Uuid uuid = Uuid();
 
 class AddEngineScreen extends StatefulWidget {
   final Function(Map<String, String>) onSave;
+  final String? initialTitle;
+  final String? initialDefinition;
 
-  AddEngineScreen({required this.onSave});
+  AddEngineScreen({
+    required this.onSave,
+    this.initialTitle,
+    this.initialDefinition,
+  });
 
   @override
   _AddEngineScreenState createState() => _AddEngineScreenState();
 }
 
 class _AddEngineScreenState extends State<AddEngineScreen> {
-  final _titleController = TextEditingController();
-  final _definitionController = TextEditingController();
+  late TextEditingController _titleController;
+  late TextEditingController _definitionController;
+
+  @override
+  void initState() {
+    super.initState();
+    _titleController = TextEditingController(text: widget.initialTitle ?? '');
+    _definitionController = TextEditingController(text: widget.initialDefinition ?? '');
+  }
+
+  @override
+  void dispose() {
+    _titleController.dispose();
+    _definitionController.dispose();
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -38,7 +58,7 @@ class _AddEngineScreenState extends State<AddEngineScreen> {
             TextField(
               style: TextStyle(
                 color: Color(0xFF4effb6),
-                fontFamily: 'CourierPrime'
+                fontFamily: 'CourierPrime',
               ),
               controller: _definitionController,
               decoration: InputDecoration(labelText: 'Definition', labelStyle: TextStyle(color: Colors.white)),
