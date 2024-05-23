@@ -5,7 +5,7 @@
 
 version: 2
 updates:
-  - package-ecosystem: "" # See documentation for possible values
+  - package-ecosystem: "flutter" # See documentation for possible values
     directory: "/flutter" # Location of package manifests
     schedule:
       interval: "weekly"
