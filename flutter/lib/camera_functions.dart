@@ -131,14 +131,14 @@ class CameraFunctions {
               String parsed = _parseResponse(data, responseShape);
               responseBody += parsed;
               onAnalysisComplete(imageFile, responseBody, true);
-            } else {
+            } else if(chunk != '') {
               try {
                 Map<String, dynamic> decodedChunk = jsonDecode(chunk);
                 String parsed = _parseResponse(decodedChunk, responseShape);
                 responseBody += parsed;
                 onAnalysisComplete(imageFile, responseBody, true);
               } catch (e) {
-                print("There was an error: $e");
+                print("There was an error decoding '$chunk': $e");
               }
             }
           }
@@ -182,6 +182,8 @@ class CameraFunctions {
     var body = json.decode(json.encode(bodyTemplate)); // deep copy
     String bodyString = json.encode(body);
 
+    // Properly escape newlines in the prompt and JSON string
+    prompt = prompt.replaceAll("\n", "\\n");
     bodyString = bodyString.replaceAll("{prompt}", prompt);
     bodyString = bodyString.replaceAll("{imageUrl}", "data:image/png;base64,$base64Image");
     bodyString = bodyString.replaceAll("{imageBase64}", "$base64Image");
