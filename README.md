@@ -11,7 +11,13 @@ Learn more via [https://crayeye.com](https://crayeye.com/)
   <img src="https://www.crayeye.com/img/demo3.jpg" alt="CrayEye Demo 3" width="32%"/>
 </p>
 
-[![CrayEye Demo Video](https://img.youtube.com/vi/zIfYpHSKZIA/0.jpg)](https://www.youtube.com/watch?v=zIfYpHSKZIA)
+## Demo Video:
+<p align="center">
+  <a href="https://www.youtube.com/watch?v=zIfYpHSKZIA">
+    <img src="https://img.youtube.com/vi/zIfYpHSKZIA/0.jpg" />
+  </a>
+</p>
+[https://www.youtube.com/watch?v=zIfYpHSKZIA](https://www.youtube.com/watch?v=zIfYpHSKZIA)
 
 ## Setup
 
