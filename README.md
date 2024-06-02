@@ -5,7 +5,11 @@ Open-source multimodal LLM visual analysis utility.  Build & share AI vision pro
 
 Learn more via [https://crayeye.com](https://crayeye.com/)
 
-![CrayEye Demo 1](https://www.crayeye.com/img/demo1.jpg) ![CrayEye Demo 2](https://www.crayeye.com/img/demo2.jpg) ![CrayEye Demo 3](https://www.crayeye.com/img/demo3.jpg)
+<p align="center">
+  <img src="https://www.crayeye.com/img/demo1.jpg" alt="CrayEye Demo 1" width="300"/>
+  <img src="https://www.crayeye.com/img/demo2.jpg" alt="CrayEye Demo 2" width="300"/>
+  <img src="https://www.crayeye.com/img/demo3.jpg" alt="CrayEye Demo 3" width="300"/>
+</p>
 
 [![CrayEye Demo Video](https://img.youtube.com/vi/zIfYpHSKZIA/0.jpg)](https://www.youtube.com/watch?v=zIfYpHSKZIA)
 
