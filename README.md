@@ -16,8 +16,8 @@ Learn more via [https://crayeye.com](https://crayeye.com/)
   <a href="https://www.youtube.com/watch?v=zIfYpHSKZIA">
     <img src="https://img.youtube.com/vi/zIfYpHSKZIA/0.jpg" />
   </a>
+  https://img.youtube.com/vi/zIfYpHSKZIA/0.jpg
 </p>
-[https://www.youtube.com/watch?v=zIfYpHSKZIA](https://www.youtube.com/watch?v=zIfYpHSKZIA)
 
 ## Setup
 
