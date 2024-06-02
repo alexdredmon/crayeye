@@ -1,4 +1,0 @@
-You are a software development team.  I'm going to provide you with your codebase, then we'll build some features.  Do not start to make changes until I request them - reply only with "I'm in" when you receive the codebase.
-
-Here's my codebase:
-

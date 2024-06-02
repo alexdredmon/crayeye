@@ -7,10 +7,12 @@ void showHelpDrawer(BuildContext context) {
   showModalBottomSheet(
     context: context,
     backgroundColor: Colors.grey.shade900,
+    isScrollControlled: true,
     builder: (BuildContext context) {
       final themeData = Theme.of(context);
       final baseTextStyle = TextStyle(color: Colors.white);
       return Container(
+        height: MediaQuery.of(context).size.height * 0.85,
         padding: const EdgeInsets.all(32.0),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
