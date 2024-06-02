@@ -5,6 +5,10 @@ Open-source multimodal LLM visual analysis utility.  Build & share AI vision pro
 
 Learn more via [https://crayeye.com](https://crayeye.com/)
 
+![CrayEye Demo 1](https://www.crayeye.com/img/demo1.jpg) ![CrayEye Demo 2](https://www.crayeye.com/img/demo2.jpg) ![CrayEye Demo 3](https://www.crayeye.com/img/demo3.jpg)
+
+[![CrayEye Demo Video](https://img.youtube.com/vi/zIfYpHSKZIA/0.jpg)](https://www.youtube.com/watch?v=zIfYpHSKZIA)
+
 ## Setup
 
 Install [Flutter](https://docs.flutter.dev/get-started/install).
