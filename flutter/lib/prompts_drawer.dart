@@ -10,6 +10,7 @@ import 'prompts_drawer_buttons.dart';
 import 'prompts_drawer_methods.dart';
 import 'utils.dart';
 import 'dart:convert';
+import 'share_prompt_dialog.dart'; // Import the new dialog
 
 Future<void> showPromptsDrawer({
   required BuildContext context,
@@ -138,7 +139,6 @@ class _PromptsDrawerState extends State<PromptsDrawer> {
                       focusNode: _searchFocusNode,
                       onChanged: _updateSearchText,
                       style: TextStyle(color: Colors.white),
-                      // textAlign: TextAlign.right,
                       decoration: InputDecoration(
                         hintText: _searchFocusNode.hasFocus ? 'Search prompts... ' : '',
                         hintStyle: TextStyle(color: Colors.white54),
@@ -158,7 +158,7 @@ class _PromptsDrawerState extends State<PromptsDrawer> {
                                   Icons.search,
                                   color: Colors.white,
                                 ),
-                              )
+                              ),
                       ),
                     ),
                   ),
@@ -224,17 +224,11 @@ class _PromptsDrawerState extends State<PromptsDrawer> {
                         }
                       },
                       onSharePrompt: (title, prompt) {
-                        String titleEncoded = Uri.encodeComponent(title);
-                        String promptEncoded = Uri.encodeComponent(prompt);
-                        String titleSlug = Uri.encodeComponent(title);
-
-                        String shareUrl = 'crayeye://?title=$titleEncoded&prompt=$promptEncoded';
-                        if (shareUrl.length > 300) {
-                          shareUrl = '$title\n$prompt';
-                        } else {
-                          shareUrl = '$shareUrl\n\n$title\n$prompt';
-                        }
-                        Share.share(shareUrl);
+                        showSharePromptDialog(
+                          context: context,
+                          title: title,
+                          prompt: prompt,
+                        );
                       },
                       onPromptTapped: (uuid) {
                         widget.onPromptsUpdated(_prompts, uuid);
