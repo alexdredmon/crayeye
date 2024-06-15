@@ -33,25 +33,41 @@ void showHelpDrawer(BuildContext context) {
 CrayEye is a sensor analysis multitool which uses input from your camera, GPS, and other available sensors
 to execute customizable and user defined prompts against a multimodal large language model.
 
-You can create your own prompts or edit existing ones by clicking the settings icon (edit a prompt via the pencil icon).
+You can create your own prompts or edit existing ones by tapping the ^ icon and selecting the pencil icon from the prompt's context menu.
+
+Responses are formatted in markdown, so you can use and request markdown in your prompts to control formatting and include links and images.
 
 Your prompts can contain the following tokens which will be replaced with the respective real-time values from the user's device:
 
 **Latitude:** {location.lat}
 
-*e.g. 40.7128*
+- *e.g. 40.7128*
 
 **Longitude:** {location.long}
 
-*e.g. -74.0060*
+- *e.g. -74.0060*
 
 **Date/Time:** {time.datetime}
 
-*Wednesday, October 29 1969 at 10:30pm*
+- *e.g. Wednesday, October 29 1969 at 10:30pm*
+
+**Temperature:** {weather.temp}
+
+- *e.g. 75 degrees Fahrenheit*
+
+**Weather Forecast:** {weather.forecast}
+
+- *e.g. Partly cloudy with scattered showers, highs in the upper 70s.*
+
+Additionally, you can use the following tokens to interpolate some handy animations (or specify your own image URLS via markdown syntax).
 
 **GIFs:**
-{gif.yes}
-{gif.no}
+
+- {gif.yes}
+![Yes](https://www.crayeye.com/img/app/yes.gif)
+
+- {gif.no}
+![No](https://www.crayeye.com/img/app/no.gif)
 
 For more information visit [CrayEye.com](https://crayeye.com)
 """,
