@@ -35,6 +35,8 @@ to execute customizable and user defined prompts against a multimodal large lang
 
 You can create your own prompts or edit existing ones by tapping the ^ icon and selecting the pencil icon from the prompt's context menu.
 
+You can check out (and add) featured prompts which demonstrate CrayEye's capabilities via the [Prompt Library](https://www.crayeye.com/prompts#library).
+
 Responses are formatted in markdown, so you can use and request markdown in your prompts to control formatting and include links and images.
 
 Your prompts can contain the following tokens which will be replaced with the respective real-time values from the user's device:
