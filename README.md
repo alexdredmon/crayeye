@@ -1,4 +1,4 @@
-# crayeye
+![CrayEye](flutter/images/crayeye.png)
 
 Open-source multimodal LLM visual analysis utility.  Build & share AI vision prompts augmented with native device sensor data.
 
