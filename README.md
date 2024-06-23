@@ -1,6 +1,6 @@
 ![CrayEye](flutter/images/crayeye.png)
 
-Open-source multimodal LLM visual analysis utility.  Build & share AI vision prompts augmented with native device sensor data.
+Craft and share multimodal LLM vision prompts infused with real-world context from device sensors and APIs. Open-source & written by A.I.
 
 
 Learn more via [https://crayeye.com](https://crayeye.com/)
@@ -41,9 +41,6 @@ To contribute to this project, open a pull request or an issue.
 Install via the:
  - [Apple App Store](https://apps.apple.com/us/app/crayeye/id6480090992)
  - [Google Play Store](https://play.google.com/store/apps/details?id=com.crayeye.app)
-
-## How it's made
-CrayEye is the product of A.I. driven development.  [Read more](https://www.alexandriaredmon.com/blog/the-app-that-ai-made) about how it was created.
 
 ## Local models
 You can configure custom engines using the [OpenAPI spec](https://swagger.io/specification) which allows you to use any models you like.  Here's an example of how to run and connect to the open-source Llava model:
@@ -90,6 +87,9 @@ In CrayEye, add an [OpenAPI spec](https://swagger.io/specification) correspondin
 ```
 
 `responseShape` indicates which key(s) the response is expected in - for ollama, that's just "response" directly off the object returned by the API.
+
+## How it's made
+CrayEye is the product of A.I. driven development.  [Read more](https://www.alexandriaredmon.com/blog/the-app-that-ai-made) about how it was created.
 
 ## Backronym
 *"Cognitive Recognition Analysis Yielding Eye"*
