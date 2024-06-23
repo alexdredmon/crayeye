@@ -1,6 +1,6 @@
 ![CrayEye](flutter/images/crayeye.png)
 
-Open-source multimodal LLM visual analysis utility.  Build & share AI vision prompts augmented with native device sensor data.
+Craft and share multimodal LLM vision prompts infused with real-world context from device sensors and APIs. Open-source & written by A.I.
 
 
 Learn more via [https://crayeye.com](https://crayeye.com/)
@@ -12,13 +12,27 @@ Learn more via [https://crayeye.com](https://crayeye.com/)
 </p>
 
 ## Demo Video:
-<p align="center">
-  <a href="https://www.youtube.com/watch?v=R2vS3lyGwZU">
-    <img src="https://img.youtube.com/vi/R2vS3lyGwZU/0.jpg" />
-  </a>
-  
-  https://www.youtube.com/watch?v=zIfYpHSKZIA
+
+https://www.youtube.com/watch?v=R2vS3lyGwZU
+
+[![Demo Video](https://img.youtube.com/vi/R2vS3lyGwZU/0.jpg)](https://www.youtube.com/watch?v=R2vS3lyGwZU)
+
+## Install
+
+<p>
+  <a
+    href="https://apps.apple.com/us/app/crayeye/id6480090992"
+    target="_blank"
+  ><img src="https://www.crayeye.com/img/Download_on_the_App_Store_Badge_US-UK_RGB_blk_092917.png" alt="Download on the App Store" height="75" /></a>
+  &nbsp;&nbsp;&nbsp;
+  <a
+    href="https://play.google.com/store/apps/details?id=com.crayeye.app"
+    target="_blank"
+  ><img src="https://www.crayeye.com/img/GetItOnGooglePlay_Badge_Web_color_English.png" alt="Get it on Google Play" height="75" /></a>
 </p>
+
+ - [Apple App Store](https://apps.apple.com/us/app/crayeye/id6480090992)
+ - [Google Play Store](https://play.google.com/store/apps/details?id=com.crayeye.app)
 
 ## Setup
 
@@ -31,19 +45,6 @@ To start the local dev environment, from within the `./flutter` directory run `.
 ## Build
 
 To build the app for iOS/Android, you can use the `open_xcode.sh` or `open_android_studio.sh` scripts to open the corresponding SDK.  Within XCode, you can generate a build via Product->Archive, within Android SDK you can create a build via Build -> Generate Signed Bundle/APK.
-
-## Contributing
-
-To contribute to this project, open a pull request or an issue.
-
-## Install
-
-Install via the:
- - [Apple App Store](https://apps.apple.com/us/app/crayeye/id6480090992)
- - [Google Play Store](https://play.google.com/store/apps/details?id=com.crayeye.app)
-
-## How it's made
-CrayEye is the product of A.I. driven development.  [Read more](https://www.alexandriaredmon.com/blog/the-app-that-ai-made) about how it was created.
 
 ## Local models
 You can configure custom engines using the [OpenAPI spec](https://swagger.io/specification) which allows you to use any models you like.  Here's an example of how to run and connect to the open-source Llava model:
@@ -91,8 +92,15 @@ In CrayEye, add an [OpenAPI spec](https://swagger.io/specification) correspondin
 
 `responseShape` indicates which key(s) the response is expected in - for ollama, that's just "response" directly off the object returned by the API.
 
+## How it's made
+CrayEye is the product of A.I. driven development.  [Read more](https://www.alexandriaredmon.com/blog/the-app-that-ai-made) about how it was created.
+
 ## Backronym
 *"Cognitive Recognition Analysis Yielding Eye"*
+
+## Contributing
+
+To contribute to this project, open a pull request or an issue.
 
 ## License
 
