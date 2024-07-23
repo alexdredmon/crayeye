@@ -37,7 +37,7 @@ class FloatingActionButtons extends StatelessWidget {
       children: [
         if (!isAnalyzing && responseBody.isEmpty)
           FloatingActionButton(
-            backgroundColor: Color(0xFFff80ab),
+            backgroundColor: Color(0xFFff568a),
             onPressed: openFavorites,
             child: Icon(Icons.favorite),
             shape: CircleBorder(), // This ensures the button is fully round
@@ -75,7 +75,7 @@ class FloatingActionButtons extends StatelessWidget {
         if (!isAnalyzing && responseBody.isNotEmpty)
           FloatingActionButton(
             onPressed: addToFavorites,
-            backgroundColor: Color(0xFFff80ab),
+            backgroundColor: Color(0xFFff568a),
             shape: CircleBorder(), // This ensures the button is fully round
             child: Icon(
               Icons.favorite,

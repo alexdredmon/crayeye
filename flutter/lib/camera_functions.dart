@@ -1,6 +1,6 @@
-// FILENAME: camera_functions.dart
 import 'dart:async';
 import 'dart:convert';
+import 'dart:math';
 import 'dart:io';
 import 'package:camera/camera.dart';
 import 'package:http/http.dart' as http;
@@ -64,20 +64,19 @@ class CameraFunctions {
 
       String prompt = prompts.firstWhere((prompt) => prompt['id'] == selectedPromptUuid)['prompt']!;
       LocationPermission permission = await Geolocator.requestPermission();
+      Position? position;
+
       if (
-        prompt.contains("{location.")
+        (prompt.contains("{location.") || prompt.contains("{weather.")) // Check for weather placeholders as well
         && permission != LocationPermission.denied
         && permission != LocationPermission.deniedForever
       ) {
-        Position position = await Geolocator.getCurrentPosition(desiredAccuracy: LocationAccuracy.high);
+        position = await Geolocator.getCurrentPosition(desiredAccuracy: LocationAccuracy.high);
         if (prompt.contains("{location.lat}")) {
           prompt = prompt.replaceAll("{location.lat}", position.latitude.toString());
         }
         if (prompt.contains("{location.long}")) {
           prompt = prompt.replaceAll("{location.long}", position.longitude.toString());
-        }
-        if (prompt.contains("{location.alt}")) {
-          prompt = prompt.replaceAll("{location.alt}", position.altitude.toString());
         }
       }
 
@@ -92,6 +91,22 @@ class CameraFunctions {
       if (prompt.contains("{gif.")) {
         prompt = prompt.replaceAll("{gif.yes}", '![Yes](https://www.crayeye.com/img/app/yes.gif)');
         prompt = prompt.replaceAll("{gif.no}", '![No](https://www.crayeye.com/img/app/no.gif)');
+      }
+
+      if (prompt.contains("{weather.")) {
+        if (position != null) {
+          Map<String, String> weatherData = await _getWeatherData(position.latitude, position.longitude);
+          if (prompt.contains("{weather.temp}")) {
+            prompt = prompt.replaceAll("{weather.temp}", weatherData["temperature"] ?? 'N/A');
+          }
+          if (prompt.contains("{weather.forecast}")) {
+            prompt = prompt.replaceAll("{weather.forecast}", weatherData["detailedForecast"] ?? 'N/A');
+          }
+        } else {
+          prompt = prompt
+            .replaceAll("{weather.temp}", 'N/A')
+            .replaceAll("{weather.forecast}", 'N/A');
+        }
       }
 
       final engineTitle = selectedEngine['title'];
@@ -131,14 +146,14 @@ class CameraFunctions {
               String parsed = _parseResponse(data, responseShape);
               responseBody += parsed;
               onAnalysisComplete(imageFile, responseBody, true);
-            } else {
+            } else if(chunk != '') {
               try {
                 Map<String, dynamic> decodedChunk = jsonDecode(chunk);
                 String parsed = _parseResponse(decodedChunk, responseShape);
                 responseBody += parsed;
                 onAnalysisComplete(imageFile, responseBody, true);
               } catch (e) {
-                print("There was an error: $e");
+                print("There was an error decoding '$chunk': $e");
               }
             }
           }
@@ -182,6 +197,8 @@ class CameraFunctions {
     var body = json.decode(json.encode(bodyTemplate)); // deep copy
     String bodyString = json.encode(body);
 
+    // Properly escape newlines in the prompt and JSON string
+    prompt = prompt.replaceAll("\n", "\\n");
     bodyString = bodyString.replaceAll("{prompt}", prompt);
     bodyString = bodyString.replaceAll("{imageUrl}", "data:image/png;base64,$base64Image");
     bodyString = bodyString.replaceAll("{imageBase64}", "$base64Image");
@@ -204,6 +221,45 @@ class CameraFunctions {
       current = "";
     }
     return current.toString();
+  }
+
+  static Future<Map<String, String>> _getWeatherData(double latitude, double longitude) async {
+    Map<String, String> weatherData = {'temperature': 'N/A', 'detailedForecast': 'N/A'};
+
+    try {
+      // Round latitude and longitude to four decimal places
+      latitude = double.parse(latitude.toStringAsFixed(4));
+      longitude = double.parse(longitude.toStringAsFixed(4));
+
+      // Fetch the forecast URL
+      final pointUrl = 'https://api.weather.gov/points/$latitude,$longitude';
+      final pointResponse = await http.get(Uri.parse(pointUrl), headers: {
+        'User-Agent': '(CrayEye, email@alexredmon.com)',
+      });
+
+      if (pointResponse.statusCode == 200) {
+        final pointData = json.decode(pointResponse.body);
+        final forecastUrl = pointData['properties']['forecast'];
+
+        // Fetch the temperature and detailed forecast from the forecast URL
+        final forecastResponse = await http.get(Uri.parse(forecastUrl), headers: {
+          'User-Agent': '(CrayEye, email@alexredmon.com)',
+        });
+
+        if (forecastResponse.statusCode == 200) {
+          final forecastData = json.decode(forecastResponse.body);
+          final periods = forecastData['properties']['periods'];
+          final temperature = periods[0]['temperature'];
+          final detailedForecast = periods[0]['detailedForecast'];
+
+          weatherData['temperature'] = '$temperature degrees Fahrenheit';
+          weatherData['detailedForecast'] = detailedForecast;
+        }
+      }
+    } catch (e) {
+      print('Error fetching weather data: $e');
+    }
+    return weatherData;
   }
 }
 

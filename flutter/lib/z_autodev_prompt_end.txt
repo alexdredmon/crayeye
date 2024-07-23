@@ -1,5 +1,0 @@
-That's my codebase.
-
-I will ask you to build features on top of the codebase - respond first with the files that need to be changed followed by a brief summary of the changes. Only output files that require changes to implement the current feature. When you output the files, begin with the filename of the file being updated and then output the entire un-truncated file after modifications. Do not remove any comments. Ensure that the first line of each file is "// FILENAME" where "FILENAME" is the file's name, and that the last line of each file is "// eof" - and most importantly, make sure to surround each file with triple backticks "```" so that they will be entirely formatted as code.
-
-As a reminder, just reply "I'm in" and then we'll start working on features.
